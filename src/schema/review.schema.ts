@@ -7,7 +7,7 @@ import { Restaurant } from './restaurant.schema';
 
 export type ReviewDocument = mongoose.HydratedDocument<Review>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Review {
   @Prop({ required: true })
   title: string;
@@ -20,12 +20,6 @@ export class Review {
 
   @Prop({ type: [PhotoSchema], default: [] })
   photos: Photo[];
-
-  @Prop({ required: true })
-  createdAt: Date;
-
-  @Prop()
-  updatedAt: Date;
 
   @Prop({ required: true, type: mongoose.Types.ObjectId, ref: 'User' })
   userId: User;
