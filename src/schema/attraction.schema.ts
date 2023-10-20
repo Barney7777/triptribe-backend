@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from './photo.schema';
 import { BusinessTime, BusinessTimeSchema } from './businessTime.schema';
 import { Address, AddressSchema } from './address.schema';
-import { User } from './user.schema';
 
 export type AttractionDocument = mongoose.HydratedDocument<Attraction>;
 

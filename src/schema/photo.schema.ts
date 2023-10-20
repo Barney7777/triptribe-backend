@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { User } from './user.schema';
 
 enum PhotoType {
   ATTRACTION = 'attraction',
@@ -22,7 +21,7 @@ export class Photo {
   @Prop({ required: true, enum: PhotoType, default: PhotoType.USER })
   imageType: PhotoType;
 
-  @Prop({ required: true, type: mongoose.Types.ObjectId})
+  @Prop({ required: true, type: mongoose.Types.ObjectId })
   uploadUserId: mongoose.Types.ObjectId;
 }
 

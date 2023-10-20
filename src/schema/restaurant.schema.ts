@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from './photo.schema';
 import { BusinessTime, BusinessTimeSchema } from './businessTime.schema';
 import { Address, AddressSchema } from './address.schema';
-import { User } from './user.schema';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
@@ -56,8 +55,8 @@ export class Restaurant {
   @Prop({ type: [PhotoSchema], default: [] })
   photos: Photo[];
 
-  @Prop({ required: true, type: mongoose.Types.ObjectId, ref: 'User' })
-  createdUserId: User;
+  @Prop({ required: true, type: mongoose.Types.ObjectId })
+  createdUserId: mongoose.Types.ObjectId;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
