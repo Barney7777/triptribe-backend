@@ -49,7 +49,7 @@ $ npm run start:prod
 
 After starting the app, use postman to test the API
 
-The local development environment url of backend is localhost:8080
+The local development environment of backend is localhost:8080/api
 
 ## Test
 

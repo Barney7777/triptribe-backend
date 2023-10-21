@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from './photo.schema';
 import { User } from './user.schema';
-import { Attraction } from './attraction.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from './restaurant.schema';
 
 export type ReviewDocument = mongoose.HydratedDocument<Review>;

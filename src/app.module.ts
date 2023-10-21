@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import configuration from 'config/configuration';
+import { UserModule } from './user/user.module';
+import { AttractionModule } from './attraction/attraction.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import configuration from 'config/configuration';
           ? process.env.DATABASE_CONNECTION_URI
           : `mongodb://${configService.get('database.host')}:${configService.get(
               'database.port'
-            )}/tripTribeDb`,
+            )}/${configService.get('database.name')}`,
       }),
     }),
     ThrottlerModule.forRoot([
@@ -31,6 +32,7 @@ import configuration from 'config/configuration';
       },
     ]),
     UserModule,
+    AttractionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
