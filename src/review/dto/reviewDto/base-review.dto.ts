@@ -1,5 +1,4 @@
 import { Transform, Type } from 'class-transformer';
-import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 import {
   IsArray,
   IsDate,
@@ -12,29 +11,31 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { BasePhotoDto } from '../photoDto/base-photo.dto';
 
 export enum PlaceType {
   ATTRACTION = 'Attraction',
   RESTAURANT = 'Restaurant',
 }
 
-export class CreateReviewDto {
+export class BaseReviewDto {
   @IsString()
   title: string;
 
   @IsString()
   description: string;
 
+  @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(1)
   @Max(5)
   rating: number;
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePhotoDto)
-  photos: CreatePhotoDto[];
+  // @IsOptional()
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => BasePhotoDto)
+  // photos: BasePhotoDto[];
 
   @IsDate()
   @Transform(({ value }) => new Date(value))

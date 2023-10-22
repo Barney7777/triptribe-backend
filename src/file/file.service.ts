@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Photo, PhotoType } from '../schema/photo.schema';
 import { CreatePhotoDto } from './dto/create-photo.dto';
+import { UserIdDto } from '@/user/dto/userId.dto';
 
 @Injectable()
 export class FileUploadService {
@@ -23,7 +24,9 @@ export class FileUploadService {
       region: configService.get('AWS_DEFAULT_REGION'),
     });
   }
+
   async uploadPhoto(
+    userId: UserIdDto['_id'],
     files: Multer.File[],
     imageType: PhotoType
   ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
@@ -42,7 +45,12 @@ export class FileUploadService {
 
         try {
           const uploadedFile = await this.uploadSingleFileToS3(file);
-          result.data = await this.savePhotoToDatabase(file, uploadedFile.Location, imageType);
+          result.data = await this.savePhotoToDatabase(
+            userId,
+            file,
+            uploadedFile.Location,
+            imageType
+          );
           result.success = true;
         } catch (error) {
           result.data = `Error uploading to S3: ${error.message}`;
@@ -56,6 +64,7 @@ export class FileUploadService {
   }
 
   async savePhotoToDatabase(
+    userId: UserIdDto['_id'],
     file: Multer.File,
     imageUrl: string,
     imageType: PhotoType
@@ -64,7 +73,7 @@ export class FileUploadService {
       imageAlt: file.originalname,
       imageUrl: imageUrl,
       imageType,
-      uploadUserId: 'asdzxc123asdd12',
+      uploadUserId: userId,
     });
     return await photo.save();
   }

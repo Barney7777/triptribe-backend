@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 
 export enum PhotoType {
-  ATTRACTION = 'attraction',
-  RESTAURANT = 'restaurant',
-  USER = 'user',
-  REVIEW = 'review',
+  ATTRACTION = 'Attraction',
+  RESTAURANT = 'Restaurant',
+  USER = 'User',
+  REVIEW = 'Review',
 }
 
 export type PhotoDocument = mongoose.HydratedDocument<Photo>;
