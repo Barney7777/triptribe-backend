@@ -11,13 +11,17 @@ import { Photo, PhotoType } from '../schema/photo.schema';
 
 @Injectable()
 export class FileUploadService {
-  private s3 = new AWS.S3();
-
+  private s3: AWS.S3;
   constructor(
     private configService: ConfigService,
     @InjectModel(Photo.name) private readonly photoModel: Model<Photo>
-  ) {}
-
+  ) {
+    this.s3 = new AWS.S3({
+      accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
+      secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
+      region: configService.get('AWS_DEFAULT_REGION'),
+    });
+  }
   async uploadPhoto(
     files: Multer.File[]
   ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
