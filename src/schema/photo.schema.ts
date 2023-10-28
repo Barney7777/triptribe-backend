@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 
-enum PhotoType {
+export enum PhotoType {
   ATTRACTION = 'attraction',
   RESTAURANT = 'restaurant',
   USER = 'user',
@@ -10,7 +10,7 @@ enum PhotoType {
 
 export type PhotoDocument = mongoose.HydratedDocument<Photo>;
 
-@Schema({ _id: false })
+@Schema()
 export class Photo {
   @Prop({ required: true })
   imageAlt: string;
