@@ -5,13 +5,15 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration from 'config/configuration';
+import { FileUploadModule } from './file/file.module';
+
 import { UserModule } from './user/user.module';
 import { AttractionModule } from './attraction/attraction.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV ?? 'development'}`,
+      envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`],
       isGlobal: true,
       load: [configuration],
     }),
@@ -32,9 +34,10 @@ import { AttractionModule } from './attraction/attraction.module';
       },
     ]),
     UserModule,
+    FileUploadModule, 
     AttractionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
