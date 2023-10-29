@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AttractionService } from './attraction.service';
 import { AttractionController } from './attraction.controller';
-import { Attraction, AttractionSchema } from './schema/attraction.schema';
+import { Attraction, AttractionSchema } from '@/schema/attraction.schema';
 import { FileUploadModule } from '@/file/file.module';
 
 @Module({
@@ -13,4 +13,4 @@ import { FileUploadModule } from '@/file/file.module';
   controllers: [AttractionController],
   providers: [AttractionService],
 })
-export class AttractionModule {}
+export class AttractionModule { }

@@ -2,7 +2,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { hashSync } from 'bcryptjs';
 import * as mongoose from 'mongoose';
-import { Attraction } from '@/attraction/schema/attraction.schema';
+import { Attraction } from '@/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 
 enum UserRole {

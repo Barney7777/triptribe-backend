@@ -29,11 +29,11 @@ export class BaseAttractionDto {
   @Type(() => CreateAddressDto)
   address: CreateAddressDto;
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePhotoDto)
-  photos: CreatePhotoDto[];
+  // @IsOptional()
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => CreatePhotoDto)
+  // photos: CreatePhotoDto[];
 
   @IsMongoId()
   createdUserId: string;

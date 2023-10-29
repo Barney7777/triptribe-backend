@@ -30,7 +30,12 @@ export class FileUploadService {
     files: Multer.File[],
     imageType: PhotoType
   ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
-    const validationResult = this.validateFiles(files);
+
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No image files have been uploaded.');
+    }
+  
+     const validationResult = this.validateFiles(files);
 
     if (!validationResult.valid) {
       return validationResult.results;
@@ -104,6 +109,14 @@ export class FileUploadService {
     valid: boolean;
     results: { success: boolean; data: any; imageName?: string }[];
   } {
+
+    if (!Array.isArray(files)) {
+      return {
+        valid: false,
+        results: [{ success: false, data: 'No photos are provided for uploading.' }],
+      };
+    }
+
     const results = files.map((file) => {
       const result: { success: boolean; data: any; imageName?: string } = {
         success: false,
@@ -120,6 +133,11 @@ export class FileUploadService {
     });
 
     const valid = results.every((result) => result.success);
+
+    if (!valid) {
+      const errors = results.filter((result) => !result.success).map((result) => result.data);
+      throw new BadRequestException(`File validation failed: ${errors.join(', ')}`);
+    }
 
     return { valid, results };
   }
