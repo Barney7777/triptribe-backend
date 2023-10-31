@@ -22,7 +22,7 @@ export class Photo {
   imageType: PhotoType;
 
   @Prop({ required: true, type: mongoose.Types.ObjectId })
-  uploadUserId: mongoose.Types.ObjectId;
+  uploadUserId: string;
 }
 
 export const PhotoSchema = SchemaFactory.createForClass(Photo);

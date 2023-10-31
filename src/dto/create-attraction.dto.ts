@@ -9,7 +9,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreatePhotoDto } from './create-photo.dto';
+import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 import { CreateAddressDto } from './create-address.dto';
 import { CreateOpenHoursDto } from './create-openHours.dto';
 import { Type } from 'class-transformer';

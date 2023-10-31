@@ -10,7 +10,7 @@ export class AttractionService {
   async findOne(id: string): Promise<Attraction> {
     const attraction = await this.attractionModel.findById(id).exec();
     if (!attraction) {
-      throw new NotFoundException('attraction not existed');
+      throw new NotFoundException('this attraction does not exist');
     }
     return attraction;
   }

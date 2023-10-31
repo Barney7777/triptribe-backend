@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from './photo.schema';
 import { Attraction } from '@/attraction/schema/attraction.schema';
-import { Restaurant } from './restaurant.schema';
+import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 
 enum UserRole {
   ADMIN = 'admin',

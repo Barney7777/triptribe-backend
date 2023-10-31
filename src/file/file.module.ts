@@ -5,10 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Photo, PhotoSchema } from '@/schema/photo.schema';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
-  ],
-  providers: [FileUploadService], 
+  imports: [MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }])],
+  providers: [FileUploadService],
   controllers: [FileUploadController],
   exports: [FileUploadService],
 })

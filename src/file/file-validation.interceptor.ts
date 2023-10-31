@@ -13,11 +13,16 @@ export class FileValidationInterceptor implements NestInterceptor {
     const files: FileUploadDto[] = request.files;
 
     const invalidFiles: Array<{ file: FileUploadDto }> = [];
-    files.forEach((file) => {
-      if (!this.fileUploadService.validateImage(file) || !this.fileUploadService.validateFileSize(file)) {
-        invalidFiles.push({ file: file });
-      }
-    });
+    if (files) {
+      files.forEach((file) => {
+        if (
+          !this.fileUploadService.validateImage(file) ||
+          !this.fileUploadService.validateFileSize(file)
+        ) {
+          invalidFiles.push({ file: file });
+        }
+      });
+    }
 
     return next.handle().pipe(
       map((data) => {

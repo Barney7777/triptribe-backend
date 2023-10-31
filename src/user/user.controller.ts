@@ -4,7 +4,7 @@ import { User } from './schemas/user.schema';
 import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { ZodValidationPipe } from '../pipe/validation.pipe';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly appService: UserService) {}
 
