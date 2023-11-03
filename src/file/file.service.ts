@@ -8,6 +8,7 @@ import { allowedMimeTypes, maxSize } from './file-constants';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Photo, PhotoType } from '../schema/photo.schema';
+import { CreatePhotoDto } from './dto/create-photo.dto';
 
 @Injectable()
 export class FileUploadService {
@@ -23,7 +24,8 @@ export class FileUploadService {
     });
   }
   async uploadPhoto(
-    files: Multer.File[]
+    files: Multer.File[],
+    imageType: PhotoType
   ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
     const validationResult = this.validateFiles(files);
 
@@ -33,20 +35,17 @@ export class FileUploadService {
 
     const results = await Promise.all(
       files.map(async (file) => {
-        const result: { success: boolean; data: any; imageName?: string } = {
+        const result: { success: boolean; data: CreatePhotoDto | string; imageName?: string } = {
           success: false,
-          data: null,
+          data: '',
         };
 
         try {
-          result.data = await this.uploadSingleFileToS3(file);
+          const uploadedFile = await this.uploadSingleFileToS3(file);
+          result.data = await this.savePhotoToDatabase(file, uploadedFile.Location, imageType);
           result.success = true;
         } catch (error) {
           result.data = `Error uploading to S3: ${error.message}`;
-        }
-
-        if (result.success) {
-          await this.savePhotoToDatabase(file, result.data.Location);
         }
 
         return result;
@@ -56,14 +55,18 @@ export class FileUploadService {
     return results;
   }
 
-  async savePhotoToDatabase(file: Multer.File, imageUrl: string): Promise<void> {
+  async savePhotoToDatabase(
+    file: Multer.File,
+    imageUrl: string,
+    imageType: PhotoType
+  ): Promise<CreatePhotoDto> {
     const photo = new this.photoModel({
       imageAlt: file.originalname,
       imageUrl: imageUrl,
-      imageType: PhotoType.USER,
-      uploadUserId: 'user123',
+      imageType,
+      uploadUserId: 'asdzxc123asdd12',
     });
-    await photo.save();
+    return await photo.save();
   }
 
   async uploadSingleFileToS3(file: Multer.File): Promise<AWS.S3.ManagedUpload.SendData> {
@@ -88,7 +91,10 @@ export class FileUploadService {
     return result;
   }
 
-  validateFiles(files: Multer.File[]): { valid: boolean; results: { success: boolean; data: any; imageName?: string }[] } {
+  validateFiles(files: Multer.File[]): {
+    valid: boolean;
+    results: { success: boolean; data: any; imageName?: string }[];
+  } {
     const results = files.map((file) => {
       const result: { success: boolean; data: any; imageName?: string } = {
         success: false,

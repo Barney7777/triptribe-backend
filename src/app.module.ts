@@ -6,9 +6,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration from 'config/configuration';
 import { FileUploadModule } from './file/file.module';
-
 import { UserModule } from './user/user.module';
 import { AttractionModule } from './attraction/attraction.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -34,10 +34,11 @@ import { AttractionModule } from './attraction/attraction.module';
       },
     ]),
     UserModule,
-    FileUploadModule, 
     AttractionModule,
+    RestaurantModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

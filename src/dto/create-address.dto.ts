@@ -3,7 +3,7 @@ import { IsNumber, IsString, ValidateNested } from 'class-validator';
 
 class LocationDto {
   @IsNumber()
-  Lat: number;
+  lat: number;
 
   @IsNumber()
   lng: number;

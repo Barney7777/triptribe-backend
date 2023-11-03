@@ -4,7 +4,7 @@ import { CreateAddressDto } from '@/dto/create-address.dto';
 import { CreateOpenHoursDto } from '@/dto/create-openHours.dto';
 import { Type } from 'class-transformer';
 
-export class CreateAttractionDto {
+export class CreateRestaurantDto {
   @IsString()
   name: string;
 
@@ -23,15 +23,9 @@ export class CreateAttractionDto {
 
   @ValidateNested()
   @Type(() => CreateOpenHoursDto)
-  openHours: CreateAddressDto;
+  openHours: CreateOpenHoursDto;
 
   @ValidateNested()
   @Type(() => CreateAddressDto)
   address: CreateAddressDto;
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePhotoDto)
-  photos: CreatePhotoDto[];
 }

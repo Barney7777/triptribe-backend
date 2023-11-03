@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { CreatePhotoDto } from './create-photo.dto';
+import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 import {
   IsArray,
   IsDate,
