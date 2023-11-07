@@ -1,8 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { BaseUserDto, UserRole } from './base-user.dto';
+import { BaseUserDto, UserRole } from '@/user/dto/base-user.dto';
 import { Exclude } from 'class-transformer';
 
-export class CreateUserDto extends PartialType(BaseUserDto) {
+export class AuthRegisterDto extends PartialType(BaseUserDto) {
   @Exclude()
   nickname: string;
 

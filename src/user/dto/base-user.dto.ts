@@ -5,7 +5,7 @@ export enum UserRole {
   USER = 'user',
   BUSINESS_OWNER = 'businessOwner',
 }
-export class CreateUserDto {
+export class BaseUserDto {
   @IsEmail()
   email: string;
 
@@ -18,7 +18,6 @@ export class CreateUserDto {
   })
   password: string;
 
-  //need to check unique in service or controller
   @IsString()
   nickname: string;
 

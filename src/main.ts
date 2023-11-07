@@ -8,12 +8,11 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors();
 
+  app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
   });
-  app.useGlobalPipes(new ValidationPipe());
-
   await app.listen(process.env.PORT || 8080);
 }
 

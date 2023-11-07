@@ -1,13 +1,12 @@
 import { Model } from 'mongoose';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
+import { User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-
-  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
@@ -18,29 +17,34 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
+    // check if user already existed
     const user = await this.userModel.findOne({ email: createUserDto.email });
     if (user) {
       throw new ConflictException('user existed');
     }
-    const createdUser = new this.userModel(createUserDto);
+
+    // generate default nickname
+    const nicknameArray = createUserDto.email?.split('@') as string[];
+    let nickname = nicknameArray[0];
+
+    // check if duplicate nickname exist
+    const sameNicknameUser = await this.userModel.find({ nickname: nickname });
+
+    // if duplicate nickname exist
+    if (sameNicknameUser.length > 0) {
+      // check if similar nickname exist
+      const similarNicknameUser = await this.userModel.find({
+        nickname: { $regex: `^${nickname}#` },
+      });
+
+      // assign number to nickname for nickname unique
+      const number = similarNicknameUser.length + 1;
+      nickname = `${nickname}#${number}`;
+    }
+
+    // put nickname into createUserData
+    const createUserData = { ...createUserDto, nickname };
+    const createdUser = new this.userModel(createUserData);
     return createdUser.save();
-  }
-
-  async createUser({ email, password }: { email: string, password: string }): Promise<User> {
-    const createdUser = await this.userModel.create({ email, password });
-    console.log(createdUser);
-
-    return createdUser.toObject()
-  }
-
-  async findOneByEmail({ email }: { email: string }): Promise<User | null> {
-    const user = await this.userModel.findOne({ email })
-    return user
-  }
-  async updateToken({ _id, token }) {
-    await this.userModel.updateOne({ _id }, { token })
-  }
-  async findByEmail(email: string) {
-    return await this.userModel.findOne({ email })
   }
 }
