@@ -43,7 +43,11 @@ export class RestaurantService {
       return await createdRestaurant.save();
     }
 
-    const results = await this.fileUploadService.uploadPhoto(files, PhotoType.RESTAURANT);
+    const results = await this.fileUploadService.uploadPhoto(
+      this.currentUserId,
+      files,
+      PhotoType.RESTAURANT
+    );
     const photos = results.map((photo) => photo.data);
 
     const restaurant = {
@@ -78,7 +82,11 @@ export class RestaurantService {
     }
 
     // update photos if adding new
-    const results = await this.fileUploadService.uploadPhoto(files, PhotoType.RESTAURANT);
+    const results = await this.fileUploadService.uploadPhoto(
+      this.currentUserId,
+      files,
+      PhotoType.RESTAURANT
+    );
     const photos = results.map((photo) => photo.data);
     // TODO: update photos if photos order change
     const newPhotos = [...restPhotos, ...photos];
