@@ -1,17 +1,5 @@
-import { Transform, Type } from 'class-transformer';
-import {
-  IsArray,
-  IsDate,
-  IsEnum,
-  IsInt,
-  IsMongoId,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  ValidateNested,
-} from 'class-validator';
-import { BasePhotoDto } from '../photoDto/base-photo.dto';
+import { Transform } from 'class-transformer';
+import { IsDate, IsEnum, IsInt, IsMongoId, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export enum PlaceType {
   ATTRACTION = 'Attraction',

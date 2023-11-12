@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import { IsNumber, IsString, ValidateNested } from 'class-validator';
-
 class LocationDto {
   @IsNumber()
   lat: number;
