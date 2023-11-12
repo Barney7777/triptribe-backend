@@ -1,4 +1,4 @@
-import { UpdatePhotoDto } from "@/review/dto/photoDto/update-photo.dto";
+import { UpdatePhotoDto } from '@/review/dto/photoDto/update-photo.dto';
 
 export interface ICreateAttaraction {
   name?: string;
@@ -8,5 +8,4 @@ export interface ICreateAttaraction {
   phone?: string;
   createdUserId: string;
   photos?: UpdatePhotoDto[];
-
 }

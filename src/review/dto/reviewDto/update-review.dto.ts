@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Exclude, Type } from 'class-transformer';
-import { IsArray, IsMongoId, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { BaseReviewDto } from './base-review.dto';
 import { UpdatePhotoDto } from '../photoDto/update-photo.dto';
 

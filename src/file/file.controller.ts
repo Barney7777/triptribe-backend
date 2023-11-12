@@ -1,10 +1,8 @@
-import { Controller, Post, UseInterceptors, UploadedFiles, Res } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { FileUploadService } from './file.service';
-import { FileUploadDto } from './dto/file-upload.dto';
+
 import { FileValidationInterceptor } from './file-validation.interceptor';
-import { Response } from 'express';
-import { PhotoType } from '@/schema/photo.schema';
 
 @Controller('photo')
 @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)

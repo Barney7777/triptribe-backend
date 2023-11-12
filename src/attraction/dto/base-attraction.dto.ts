@@ -4,7 +4,6 @@ import { CreateOpenHoursDto } from '@/dto/create-openHours.dto';
 import { Type } from 'class-transformer';
 import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 
-
 export class BaseAttractionDto {
   @IsString()
   name: string;
