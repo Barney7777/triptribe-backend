@@ -7,6 +7,7 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './schema/restaurant.schema';
 import { PhotoType } from '@/schema/photo.schema';
+import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
 @Injectable()
 export class RestaurantService {
   private currentUserId;
@@ -108,5 +109,52 @@ export class RestaurantService {
       throw new ForbiddenException('You have no permission to access this resource!');
     }
     return restaurant;
+  }
+
+  async findByKeyword(searchInfoDto: GlobalSearchDto): Promise<Restaurant[]> {
+    const { keyword, limit, maxDistance, location } = searchInfoDto;
+
+    if (!location) {
+      const restaurants = await this.restaurantModel
+        .find({
+          $or: [
+            { name: { $regex: new RegExp(keyword, 'i') } },
+            { description: { $regex: new RegExp(keyword, 'i') } },
+          ],
+        })
+        .limit(limit)
+        .lean()
+        .exec();
+
+      return restaurants;
+    }
+
+    const restaurants = await this.restaurantModel.aggregate([
+      {
+        $geoNear: {
+          near: { type: 'Point', coordinates: [location.lng, location.lat] },
+          distanceField: 'distance',
+          spherical: true,
+          maxDistance: maxDistance || 10000,
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: { $regex: new RegExp(keyword, 'i') } },
+            { description: { $regex: new RegExp(keyword, 'i') } },
+          ],
+        },
+      },
+      {
+        $sort: {
+          distance: 1,
+        },
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+    return restaurants;
   }
 }

@@ -5,13 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { ICreateAttaraction } from './types/interfaces/createAttraction.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreateAttractionDto } from './dto/attractionDto/create-attraction.dto';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
+import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
 import { FileUploadService } from '@/file/file.service';
 import { UpdateAttractionDto } from './dto/attractionDto/update-attraction.dto';
 import { UpdatePhotoDto } from './dto/photoDto/update-photo.dto';
@@ -19,16 +19,16 @@ import { PhotoType } from '@/schema/photo.schema';
 import { isValidObjectId } from 'mongoose';
 import { QueryAttractionDto } from '@/attraction/dto/attractionDto/query-attraction.dto';
 
-interface SaveToDatabase {
-  name?: string;
-  description?: string;
-  website?: string;
-  email?: string;
-  phone?: string;
-  // photos:CreatePhotoDto[];
-  createdUserId: string;
-  overAllRating: number;
-}
+// interface SaveToDatabase {
+//   name?: string;
+//   description?: string;
+//   website?: string;
+//   email?: string;
+//   phone?: string;
+//   // photos:CreatePhotoDto[];
+//   createdUserId: string;
+//   overAllRating: number;
+// }
 
 @Injectable()
 export class AttractionService {
@@ -68,6 +68,52 @@ export class AttractionService {
     const newAttraction: ICreateAttaraction = { ...attractionDto, createdUserId: userId, photos };
     const createdAttraction = await this.attractionModel.create(newAttraction);
     return createdAttraction;
+  }
+
+  async findByKeyword(searchInfoDto: GlobalSearchDto): Promise<Attraction[]> {
+    const { keyword, limit, maxDistance, location } = searchInfoDto;
+
+    if (!location) {
+      const attractions = await this.attractionModel
+        .find({
+          $or: [
+            { name: { $regex: new RegExp(keyword, 'i') } },
+            { description: { $regex: new RegExp(keyword, 'i') } },
+          ],
+        })
+        .limit(limit)
+        .lean()
+        .exec();
+      return attractions;
+    }
+
+    const attractions = await this.attractionModel.aggregate([
+      {
+        $geoNear: {
+          near: { type: 'Point', coordinates: [location.lng, location.lat] },
+          distanceField: 'distance',
+          spherical: true,
+          maxDistance: maxDistance || 10000,
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: { $regex: new RegExp(keyword, 'i') } },
+            { description: { $regex: new RegExp(keyword, 'i') } },
+          ],
+        },
+      },
+      {
+        $sort: {
+          distance: 1,
+        },
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+    return attractions;
   }
 
   async uploadPhoto(userId: UserIdDto['_id'], files: FileUploadDto[]) {

@@ -8,11 +8,11 @@ import { AppService } from './app.service';
 import { ReviewModule } from './review/review.module';
 import configuration from '../config/configuration';
 import { FileUploadModule } from './file/file.module';
-
 import { UserModule } from './user/user.module';
 import { AttractionModule } from './attraction/attraction.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { FakerModule } from './faker/faker.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -44,6 +44,7 @@ import { FakerModule } from './faker/faker.module';
     FileUploadModule,
     ReviewModule,
     FakerModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
