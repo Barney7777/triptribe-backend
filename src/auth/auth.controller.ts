@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  // UseFilters,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -7,6 +14,7 @@ import { CurrentUser } from './CurrentUser.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { BullBoardInstance, InjectBullBoard } from '@bull-board/nestjs';
 
 @Controller({
   path: 'auth',
@@ -14,7 +22,10 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 })
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @InjectBullBoard() private readonly boardInstance: BullBoardInstance
+  ) {}
 
   @ApiOperation({
     summary: 'Register',
@@ -37,9 +48,10 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 409, description: 'Conflict' })
   @Post('register')
-  register(@Body() authRegisterDto: AuthRegisterDto) {
+  register(@Body() authRegisterDto: AuthRegisterDto, @Req() req) {
+    const hostname = req.hostname;
     const registerData = plainToClass(AuthRegisterDto, authRegisterDto);
-    return this.authService.register(registerData);
+    return this.authService.register(registerData, hostname);
   }
 
   @ApiOperation({
@@ -97,5 +109,50 @@ export class AuthController {
   async resetPassword(@CurrentUser() currentUser, @Body() newPassword: ResetPasswordDto) {
     const userId = currentUser._id;
     return await this.authService.resetPassword(userId, newPassword);
+  }
+
+  @ApiOperation({
+    summary: 'Email validation',
+    description: 'User email validate successfully',
+  })
+  @ApiBody({
+    description: 'User email to validate',
+    schema: {
+      type: 'object',
+      required: ['email', 'token', 'createdUserId'],
+      properties: {
+        email: { type: 'string', example: 'triptribeuser@triptribe.com' },
+        token: { type: 'string' },
+        createdUserId: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'User email validate successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Post('verify')
+  async verifyUserEmail(@Body('token') token: string) {
+    const isEmailVerified = await this.authService.verifyEmail(token);
+    return isEmailVerified;
+  }
+
+  @ApiOperation({
+    summary: 'Refresh Email Token',
+    description: 'Refresh Email Token in database',
+  })
+  @ApiBody({
+    description: 'Refresh Email Token',
+    schema: {
+      type: 'object',
+      required: ['token'],
+      properties: {
+        token: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Check user email validate status successfully' })
+  @Post('resend-email')
+  async refreshUserEmailToken(@Body('token') token: string, @Req() req) {
+    const hostname = req.hostname;
+    return await this.authService.refreshEmailToken(token, hostname);
   }
 }

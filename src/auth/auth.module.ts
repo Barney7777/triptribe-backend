@@ -10,6 +10,8 @@ import { JwtStrategy } from './jwt.strategy';
 import { EmailConsumer } from './consumers/email.consumer';
 import { BullModule } from '@nestjs/bull';
 import { QUEUE_NAME_SEND_EMAIL } from '@/common/constant/queue.constant';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Module({
   imports: [
@@ -23,6 +25,10 @@ import { QUEUE_NAME_SEND_EMAIL } from '@/common/constant/queue.constant';
     }),
     BullModule.registerQueue({
       name: QUEUE_NAME_SEND_EMAIL,
+    }),
+    BullBoardModule.forFeature({
+      name: QUEUE_NAME_SEND_EMAIL,
+      adapter: BullMQAdapter,
     }),
   ],
   controllers: [AuthController],

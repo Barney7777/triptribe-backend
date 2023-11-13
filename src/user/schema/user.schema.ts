@@ -67,6 +67,9 @@ export class User {
   @Field(() => Photo)
   @Prop({ type: PhotoSchema })
   userAvatar: Photo;
+
+  @Prop()
+  emailToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
