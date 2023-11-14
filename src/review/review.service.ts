@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/reviewDto/create-review.dto';
 import { UpdateReviewDto } from './dto/reviewDto/update-review.dto';
 import { Review } from './schema/review.schema';
@@ -11,6 +11,7 @@ import { PhotoType } from '@/schema/photo.schema';
 import { QueryReviewDto } from './dto/reviewDto/query-review.dto';
 import { Ireview } from './types/interfaces/review.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
+import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 
 @Injectable()
 export class ReviewService {
@@ -18,13 +19,32 @@ export class ReviewService {
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     private readonly fileUploadService: FileUploadService
   ) {}
-
   async create(files: FileUploadDto[], reviewDto: CreateReviewDto, userId: UserIdDto['_id']) {
-    // call uploadPhoto function, set 'files' as param
-    const newPicArray = await this.uploadPhoto(userId, files);
+    let photoDocuments: CreatePhotoDto[] = []; // Explicitly specify the type as CreatePhotoDto[]
+
+    if (files && files.length > 0) {
+      const uploadResults = await this.fileUploadService.uploadPhoto(
+        userId,
+        files,
+        PhotoType.REVIEW
+      );
+
+      // Filter out unsuccessful upload results and map them to CreatePhotoDto
+      photoDocuments = uploadResults
+        .filter((result) => result.success) // Filter out unsuccessful uploads
+        .map((result) => {
+          // Map to CreatePhotoDto
+          return {
+            imageUrl: result.data.imageUrl,
+            imageAlt: result.data.imageAlt,
+            imageType: PhotoType.REVIEW,
+            uploadUserId: result.data.uploadUserId, // Use @CurrentUser decorator to get the current user ID
+          };
+        });
+    }
 
     // spread reviewDto and put "photos" and "userId" together in reviewData
-    const reviewData: Ireview = { ...reviewDto, userId, photos: newPicArray };
+    const reviewData: Ireview = { ...reviewDto, userId, photos: photoDocuments };
     // console.log('reviewData', reviewData);
 
     const review = await this.reviewModel.create(reviewData);
@@ -38,6 +58,9 @@ export class ReviewService {
 
   async findOne(id: QueryReviewDto['id']) {
     const review = await this.reviewModel.findById(id).exec();
+    if (!review) {
+      throw new NotFoundException('The review does not exist');
+    }
     return review;
   }
 
