@@ -33,7 +33,7 @@ export class AttractionService {
     attractionDto: CreateAttractionDto,
     files: FileUploadDto[]
   ): Promise<Attraction> {
-    if (files.length === 0) {
+    if (!files) {
       const newAttraction: ICreateAttaraction = {
         ...attractionDto,
         createdUserId: userId,
