@@ -19,7 +19,6 @@ import { PhotoType } from '@/schema/photo.schema';
 import { isValidObjectId } from 'mongoose';
 import { QueryAttractionDto } from '@/attraction/dto/attractionDto/query-attraction.dto';
 
-
 interface SaveToDatabase {
   name?: string;
   description?: string;
@@ -71,10 +70,7 @@ export class AttractionService {
     return createdAttraction;
   }
 
-  async uploadPhoto(
-    userId: UserIdDto['_id'],
-    files: FileUploadDto[],
-  ) {
+  async uploadPhoto(userId: UserIdDto['_id'], files: FileUploadDto[]) {
     if (files.length === 0) {
       return [];
     }
@@ -110,7 +106,7 @@ export class AttractionService {
 
     const current_userId = userId;
     const attractionData = await this.findOneFromMe(id, current_userId);
-    const previousPhotos  = attractionData?.photos;
+    const previousPhotos = attractionData?.photos;
     const currentPhotos = updateAttractionDto.photos || [];
 
     const deletePhotos = previousPhotos?.filter((photo) => {
@@ -125,20 +121,18 @@ export class AttractionService {
     }
 
     let newPicArray;
-    try {
-      newPicArray = (await this.uploadPhoto(
-        current_userId,
-        files as any,
-      )) as UpdatePhotoDto[];
-    } catch (error) {
-      throw error;
+    if (files && files.length > 0) {
+      newPicArray = (await this.uploadPhoto(userId, files)) as UpdatePhotoDto[];
     }
-    if (updateAttractionDto.photos) {
-      updateAttractionDto.photos.push(...newPicArray);
-    } else {
-      updateAttractionDto.photos = newPicArray;
+
+    if (!updateAttractionDto.photos) {
+      updateAttractionDto.photos = [];
     }
-    const dataToUpdate = { ...updateAttractionDto, userId: current_userId };
+
+    updateAttractionDto.photos.push(...newPicArray);
+
+    const dataToUpdate = { ...updateAttractionDto, userId: userId };
+
     try {
       const updatedAttraction = await this.attractionModel
         .findByIdAndUpdate(id, dataToUpdate, { new: true })
@@ -149,7 +143,6 @@ export class AttractionService {
     }
   }
 
-  
   async findOneFromMe(attractionId: string, current_userId: string) {
     // find userId relate to review and compare with current userId
     const attractionData = await this.findOne(attractionId);
