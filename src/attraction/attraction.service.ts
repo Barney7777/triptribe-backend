@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
-import { Attraction } from '@/schema/attraction.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import { ICreateAttaraction } from './types/interfaces/createAttraction.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreateAttractionDto } from './dto/attractionDto/create-attraction.dto';

@@ -1,9 +1,9 @@
-// just for test, will change to Jess's final schema file when need
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { hashSync } from 'bcryptjs';
 import * as mongoose from 'mongoose';
-import { Attraction } from '@/schema/attraction.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { Photo, PhotoSchema } from '@/schema/photo.schema';
 
 enum UserRole {
   ADMIN = 'admin',
@@ -43,8 +43,8 @@ export class User {
   @Prop()
   description: string;
 
-  @Prop()
-  authToken: string;
+  // @Prop()
+  // authToken: string;
 
   @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Attraction' }] })
   savedAttractions: Attraction[];
@@ -52,8 +52,8 @@ export class User {
   @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Restaurant' }] })
   savedRestaurants: Restaurant[];
 
-  // @Prop({ type: PhotoSchema, default: [] })
-  // userAvatar: Photo;
+  @Prop({ type: [PhotoSchema], default: [] })
+  userAvatar: Photo;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

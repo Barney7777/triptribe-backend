@@ -6,12 +6,13 @@ import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ReviewModule } from './review/review.module';
-import configuration from 'config/configuration';
+import configuration from '../config/configuration';
 import { FileUploadModule } from './file/file.module';
 
 import { UserModule } from './user/user.module';
 import { AttractionModule } from './attraction/attraction.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { FakerModule } from './faker/faker.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
     RestaurantModule,
     FileUploadModule,
     ReviewModule,
+    FakerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

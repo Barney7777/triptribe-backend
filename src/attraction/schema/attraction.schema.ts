@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { Photo, PhotoSchema } from './photo.schema';
-import { BusinessTime, BusinessTimeSchema } from './businessTime.schema';
-import { Address, AddressSchema } from './address.schema';
+import { Photo, PhotoSchema } from '@/schema/photo.schema';
+import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
+import { Address, AddressSchema } from '@/schema/address.schema';
 
 export type AttractionDocument = mongoose.HydratedDocument<Attraction>;
 

@@ -26,13 +26,13 @@ export class Restaurant {
   @Prop({
     _id: false,
     type: {
-      Monday: { BusinessTimeSchema },
-      Tuesday: { BusinessTimeSchema },
-      Wednesday: { BusinessTimeSchema },
-      Thursday: { BusinessTimeSchema },
-      Friday: { BusinessTimeSchema },
-      Saturday: { BusinessTimeSchema },
-      Sunday: { BusinessTimeSchema },
+      Monday: BusinessTimeSchema,
+      Tuesday: BusinessTimeSchema,
+      Wednesday: BusinessTimeSchema,
+      Thursday: BusinessTimeSchema,
+      Friday: BusinessTimeSchema,
+      Saturday: BusinessTimeSchema,
+      Sunday: BusinessTimeSchema,
     },
     default: {},
   })
