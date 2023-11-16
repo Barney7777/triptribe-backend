@@ -10,6 +10,8 @@ export class FileValidationInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
+    console.log('Interceptor - Received _id:', request.params.id);
+    console.log('Interceptor - Received body:', request.body);
     const files: FileUploadDto[] = request.files;
 
     const invalidFiles: Array<{ file: FileUploadDto }> = [];
