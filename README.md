@@ -43,6 +43,9 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# generate fake data for testing or staging
+$ npm run db:seed
 ```
 
 ## Test API
@@ -64,7 +67,7 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-```
+````
 
 ## Test API
 
@@ -82,15 +85,15 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
-```
+````
 
 ## Test the file API (Before your test, please make sure you have the AWS Access Key pare. If not, please contact DevOps)
 
 1. Place your AWS Access Key pare into the .env.development
 
-2. Use the current URL: 
+2. Use the current URL:
 
-  http://localhost:8080/api/photo/upload
+http://localhost:8080/api/photo/upload
 
 3. Switch the request mathed to POST
 
@@ -98,6 +101,6 @@ $ npm run test:cov
 
 5. Select form-data mathod
 
-6. Set the key as files and switch 'text' to 'file' in the field 
+6. Set the key as files and switch 'text' to 'file' in the field
 
 7. Select photos to upload. (The maxium number of uploads is 10 and must not exceed 10 MB, and must be jpeg, png, or gif.)

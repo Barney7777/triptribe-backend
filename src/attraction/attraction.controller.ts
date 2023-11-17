@@ -13,7 +13,7 @@ import {
   Version,
 } from '@nestjs/common';
 import { AttractionService } from './attraction.service';
-import { Attraction } from '@/schema/attraction.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { CreateAttractionDto } from './dto/attractionDto/create-attraction.dto';
@@ -53,7 +53,6 @@ export class AttractionController {
     const attractionDto = plainToClass(CreateAttractionDto, createAttractionDto);
     return await this.attractionService.create(userId, attractionDto, files);
   }
-
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))

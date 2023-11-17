@@ -5,7 +5,7 @@ export class Address {
   @Prop({ required: true })
   formattedAddress: string;
 
-  @Prop({ _id: false, required: true, type: { lat: Number, lng: Number } })
+  @Prop({ _id: false, required: true, type: { lat: Number, lng: Number }, index: '2dsphere' })
   location: {
     lat: number;
     lng: number;
