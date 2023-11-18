@@ -5,6 +5,8 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { plainToClass } from 'class-transformer';
 import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
+import { CurrentUser } from './CurrentUser.decorator';
+import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Controller({
   path: 'auth',
@@ -12,7 +14,7 @@ import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 })
 @UseFilters(AllExceptionsFilter)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   register(@Body() authRegisterDto: AuthRegisterDto) {
@@ -35,5 +37,13 @@ export class AuthController {
   @Post('refreshToken')
   refreshToken(@Body() params: RefreshTokenDto) {
     return this.authService.refreshToken(params.refreshToken);
+  }
+
+
+  @Post("password")
+  @UseGuards(AuthGuard('jwt'))
+  async editPassword(@CurrentUser() currentUser, @Body() newPassword: EditPasswordDto) {
+    const userId = currentUser._id
+    return await this.authService.editPassword(userId, newPassword);
   }
 }

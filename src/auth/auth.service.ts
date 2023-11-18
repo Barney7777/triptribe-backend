@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from '@/user/user.service';
 import { UserDocument } from '@/user/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import dayjs from 'dayjs';
+import { EditPasswordDto } from './dto/edit-password.dto';
+import { UserIdDto } from '@/user/dto/userId.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   async register(registerData: AuthRegisterDto) {
     const user = await this.userService.create(registerData);
@@ -96,5 +98,16 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(String(userId));
 
     return { accessToken };
+  }
+
+  async editPassword(userId: UserIdDto['_id'], newPassword: EditPasswordDto) {
+    const userIdToString = String(userId)
+    const user = await this.userService.findOne(userIdToString)
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+    const editedUser = await this.userService.updatePassword(userId, newPassword);
+    return editedUser;
+
   }
 }

@@ -1,12 +1,14 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserIdDto } from './dto/userId.dto';
+import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
@@ -46,5 +48,15 @@ export class UserService {
     const createUserData = { ...createUserDto, nickname };
     const createdUser = new this.userModel(createUserData);
     return createdUser.save();
+  }
+
+  async updatePassword(userId: string, newPassword: EditPasswordDto) {
+    const { newPassword: checkedNewpassword } = newPassword
+    const res = await this.userModel.updateOne(
+      { _id: userId },
+      { $set: { password: checkedNewpassword } },
+      { new: true }
+    )
+    return res;
   }
 }
