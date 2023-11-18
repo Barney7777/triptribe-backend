@@ -1,5 +1,4 @@
 import { Model } from 'mongoose';
-import { Multer } from 'multer';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
@@ -8,23 +7,21 @@ import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './schema/restaurant.schema';
 import { PhotoType } from '@/schema/photo.schema';
 import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
+import { UserIdDto } from '@/user/dto/userId.dto';
+import { FileUploadDto } from '@/file/dto/file-upload.dto';
 @Injectable()
 export class RestaurantService {
-  private currentUserId;
-
   constructor(
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
     private readonly fileUploadService: FileUploadService
-  ) {
-    this.currentUserId = 'asdzxc123asdd12';
-  }
+  ) {}
 
   async findAll(): Promise<Restaurant[]> {
     return await this.restaurantModel.find().exec();
   }
 
   async findOne(id: string): Promise<Restaurant> {
-    const restaurant = await this.restaurantModel.findById(id).exec();
+    const restaurant = await this.restaurantModel.findById(id.toString()).exec();
     if (!restaurant) {
       throw new NotFoundException('this restaurant does not exist');
     }
@@ -33,18 +30,19 @@ export class RestaurantService {
 
   async create(
     createRestaurantDto: CreateRestaurantDto,
-    files: Multer.File[]
+    createdUserId: UserIdDto['_id'],
+    files?: FileUploadDto[]
   ): Promise<Restaurant> {
     if (!files || !files.length) {
       const restaurant = {
         ...createRestaurantDto,
-        createdUserId: this.currentUserId,
+        createdUserId,
       };
       const createdRestaurant = new this.restaurantModel(restaurant);
       return await createdRestaurant.save();
     }
     const results = await this.fileUploadService.uploadPhoto(
-      this.currentUserId,
+      createdUserId,
       files,
       PhotoType.RESTAURANT
     );
@@ -53,7 +51,7 @@ export class RestaurantService {
     const restaurant = {
       ...createRestaurantDto,
       photos,
-      createdUserId: this.currentUserId,
+      createdUserId,
     };
 
     const createdRestaurant = new this.restaurantModel(restaurant);
@@ -63,9 +61,10 @@ export class RestaurantService {
   async update(
     id: string,
     updateRestaurantDto: UpdateRestaurantDto,
-    files: Multer.File[]
+    createdUserId: UserIdDto['_id'],
+    files?: FileUploadDto[]
   ): Promise<Restaurant> {
-    const { photos: currentPhotos } = await this.verifyRestaurant(id, this.currentUserId);
+    const { photos: currentPhotos } = await this.verifyRestaurant(id, createdUserId);
 
     const restPhotos = currentPhotos.filter(
       (photo) => updateRestaurantDto.photos?.some((p) => p.imageUrl === photo.imageUrl)
@@ -84,7 +83,7 @@ export class RestaurantService {
 
     // update photos if adding new
     const results = await this.fileUploadService.uploadPhoto(
-      this.currentUserId,
+      createdUserId,
       files,
       PhotoType.RESTAURANT
     );

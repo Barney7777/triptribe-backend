@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ReviewModule } from './review/review.module';
@@ -13,6 +15,7 @@ import { AttractionModule } from './attraction/attraction.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { FakerModule } from './faker/faker.module';
 import { SearchModule } from './search/search.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -37,6 +40,15 @@ import { SearchModule } from './search/search.module';
         limit: 10,
       },
     ]),
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        sortSchema: true,
+        playground: true,
+        autoSchemaFile: join(process.cwd(), `${configService.get('graphql.autoSchemaFile')}`),
+      }),
+    }),
     UserModule,
     AuthModule,
     AttractionModule,

@@ -1,21 +1,28 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  LoggerService,
+  InternalServerErrorException,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
-import { Multer } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { FileUploadDto } from './dto/file-upload.dto';
-import { allowedMimeTypes, maxSize } from './file-constants';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Photo, PhotoType } from '../schema/photo.schema';
-import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
+import { FileUploadDto } from './dto/file-upload.dto';
+import { Readable } from 'stream';
+import { IUpload } from './dto/upload.interface';
 
 @Injectable()
 export class FileUploadService {
   private s3: AWS.S3;
+  private readonly loggerService: LoggerService;
+
   constructor(
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
     @InjectModel(Photo.name) private readonly photoModel: Model<Photo>
   ) {
     this.s3 = new AWS.S3({
@@ -23,44 +30,25 @@ export class FileUploadService {
       secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
       region: configService.get('AWS_DEFAULT_REGION'),
     });
+    this.loggerService = new Logger(FileUploadService.name);
   }
 
   async uploadPhoto(
     userId: UserIdDto['_id'],
-    files: Multer.File[],
+    files: FileUploadDto[],
     imageType: PhotoType
-  ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
-    if (!files || files.length === 0) {
-      throw new BadRequestException('No image files have been uploaded.');
-    }
-
-    const validationResult = this.validateFiles(files);
-
-    if (!validationResult.valid) {
-      return validationResult.results;
-    }
-
+  ): Promise<{ data: Photo }[]> {
     const results = await Promise.all(
       files.map(async (file) => {
-        const result: { success: boolean; data: CreatePhotoDto | string; imageName?: string } = {
-          success: false,
-          data: '',
-        };
+        const uploadedFile = await this.uploadSingleFileToS3(file);
+        const result = await this.savePhotoToDatabase(
+          userId,
+          file,
+          uploadedFile.Location,
+          imageType
+        );
 
-        try {
-          const uploadedFile = await this.uploadSingleFileToS3(file);
-          result.data = await this.savePhotoToDatabase(
-            userId,
-            file,
-            uploadedFile.Location,
-            imageType
-          );
-          result.success = true;
-        } catch (error) {
-          result.data = `Error uploading to S3: ${error.message}`;
-        }
-
-        return result;
+        return { data: result };
       })
     );
 
@@ -69,10 +57,10 @@ export class FileUploadService {
 
   async savePhotoToDatabase(
     userId: UserIdDto['_id'],
-    file: Multer.File,
+    file: FileUploadDto,
     imageUrl: string,
     imageType: PhotoType
-  ): Promise<CreatePhotoDto> {
+  ): Promise<Photo> {
     const photo = new this.photoModel({
       imageAlt: file.originalname,
       imageUrl: imageUrl,
@@ -82,16 +70,15 @@ export class FileUploadService {
     return await photo.save();
   }
 
-  async uploadSingleFileToS3(file: Multer.File): Promise<AWS.S3.ManagedUpload.SendData> {
+  async uploadSingleFileToS3(file: FileUploadDto): Promise<AWS.S3.ManagedUpload.SendData> {
     const uuid = uuidv4();
     const bucketName = this.configService.get('S3_BUCKET_NAME');
 
     if (!bucketName) {
-      throw new Error('S3_BUCKET_NAME is not defined.');
+      throw new InternalServerErrorException('S3_BUCKET_NAME is not defined.');
     }
 
     const key = `${uuid}-${file.originalname}`;
-
     const params = {
       Bucket: bucketName,
       Key: key,
@@ -99,56 +86,51 @@ export class FileUploadService {
       ContentType: file.mimetype,
     };
 
-    const result = await this.s3.upload(params).promise();
-
-    return result;
-  }
-
-  validateFiles(files: Multer.File[]): {
-    valid: boolean;
-    results: { success: boolean; data: any; imageName?: string }[];
-  } {
-    if (!Array.isArray(files)) {
-      return {
-        valid: false,
-        results: [{ success: false, data: 'No photos are provided for uploading.' }],
-      };
+    try {
+      return await this.s3.upload(params).promise();
+    } catch (error) {
+      this.loggerService.error(error);
+      throw new InternalServerErrorException('Error uploading image');
     }
-
-    const results = files.map((file) => {
-      const result: { success: boolean; data: any; imageName?: string } = {
-        success: false,
-        data: null,
-      };
-
-      if (this.validateImage(file) && this.validateFileSize(file)) {
-        result.success = true;
-      } else {
-        result.data = `Invalid file type or size. Only JPEG, PNG, and GIF files up to 10MB are allowed: ${file.originalname}`;
-      }
-
-      return result;
-    });
-
-    const valid = results.every((result) => result.success);
-
-    if (!valid) {
-      const errors = results.filter((result) => !result.success).map((result) => result.data);
-      throw new BadRequestException(`File validation failed: ${errors.join(', ')}`);
-    }
-
-    return { valid, results };
   }
 
-  validateImage(file: FileUploadDto): boolean {
-    return allowedMimeTypes.includes(file.mimetype);
+  validateImage(mimetype: string): string | false {
+    const val = mimetype.split('/');
+    if (val[0] !== 'image') return false;
+    return val[1] ?? false;
   }
 
-  validateFileSize(file: FileUploadDto): boolean {
-    return file.size <= maxSize;
+  private async streamToBuffer(stream: Readable): Promise<Buffer> {
+    const buffer: Uint8Array[] = [];
+
+    return new Promise((resolve, reject) =>
+      stream
+        .on('error', (error) => reject(error))
+        .on('data', (data) => buffer.push(data))
+        .on('end', () => resolve(Buffer.concat(buffer)))
+    );
   }
 
-  handleError(res: Response, message: string, statusCode: string = '400') {
-    throw new BadRequestException(message, statusCode);
+  async graphqlFileTransform(files: IUpload[]): Promise<FileUploadDto[]> {
+    const resultFiles = await Promise.all(
+      files.map(async (file) => {
+        const stream = file.createReadStream();
+        const fileBuffer = await this.streamToBuffer(stream as Readable);
+        const fileType = this.validateImage(file.mimetype);
+        if (!fileType) {
+          throw new BadRequestException(
+            `The following file is not valid image -- ${file.filename}`
+          );
+        }
+        return {
+          originalname: file.filename,
+          size: fileBuffer.byteLength,
+          encoding: file.encoding,
+          mimetype: file.mimetype,
+          buffer: fileBuffer,
+        };
+      })
+    );
+    return resultFiles;
   }
 }

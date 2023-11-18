@@ -1,9 +1,15 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsMimeType } from 'class-validator';
 
 export class FileUploadDto {
   @IsString()
-  @IsNotEmpty()
-  public mimetype: string;
+  public originalname!: string;
+
+  @IsString()
+  @IsMimeType()
+  public mimetype!: string;
+
+  @IsString()
+  public encoding!: string;
 
   @IsNumber()
   @IsNotEmpty()

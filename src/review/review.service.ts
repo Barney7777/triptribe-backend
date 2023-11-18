@@ -31,7 +31,7 @@ export class ReviewService {
 
       // Filter out unsuccessful upload results and map them to CreatePhotoDto
       photoDocuments = uploadResults
-        .filter((result) => result.success) // Filter out unsuccessful uploads
+        // .filter((result) => result.success) // Filter out unsuccessful uploads
         .map((result) => {
           // Map to CreatePhotoDto
           return {

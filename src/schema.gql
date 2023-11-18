@@ -1,0 +1,132 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Address {
+  formattedAddress: String!
+  location: Location
+}
+
+type BusinessTime {
+  isClosed: Boolean!
+  isOpenAllDay: Boolean!
+  period: [Period!]
+}
+
+input CreateAddressDto {
+  formattedAddress: String!
+  location: LocationDto
+}
+
+input CreateBusinessTimeDto {
+  isClosed: Boolean!
+  isOpenAllDay: Boolean!
+  location: [PeriodDto!]
+}
+
+input CreateOpenHoursDto {
+  Friday: CreateBusinessTimeDto
+  Monday: CreateBusinessTimeDto
+  Saturday: CreateBusinessTimeDto
+  Sunday: CreateBusinessTimeDto
+  Thursday: CreateBusinessTimeDto
+  Tuesday: CreateBusinessTimeDto
+  Wednesday: CreateBusinessTimeDto
+}
+
+input CreatePhotoDto {
+  imageAlt: String!
+  imageType: PhotoType!
+  imageUrl: String!
+  uploadUserId: String!
+}
+
+input CreateRestaurantDto {
+  address: CreateAddressDto!
+  description: String
+  email: String
+  name: String!
+  openHours: CreateOpenHoursDto
+  phone: String
+  website: String
+}
+
+type Location {
+  lat: Float!
+  lng: Float!
+}
+
+input LocationDto {
+  lat: Float!
+  lng: Float!
+}
+
+type Mutation {
+  """Create restaurant"""
+  createRestaurant(files: [Upload!], input: CreateRestaurantDto!): Restaurant!
+
+  """Update restaurant"""
+  updateRest(files: [Upload!], id: ID!, input: UpdateRestaurantGQLDto!): Restaurant!
+}
+
+type Period {
+  closeTime: String!
+  openTime: String!
+}
+
+input PeriodDto {
+  closeTime: String!
+  openTime: String!
+}
+
+type Photo {
+  _id: ID!
+  imageAlt: String!
+  imageType: PhotoType!
+  imageUrl: String!
+  uploadUserId: ID!
+}
+
+"""Type of photo"""
+enum PhotoType {
+  ATTRACTION
+  RESTAURANT
+  REVIEW
+  USER
+}
+
+type Query {
+  """Get all restaurants"""
+  getAllRestaurants: [Restaurant!]!
+
+  """Get restaurant by id"""
+  getOneRestaurant(id: ID!): Restaurant!
+}
+
+type Restaurant {
+  _id: ID!
+  address: Address!
+  createdUserId: ID!
+  description: String!
+  email: String!
+  name: String!
+  openHours: BusinessTime
+  overAllRating: Float
+  phone: String!
+  photos: [Photo!]!
+  website: String
+}
+
+input UpdateRestaurantGQLDto {
+  address: CreateAddressDto
+  description: String
+  email: String
+  name: String
+  openHours: CreateOpenHoursDto
+  phone: String
+  photos: [CreatePhotoDto!]
+  website: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

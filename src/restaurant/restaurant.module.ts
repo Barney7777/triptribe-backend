@@ -4,6 +4,7 @@ import { RestaurantController } from './restaurant.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Restaurant, RestaurantSchema } from './schema/restaurant.schema';
 import { FileUploadModule } from '@/file/file.module';
+import { RestaurantResolver } from './restaurant.resolver';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { FileUploadModule } from '@/file/file.module';
     FileUploadModule,
   ],
   controllers: [RestaurantController],
-  providers: [RestaurantService],
   exports: [RestaurantService],
+  providers: [RestaurantService, RestaurantResolver],
 })
 export class RestaurantModule {}

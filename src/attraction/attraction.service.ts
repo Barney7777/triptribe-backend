@@ -64,7 +64,7 @@ export class AttractionService {
       return createdAttraction;
     }
     const results = await this.uploadfileService.uploadPhoto(userId, files, PhotoType.ATTRACTION);
-    const photos = results.filter((result) => result.success).map((photo) => photo.data);
+    const photos = results.map((photo) => photo.data);
     const newAttraction: ICreateAttaraction = { ...attractionDto, createdUserId: userId, photos };
     const createdAttraction = await this.attractionModel.create(newAttraction);
     return createdAttraction;

@@ -7,9 +7,10 @@ import {
   Put,
   UseInterceptors,
   UploadedFiles,
+  UseGuards,
+  UseFilters,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Multer } from 'multer';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
@@ -28,12 +29,17 @@ import {
 } from '@nestjs/swagger';
 import { plainToClass } from 'class-transformer';
 import { PhotoType } from '@/schema/photo.schema';
+import { FileUploadDto } from '@/file/dto/file-upload.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from '@/auth/CurrentUser.decorator';
+import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 
 @Controller({
   path: 'restaurants',
   version: '1',
 })
 @ApiTags('restaurants')
+@UseFilters(AllExceptionsFilter)
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
@@ -192,13 +198,15 @@ export class RestaurantController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async create(
-    @UploadedFiles() files: Multer.File[],
-    @Body() createRestaurantDto: CreateRestaurantDto
+    @Body() createRestaurantDto: CreateRestaurantDto,
+    @CurrentUser() currentUser,
+    @UploadedFiles() files?: FileUploadDto[]
   ): Promise<Restaurant> {
     const newRestaurant = plainToClass(CreateRestaurantDto, createRestaurantDto);
-    return this.restaurantService.create(newRestaurant, files);
+    return this.restaurantService.create(newRestaurant, currentUser._id, files);
   }
 
   @ApiBearerAuth()
@@ -352,13 +360,15 @@ export class RestaurantController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async update(
     @Param() params: RestaurantFindOneDto,
-    @UploadedFiles() files: Multer.File[],
-    @Body() updateRestaurantDto: UpdateRestaurantDto
+    @Body() updateRestaurantDto: UpdateRestaurantDto,
+    @CurrentUser() currentUser,
+    @UploadedFiles() files?: FileUploadDto[]
   ): Promise<Restaurant> {
     const updateRestaurant = plainToClass(UpdateRestaurantDto, updateRestaurantDto);
-    return this.restaurantService.update(params.id, updateRestaurant, files);
+    return this.restaurantService.update(params.id, updateRestaurant, currentUser._id, files);
   }
 }
