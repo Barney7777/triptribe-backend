@@ -12,5 +12,6 @@ import { FileUploadModule } from '@/file/file.module';
   ],
   controllers: [RestaurantController],
   providers: [RestaurantService],
+  exports: [RestaurantService],
 })
 export class RestaurantModule {}

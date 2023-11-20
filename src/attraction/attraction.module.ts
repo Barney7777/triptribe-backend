@@ -12,5 +12,6 @@ import { FileUploadModule } from '@/file/file.module';
   ],
   controllers: [AttractionController],
   providers: [AttractionService],
+  exports: [AttractionService],
 })
 export class AttractionModule {}
