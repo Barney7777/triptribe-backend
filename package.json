@@ -30,6 +30,7 @@
     "@nestjs/mongoose": "^10.0.1",
     "@nestjs/passport": "^10.0.2",
     "@nestjs/platform-express": "^10.2.7",
+    "@nestjs/swagger": "^7.1.16",
     "@nestjs/throttler": "^5.0.0",
     "aws-sdk": "^2.1474.0",
     "bcryptjs": "^2.4.3",

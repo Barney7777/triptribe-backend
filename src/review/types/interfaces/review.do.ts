@@ -1,6 +1,6 @@
 import { UpdatePhotoDto } from '@/review/dto/photoDto/update-photo.dto';
 
-export interface Ireview {
+export interface IReview {
   title?: string;
   description?: string;
   rating?: number;

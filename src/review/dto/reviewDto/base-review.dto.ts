@@ -5,7 +5,6 @@ export enum PlaceType {
   ATTRACTION = 'Attraction',
   RESTAURANT = 'Restaurant',
 }
-
 export class BaseReviewDto {
   @IsString()
   title: string;
@@ -37,7 +36,6 @@ export class BaseReviewDto {
   @IsMongoId()
   userId: string;
 
-  //need to find out the whether placeId is attraction or restaurant in service
   @IsMongoId()
   placeId: string;
 

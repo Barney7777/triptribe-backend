@@ -9,7 +9,7 @@ import { FileUploadService } from '@/file/file.service';
 import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { PhotoType } from '@/schema/photo.schema';
 import { QueryReviewDto } from './dto/reviewDto/query-review.dto';
-import { Ireview } from './types/interfaces/review.do';
+import { IReview } from './types/interfaces/review.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 
@@ -44,7 +44,7 @@ export class ReviewService {
     }
 
     // spread reviewDto and put "photos" and "userId" together in reviewData
-    const reviewData: Ireview = { ...reviewDto, userId, photos: photoDocuments };
+    const reviewData: IReview = { ...reviewDto, userId, photos: photoDocuments };
     // console.log('reviewData', reviewData);
 
     const review = await this.reviewModel.create(reviewData);
@@ -67,7 +67,7 @@ export class ReviewService {
   async uploadPhoto(userId: UserIdDto['_id'], files: FileUploadDto[]) {
     try {
       // if files array no data, return []
-      if (files.length === 0) {
+      if (!files || !files.length) {
         return [];
       }
 
@@ -107,13 +107,20 @@ export class ReviewService {
     // console.log('photos', previousPhotos);
 
     // photo array upload this time
-    const currentPhotos = updateReviewDto.photos;
+    let currentPhotos = updateReviewDto.photos;
+
     // compare 2 photos array (previousPhotos and currentPhotos), find deletePhotos array
-    const deletePhotos = previousPhotos?.filter((photo) => {
-      return !currentPhotos.some(
-        (currentPhoto) => currentPhoto?.imageUrl?.toString() === photo.imageUrl.toString()
-      );
-    });
+    let deletePhotos;
+    if (currentPhotos) {
+      deletePhotos = previousPhotos?.filter((photo) => {
+        return !currentPhotos.some(
+          (currentPhoto) => currentPhoto?.imageUrl?.toString() === photo.imageUrl.toString()
+        );
+      });
+    } else {
+      currentPhotos = [];
+      deletePhotos = previousPhotos;
+    }
     if (deletePhotos !== undefined && deletePhotos?.length > 0) {
       console.log('deletePhotos', deletePhotos);
       // TODO!!! if deletePhoto array exist,call function to delete photo
@@ -122,8 +129,9 @@ export class ReviewService {
     const newPicArray = await this.uploadPhoto(userId, files);
     // push newPicArray into currentPhotos
     currentPhotos.push(...newPicArray);
+
     // assign "currentPhotos" to "photos" , "userId" as "current_userId"
-    const dataToUpdate: Ireview = {
+    const dataToUpdate: IReview = {
       ...updateReviewDto,
       userId: userId,
       photos: currentPhotos,
