@@ -45,7 +45,7 @@ import { join } from 'path';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         sortSchema: true,
-        playground: true,
+        playground: process.env.NODE_ENV ? false : true,
         autoSchemaFile: join(process.cwd(), `${configService.get('graphql.autoSchemaFile')}`),
       }),
     }),

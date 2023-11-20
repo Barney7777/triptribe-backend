@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from '@/schema/photo.schema';
 import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { Address, AddressSchema } from '@/schema/address.schema';
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
@@ -33,7 +33,7 @@ export class Restaurant {
   @Prop({ required: true })
   phone: string;
 
-  @Field(() => BusinessTime, { nullable: true })
+  @Field(() => BusinessTime)
   @Prop({
     _id: false,
     type: {
@@ -47,7 +47,7 @@ export class Restaurant {
     },
     default: {},
   })
-  openHours?: {
+  openHours: {
     Monday: BusinessTime;
     Tuesday: BusinessTime;
     Wednesday: BusinessTime;
@@ -71,7 +71,13 @@ export class Restaurant {
 
   @Field(() => ID)
   @Prop({ required: true, type: mongoose.Types.ObjectId })
-  createdUserId: string;
+  createdUserId: mongoose.Types.ObjectId;
+
+  @Field(() => GraphQLISODateTime)
+  createdAt: string;
+
+  @Field(() => GraphQLISODateTime)
+  updatedAt: string;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);

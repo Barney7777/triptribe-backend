@@ -17,7 +17,7 @@ import { UpdateAttractionDto } from './dto/attractionDto/update-attraction.dto';
 import { UpdatePhotoDto } from './dto/photoDto/update-photo.dto';
 import { PhotoType } from '@/schema/photo.schema';
 import { isValidObjectId } from 'mongoose';
-import { QueryAttractionDto } from '@/attraction/dto/attractionDto/query-attraction.dto';
+import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
 
 // interface SaveToDatabase {
 //   name?: string;
@@ -141,7 +141,7 @@ export class AttractionService {
   }
 
   async updateAttraction(
-    id: QueryAttractionDto['id'],
+    id: AttractionFindOneDto['id'],
     files: FileUploadDto[],
     updateAttractionDto: UpdateAttractionDto,
     userId: UserIdDto['_id']
@@ -200,7 +200,7 @@ export class AttractionService {
     return attractionData;
   }
 
-  async remove(id: QueryAttractionDto['id'], userId: UserIdDto['_id']) {
+  async remove(id: AttractionFindOneDto['id'], userId: UserIdDto['_id']) {
     await this.findOneFromMe(id, userId);
 
     const review = await this.attractionModel.findByIdAndDelete(id).exec();

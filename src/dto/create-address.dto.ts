@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 
 import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 @InputType()
-class LocationDto {
+export class LocationDto {
   @Field(() => Float)
   @IsNumber()
   lat: number;

@@ -101,7 +101,7 @@ export class RestaurantService {
     return updatedRestaurant;
   }
 
-  // verify if editor is the creator of the restaurant
+  // verify if current editor is the creator of the restaurant
   async verifyRestaurant(id: string, userId: string) {
     const restaurant = await this.findOne(id);
     if (userId.toString() !== restaurant.createdUserId.toString()) {
@@ -155,5 +155,14 @@ export class RestaurantService {
       },
     ]);
     return restaurants;
+  }
+
+  async remove(id: string, userId: UserIdDto['_id']) {
+    await this.verifyRestaurant(id, userId);
+    const restaurant = await this.restaurantModel.findByIdAndDelete(id).exec();
+    if (!restaurant) {
+      throw new NotFoundException('this restaurant does not exist');
+    }
+    return restaurant;
   }
 }

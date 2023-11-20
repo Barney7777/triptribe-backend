@@ -70,8 +70,12 @@ export class RestaurantResolver {
     return this.restaurantService.update(id, input, currentUser._id, uploadedFiles);
   }
 
-  // @Mutation(() => Rest, { name: 'deleteRest' })
-  // async deleteRest(@Args('id', { type: () => ID }) id: string): Promise<Rest> {
-  //   return this.restService.delete(id);
-  // }
+  @Mutation(() => Restaurant, { description: 'Delete restaurant' })
+  @UseGuards(GqlAuthGuard)
+  async deleteRestaurant(
+    @Args('id', { type: () => ID }) id: string,
+    @GraphQLCurrentUser() currentUser
+  ): Promise<Restaurant> {
+    return this.restaurantService.remove(id, currentUser._id);
+  }
 }

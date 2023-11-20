@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 export interface IResultWithType {
   name: string;
   description: string;
-  website: string;
+  website?: string;
   email: string;
   phone: string;
   openHours: {
@@ -20,7 +20,7 @@ export interface IResultWithType {
     Sunday: BusinessTime;
   };
   address: Address;
-  overAllRating: number;
+  overAllRating?: number;
   photos: Photo[];
   createdUserId: mongoose.Types.ObjectId;
   distance?: number;

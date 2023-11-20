@@ -9,6 +9,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseFilters,
+  Delete,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { RestaurantService } from './restaurant.service';
@@ -370,5 +371,14 @@ export class RestaurantController {
   ): Promise<Restaurant> {
     const updateRestaurant = plainToClass(UpdateRestaurantDto, updateRestaurantDto);
     return this.restaurantService.update(params.id, updateRestaurant, currentUser._id, files);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
+  async delete(
+    @Param() params: RestaurantFindOneDto,
+    @CurrentUser() currentUser
+  ): Promise<Restaurant> {
+    return this.restaurantService.remove(params.id, currentUser._id);
   }
 }

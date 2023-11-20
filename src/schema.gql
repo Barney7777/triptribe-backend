@@ -21,17 +21,17 @@ input CreateAddressDto {
 input CreateBusinessTimeDto {
   isClosed: Boolean!
   isOpenAllDay: Boolean!
-  location: [PeriodDto!]
+  period: [PeriodDto!]!
 }
 
 input CreateOpenHoursDto {
-  Friday: CreateBusinessTimeDto
-  Monday: CreateBusinessTimeDto
-  Saturday: CreateBusinessTimeDto
-  Sunday: CreateBusinessTimeDto
-  Thursday: CreateBusinessTimeDto
-  Tuesday: CreateBusinessTimeDto
-  Wednesday: CreateBusinessTimeDto
+  Friday: CreateBusinessTimeDto!
+  Monday: CreateBusinessTimeDto!
+  Saturday: CreateBusinessTimeDto!
+  Sunday: CreateBusinessTimeDto!
+  Thursday: CreateBusinessTimeDto!
+  Tuesday: CreateBusinessTimeDto!
+  Wednesday: CreateBusinessTimeDto!
 }
 
 input CreatePhotoDto {
@@ -51,6 +51,11 @@ input CreateRestaurantDto {
   website: String
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Location {
   lat: Float!
   lng: Float!
@@ -65,8 +70,11 @@ type Mutation {
   """Create restaurant"""
   createRestaurant(files: [Upload!], input: CreateRestaurantDto!): Restaurant!
 
+  """Delete restaurant"""
+  deleteRestaurant(id: ID!): Restaurant!
+
   """Update restaurant"""
-  updateRest(files: [Upload!], id: ID!, input: UpdateRestaurantGQLDto!): Restaurant!
+  updateRestaurant(files: [Upload!], id: ID!, input: UpdateRestaurantGQLDto!): Restaurant!
 }
 
 type Period {
@@ -106,14 +114,16 @@ type Query {
 type Restaurant {
   _id: ID!
   address: Address!
+  createdAt: DateTime!
   createdUserId: ID!
   description: String!
   email: String!
   name: String!
-  openHours: BusinessTime
+  openHours: BusinessTime!
   overAllRating: Float
   phone: String!
   photos: [Photo!]!
+  updatedAt: DateTime!
   website: String
 }
 
