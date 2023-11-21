@@ -1,16 +1,20 @@
-import { Model } from 'mongoose';
 import {
+  Injectable,
   // BadRequestException,
   ConflictException,
-  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
+import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { SavePlaceDto } from './dto/save-place.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { Multer } from 'multer';
+import { FileUploadService } from '@/file/file.service';
+import { PhotoType } from '@/schema/photo.schema';
 import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
 
 interface CurrentUser {
@@ -24,7 +28,8 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
-    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>
+    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
+    private fileUploadService: FileUploadService
   ) {}
 
   getMe(currentUser): User {
@@ -34,41 +39,78 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
     if (!user) {
-      throw new NotFoundException('user not existed');
+      throw new NotFoundException('User not existed');
     }
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User | undefined> {
-    // check if user already existed
-    const user = await this.userModel.findOne({ email: createUserDto.email });
-    if (user) {
-      throw new ConflictException('user existed');
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userModel.findOne({ email: createUserDto.email });
+    if (existingUser) {
+      throw new ConflictException('User already exists');
     }
 
-    // generate default nickname
-    const nicknameArray = createUserDto.email?.split('@') as string[];
-    let nickname = nicknameArray[0];
+    const nicknameParts = createUserDto.email?.split('@');
+    let nickname = nicknameParts ? nicknameParts[0] : '';
 
-    // check if duplicate nickname exist
     const sameNicknameUser = await this.userModel.find({ nickname: nickname });
-
-    // if duplicate nickname exist
     if (sameNicknameUser.length > 0) {
-      // check if similar nickname exist
       const similarNicknameUser = await this.userModel.find({
         nickname: { $regex: `^${nickname}#` },
       });
-
-      // assign number to nickname for nickname unique
       const number = similarNicknameUser.length + 1;
       nickname = `${nickname}#${number}`;
     }
 
-    // put nickname into createUserData
-    const createUserData = { ...createUserDto, nickname };
-    const createdUser = new this.userModel(createUserData);
-    return createdUser.save();
+    const newUser = new this.userModel({ ...createUserDto, nickname });
+    return newUser.save();
+  }
+
+  async updateUser(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+    avatarFile: Multer.File
+  ): Promise<User> {
+    const existingUser = await this.userModel.findById(userId).exec();
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    const updateData = { ...updateUserDto };
+
+    if (avatarFile) {
+      const uploadResults = await this.fileUploadService.uploadPhoto(
+        userId,
+        [avatarFile],
+        PhotoType.USER
+      );
+
+      const photoDocuments = uploadResults.map((result) => {
+        // Map to CreatePhotoDto
+        return {
+          imageUrl: result.data.imageUrl,
+          imageAlt: result.data.imageAlt,
+          imageType: PhotoType.USER,
+          uploadUserId: result.data.uploadUserId, // Use @CurrentUser decorator to get the current user ID
+        };
+      });
+
+      // using findOneAndUpdate update user date with photo change
+      const updatedUser = await this.userModel.findOneAndUpdate(
+        { _id: userId },
+        { $set: { ...updateData, userAvatar: photoDocuments } },
+        { new: true }
+      );
+
+      return updatedUser as User;
+    }
+    // using findOneAndUpdate update user date, photo does not change
+    const updatedUser = await this.userModel.findOneAndUpdate(
+      { _id: userId },
+      { $set: { ...updateData } },
+      { new: true }
+    );
+
+    return updatedUser as User;
   }
 
   async addSavedPlace(currentUser: CurrentUser, savePlaceDto: SavePlaceDto): Promise<void> {

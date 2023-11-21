@@ -6,6 +6,7 @@ import { User, UserSchema } from './schema/user.schema';
 import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { UserResolver } from './user.resolver';
+import { FileUploadModule } from '@/file/file.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserResolver } from './user.resolver';
       { name: Restaurant.name, schema: RestaurantSchema },
       { name: Attraction.name, schema: AttractionSchema },
     ]),
+    FileUploadModule,
   ],
   controllers: [UserController],
   providers: [UserService, UserResolver],
