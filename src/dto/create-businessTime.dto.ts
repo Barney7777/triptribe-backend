@@ -19,5 +19,5 @@ export class CreateBusinessTimeDto {
   @IsArray()
   @ValidateNested()
   @Type(() => PeriodDto)
-  location: PeriodDto[];
+  period: PeriodDto[];
 }

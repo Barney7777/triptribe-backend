@@ -35,7 +35,7 @@ export class RestaurantService {
     createRestaurantDto: CreateRestaurantDto,
     files: Multer.File[]
   ): Promise<Restaurant> {
-    if (!files) {
+    if (!files || !files.length) {
       const restaurant = {
         ...createRestaurantDto,
         createdUserId: this.currentUserId,
@@ -43,7 +43,6 @@ export class RestaurantService {
       const createdRestaurant = new this.restaurantModel(restaurant);
       return await createdRestaurant.save();
     }
-
     const results = await this.fileUploadService.uploadPhoto(
       this.currentUserId,
       files,
@@ -56,6 +55,7 @@ export class RestaurantService {
       photos,
       createdUserId: this.currentUserId,
     };
+
     const createdRestaurant = new this.restaurantModel(restaurant);
     return await createdRestaurant.save();
   }
@@ -71,7 +71,7 @@ export class RestaurantService {
       (photo) => updateRestaurantDto.photos?.some((p) => p.imageUrl === photo.imageUrl)
     );
 
-    if (!files) {
+    if (!files || !files.length) {
       const updatedDto = { ...updateRestaurantDto, photos: restPhotos };
       const updatedRestaurant = await this.restaurantModel
         .findByIdAndUpdate(id, updatedDto, { new: true })

@@ -104,3 +104,7 @@ http://localhost:8080/api/photo/upload
 6. Set the key as files and switch 'text' to 'file' in the field
 
 7. Select photos to upload. (The maxium number of uploads is 10 and must not exceed 10 MB, and must be jpeg, png, or gif.)
+
+# API DOCUMENT
+
+Use the URL: http://localhost:8080/api

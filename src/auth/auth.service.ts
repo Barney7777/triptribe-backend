@@ -12,7 +12,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService
-  ) { }
+  ) {}
 
   async register(registerData: AuthRegisterDto) {
     const user = await this.userService.create(registerData);
@@ -29,10 +29,6 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
-  }
-
-  getMeInfo(user: UserDocument) {
-    return `This action getMeInfo, email is ${user.email}`;
   }
 
   //generate accessToken
@@ -101,13 +97,12 @@ export class AuthService {
   }
 
   async editPassword(userId: UserIdDto['_id'], newPassword: EditPasswordDto) {
-    const userIdToString = String(userId)
-    const user = await this.userService.findOne(userIdToString)
+    const userIdToString = String(userId);
+    const user = await this.userService.findOne(userIdToString);
     if (!user) {
-      throw new BadRequestException("User not found")
+      throw new BadRequestException('User not found');
     }
     const editedUser = await this.userService.updatePassword(userId, newPassword);
     return editedUser;
-
   }
 }

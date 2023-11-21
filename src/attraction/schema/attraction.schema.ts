@@ -49,7 +49,7 @@ export class Attraction {
   @Prop({ type: AddressSchema, default: {} })
   address: Address;
 
-  @Prop({ required: true })
+  @Prop()
   overAllRating: number;
 
   @Prop({ type: [PhotoSchema], default: [] })

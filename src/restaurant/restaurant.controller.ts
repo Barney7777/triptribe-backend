@@ -16,33 +16,341 @@ import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { RestaurantFindOneDto } from './dto/get-restaurant.dto';
 import { Restaurant } from './schema/restaurant.schema';
 import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiBodyOptions,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
+import { PhotoType } from '@/schema/photo.schema';
 
 @Controller({
   path: 'restaurants',
   version: '1',
 })
+@ApiTags('restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
+  @ApiOperation({
+    summary: 'Get all Restaurants',
+    description: 'Retrieve all restaurants successfully',
+  })
+  @ApiResponse({ status: 200, description: 'Retrieve all restaurants successfully' })
   @Get()
   async findAll(): Promise<Restaurant[]> {
     return this.restaurantService.findAll();
   }
 
+  @ApiOperation({ summary: 'Get a Restaurant', description: 'Retrieve a restaurant successfully' })
+  @ApiParam({
+    name: 'id',
+    description: 'Restaurant Id',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Retrieve a restaurant successfully' })
+  @ApiResponse({ status: 404, description: 'Restaurant Not Found' })
   @Get(':id')
   async findOne(@Param() params: RestaurantFindOneDto): Promise<Restaurant> {
     return this.restaurantService.findOne(params.id);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create Restaurant',
+    description: 'Create a new restaurant successfully',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Restaurant data to create',
+    schema: {
+      type: 'object',
+      required: ['name', 'description', 'email', 'phone'],
+      properties: {
+        name: { type: 'string', example: 'Denesik Route' },
+        description: {
+          type: 'string',
+          example:
+            'Pauper delectatio avaritia consectetur super vesco quasi vulticulus necessitatibus constans.',
+        },
+        website: {
+          type: 'string',
+          example: 'http://dimpled-housing.net',
+        },
+        email: {
+          type: 'string',
+          example: 'DenesikRoute13@gmail.com',
+        },
+        phone: {
+          type: 'string',
+          example: '(679) 497-4605 x3175',
+        },
+        openHours: {
+          type: 'object',
+          example: {
+            Monday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Tuesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Wednesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Thursday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Friday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Saturday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Sunday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+          },
+        },
+        address: {
+          type: 'object',
+          example: {
+            formattedAddress: '25474 Ratke Passage Suite 979',
+            location: {
+              lat: -88.9277,
+              lng: -40.1176,
+            },
+          },
+        },
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'An array of images',
+        },
+      },
+    },
+  } as ApiBodyOptions)
+  @ApiResponse({ status: 201, description: 'Create a new restaurant successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post()
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async create(
     @UploadedFiles() files: Multer.File[],
     @Body() createRestaurantDto: CreateRestaurantDto
   ): Promise<Restaurant> {
-    return this.restaurantService.create(createRestaurantDto, files);
+    const newRestaurant = plainToClass(CreateRestaurantDto, createRestaurantDto);
+    return this.restaurantService.create(newRestaurant, files);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update Restaurant',
+    description: 'Update a restaurant successfully',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({
+    name: 'id',
+    description: 'Restaurant Id',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiBody({
+    description: 'Restaurant data to update',
+    schema: {
+      type: 'object',
+      required: ['name', 'description', 'email', 'phone'],
+      properties: {
+        name: { type: 'string', example: 'Denesik Route' },
+        description: {
+          type: 'string',
+          example:
+            'Pauper delectatio avaritia consectetur super vesco quasi vulticulus necessitatibus constans.',
+        },
+        website: {
+          type: 'string',
+          example: 'http://dimpled-housing.net',
+        },
+        email: {
+          type: 'string',
+          example: 'DenesikRoute13@gmail.com',
+        },
+        phone: {
+          type: 'string',
+          example: '(679) 497-4605 x3175',
+        },
+        openHours: {
+          type: 'object',
+          example: {
+            Monday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Tuesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Wednesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Thursday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Friday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Saturday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Sunday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+          },
+        },
+        address: {
+          type: 'object',
+          example: {
+            formattedAddress: '25474 Ratke Passage Suite 979',
+            location: {
+              lat: -88.9277,
+              lng: -40.1176,
+            },
+          },
+        },
+        photos: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              imageAlt: { type: 'string' },
+              imageUrl: { type: 'string' },
+              imageType: { type: 'enum', enum: Object.values(PhotoType) },
+              uploadUserId: { type: 'string' },
+              _id: { type: 'string' },
+            },
+          },
+          description: 'An array of photos',
+        },
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'An array of images',
+        },
+      },
+    },
+  } as ApiBodyOptions)
+  @ApiResponse({ status: 200, description: 'Update a restaurant successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Put(':id')
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async update(
@@ -50,6 +358,7 @@ export class RestaurantController {
     @UploadedFiles() files: Multer.File[],
     @Body() updateRestaurantDto: UpdateRestaurantDto
   ): Promise<Restaurant> {
-    return this.restaurantService.update(params.id, updateRestaurantDto, files);
+    const updateRestaurant = plainToClass(UpdateRestaurantDto, updateRestaurantDto);
+    return this.restaurantService.update(params.id, updateRestaurant, files);
   }
 }
