@@ -30,12 +30,11 @@ export class FileUploadService {
     files: Multer.File[],
     imageType: PhotoType
   ): Promise<{ success: boolean; data: any; imageName?: string }[]> {
-
     if (!files || files.length === 0) {
       throw new BadRequestException('No image files have been uploaded.');
     }
-  
-     const validationResult = this.validateFiles(files);
+
+    const validationResult = this.validateFiles(files);
 
     if (!validationResult.valid) {
       return validationResult.results;
@@ -109,7 +108,6 @@ export class FileUploadService {
     valid: boolean;
     results: { success: boolean; data: any; imageName?: string }[];
   } {
-
     if (!Array.isArray(files)) {
       return {
         valid: false,
