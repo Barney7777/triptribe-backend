@@ -52,8 +52,8 @@ export class AuthController {
       type: 'object',
       required: ['email', 'password'],
       properties: {
-        email: { type: 'string', example: 'do112112@om141ai5l1.com' },
-        password: { type: 'string', example: 'Abc12345+' },
+        email: { type: 'string', example: 'triptribeuser@triptribe.com' },
+        password: { type: 'string', example: 'Abc123456+' },
       },
     },
   })
