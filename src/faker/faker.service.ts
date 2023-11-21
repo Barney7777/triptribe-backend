@@ -44,11 +44,13 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     console.log('Closed MongoDB connection');
   }
 
-  createRandomUser(): IUser {
-    const password: string = faker.internet.password({ length: 8 });
+  createRandomUser(isFixed): IUser {
+    const password: string = isFixed ? 'Abc123456+' : faker.internet.password({ length: 8 });
     const firstName: string = faker.person.firstName();
     const lastName: string = faker.person.lastName();
-    const email: string = faker.internet.email({ firstName, lastName });
+    const email: string = isFixed
+      ? 'triptribeuser@triptribe.com'
+      : faker.internet.email({ firstName, lastName });
     const nickname: string = faker.internet.userName({ firstName, lastName });
     const description: string = faker.person.bio();
     const imageAlt: string = 'User Avatar';
@@ -79,7 +81,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
 
   async generateFakeUsers(fakeUserQty: number): Promise<void> {
     for (let i = 0; i < fakeUserQty; i++) {
-      const user: IUser = this.createRandomUser();
+      const user: IUser = this.createRandomUser(false);
       const createdUser = new this.userModel(user);
       await createdUser.save();
       // update userAvatar.uploadUserId field
@@ -90,6 +92,19 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
         { new: true }
       );
     }
+  }
+
+  async generateFixedUser(): Promise<void> {
+    const user: IUser = this.createRandomUser(true);
+    const createdUser = new this.userModel(user);
+    await createdUser.save();
+    // update userAvatar.uploadUserId field
+    const newUser = await this.userModel.findOne({ email: user.email });
+    await this.userModel.updateOne(
+      { _id: newUser?._id },
+      { $set: { [`userAvatar.${0}.uploadUserId`]: newUser?._id } },
+      { new: true }
+    );
   }
 
   async generateFakePhoto(fakePhoto: IPhoto): Promise<void> {
@@ -352,6 +367,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
       );
     }
 
+    await this.generateFixedUser();
     await this.generateFakeUsers(fakeUserQty);
     await this.generateFakeAttractions(fakeAttractionsQty);
     await this.generateFakeRestaurants(fakeRestaurantsQty);
