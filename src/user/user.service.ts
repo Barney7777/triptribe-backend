@@ -9,6 +9,10 @@ import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
+  getMe(currentUser): User {
+    return currentUser;
+  }
+
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
     if (!user) {
