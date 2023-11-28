@@ -3,26 +3,37 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from '@/schema/photo.schema';
 import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { Address, AddressSchema } from '@/schema/address.schema';
+import { Field, Float, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
+@ObjectType()
 @Schema({ timestamps: true })
 export class Restaurant {
+  @Field(() => ID)
+  _id: string;
+
+  @Field()
   @Prop({ required: true })
   name: string;
 
+  @Field()
   @Prop({ required: true })
   description: string;
 
+  @Field({ nullable: true })
   @Prop()
-  website: string;
+  website?: string;
 
+  @Field()
   @Prop({ required: true })
   email: string;
 
+  @Field()
   @Prop({ required: true })
   phone: string;
 
+  @Field(() => BusinessTime)
   @Prop({
     _id: false,
     type: {
@@ -46,17 +57,27 @@ export class Restaurant {
     Sunday: BusinessTime;
   };
 
+  @Field(() => Address)
   @Prop({ type: AddressSchema, default: {} })
   address: Address;
 
+  @Field(() => Float, { nullable: true })
   @Prop()
-  overAllRating: number;
+  overAllRating?: number;
 
+  @Field(() => [Photo])
   @Prop({ type: [PhotoSchema], default: [] })
   photos: Photo[];
 
+  @Field(() => ID)
   @Prop({ required: true, type: mongoose.Types.ObjectId })
   createdUserId: mongoose.Types.ObjectId;
+
+  @Field(() => GraphQLISODateTime)
+  createdAt: string;
+
+  @Field(() => GraphQLISODateTime)
+  updatedAt: string;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);

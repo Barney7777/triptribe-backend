@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
-import { LocationDto } from '../../dto/create-address.dto';
 import { ApiProperty } from '@nestjs/swagger/dist';
+import { LocationDto } from '@/dto/create-address.dto';
 
 export enum PlaceType {
   ATTRACTION = 'Attraction',
