@@ -108,3 +108,13 @@ http://localhost:8080/api/photo/upload
 # API DOCUMENT
 
 Use the URL: http://localhost:8080/api
+
+# AdminJS management panel
+
+Follow guidance in '/adminjs/README.md' to setup and start AdminJS app.
+
+After starting the app, use the URL: http://localhost:3000/admin to access panel.
+
+Default login detail:
+email: 'admin@triptribe.com',
+password: 'password',
