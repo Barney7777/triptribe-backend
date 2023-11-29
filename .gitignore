@@ -3,6 +3,7 @@
 /node_modules
 /adminjs/node_modules
 /adminjs/dist
+/adminjs/tsconfig.tsbuildinfo
 
 # Logs
 logs

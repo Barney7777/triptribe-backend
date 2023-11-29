@@ -10,7 +10,12 @@ import { Review } from './entity/review.entity.js';
 import { Restaurant } from './entity/restaurant.entity.js';
 import { Attraction } from './entity/attraction.entity.js';
 import dotenv from 'dotenv';
-dotenv.config();
+
+if (process.env.NODE_ENV === 'development') {
+  dotenv.config({ path: '.env.development' });
+} else {
+  dotenv.config();
+}
 
 const PORT = process.env.PORT || 3000;
 
@@ -26,7 +31,7 @@ AdminJS.registerAdapter({
 
 const authenticate = async (email: string, password: string) => {
   if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
-    console.log('Login worked!');
+    // console.log('Login worked!');
     return Promise.resolve(DEFAULT_ADMIN);
   }
   return null;
