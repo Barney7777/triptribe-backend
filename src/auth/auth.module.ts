@@ -7,6 +7,9 @@ import { User, UserSchema } from '@/user/schema/user.schema';
 import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { EmailConsumer } from './consumers/email.consumer';
+import { BullModule } from '@nestjs/bull';
+import { QUEUE_NAME_SEND_EMAIL } from '@/common/constant/queue.constant';
 
 @Module({
   imports: [
@@ -18,8 +21,11 @@ import { JwtStrategy } from './jwt.strategy';
       },
       global: true,
     }),
+    BullModule.registerQueue({
+      name: QUEUE_NAME_SEND_EMAIL,
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, EmailConsumer],
 })
 export class AuthModule {}

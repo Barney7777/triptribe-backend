@@ -14,4 +14,8 @@ export default () => ({
       maxFiles: parseInt(process.env.MAX_FILES || '', 10) || 10,
     },
   },
+  redis: {
+    host: 'localhost',
+    port: 6379,
+  },
 });

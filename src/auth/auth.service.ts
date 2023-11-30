@@ -6,16 +6,26 @@ import { AuthRegisterDto } from './dto/auth-register.dto';
 import dayjs from 'dayjs';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
+import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    @InjectQueue('send-email') private sendEmailQueue: Queue
   ) {}
 
   async register(registerData: AuthRegisterDto) {
     const user = await this.userService.create(registerData);
+    console.log('注册成功');
+    // queue task: send email when user register successfull
+    await this.sendEmailQueue.add(QUEUE_PROCESS_REGISTER, {
+      email: registerData.email,
+      user,
+    });
     return user;
   }
 
