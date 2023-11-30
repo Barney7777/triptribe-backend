@@ -16,6 +16,9 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 import { FakerModule } from './faker/faker.module';
 import { SearchModule } from './search/search.module';
 import { join } from 'path';
+import { BullModule } from '@nestjs/bull';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -48,6 +51,29 @@ import { join } from 'path';
         playground: process.env.NODE_ENV ? false : true,
         autoSchemaFile: join(process.cwd(), `${configService.get('graphql.autoSchemaFile')}`),
       }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.get('redis.host'),
+          port: configService.get('redis.port'),
+        },
+      }),
+    }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.example.com',
+        port: 587,
+        auth: {
+          user: 'username',
+          pass: 'password',
+        },
+      },
+      template: {
+        dir: join(__dirname, 'templates'),
+        adapter: new HandlebarsAdapter(),
+      },
     }),
     UserModule,
     AuthModule,
