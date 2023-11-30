@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { User, UserSchema } from './schema/user.schema';
 import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
+import { UserResolver } from './user.resolver';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.sch
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, UserResolver],
   exports: [UserService],
 })
 export class UserModule {}

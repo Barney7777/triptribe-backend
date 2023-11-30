@@ -25,6 +25,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get an user', description: 'Retrieve an user successfully' })
   @ApiParam({
     name: 'id',
@@ -33,7 +34,9 @@ export class UserController {
     type: String,
   })
   @ApiResponse({ status: 200, description: 'Retrieve an user by ID successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(AuthGuard('jwt'))
   async find(@Param('id') id: string): Promise<User> {
     return this.userService.findOne(id);
   }
