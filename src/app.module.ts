@@ -23,18 +23,16 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`],
+      envFilePath: [`.env${process.env.NODE_ENV === 'production' ? '' : '.development'}`],
       isGlobal: true,
       load: [configuration],
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: process.env.NODE_ENV
-          ? process.env.DATABASE_CONNECTION_URI
-          : `mongodb://${configService.get('database.host')}:${configService.get(
-              'database.port'
-            )}/${configService.get('database.name')}`,
+        uri: `mongodb://${configService.get('database.host')}:${configService.get(
+          'database.port'
+        )}/${configService.get('database.name')}`,
       }),
     }),
     ThrottlerModule.forRoot([
@@ -48,7 +46,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         sortSchema: true,
-        playground: process.env.NODE_ENV ? false : true,
+        playground: process.env.NODE_ENV === 'production' ? false : true,
         autoSchemaFile: join(process.cwd(), `${configService.get('graphql.autoSchemaFile')}`),
       }),
     }),

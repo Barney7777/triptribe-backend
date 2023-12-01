@@ -1,7 +1,6 @@
-import { Controller, Get, Param, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
@@ -11,7 +10,6 @@ import { CurrentUser } from '@/auth/CurrentUser.decorator';
   version: '1',
 })
 @ApiTags('users')
-@UseFilters(AllExceptionsFilter)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

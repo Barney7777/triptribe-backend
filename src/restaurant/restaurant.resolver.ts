@@ -6,11 +6,13 @@ import { FileUploadService } from '@/file/file.service';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { IUpload } from '@/file/dto/upload.interface';
 import { GraphQLCurrentUser } from '@/auth/CurrentUser.decorator';
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '@/auth/utils/gqlAuthGuard.strategy';
 import { UpdateRestaurantGQLDto } from './dto/update-restaurant.dto';
+import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
 
 @Resolver(() => Restaurant)
+@UseFilters(HttpExceptionFilter)
 export class RestaurantResolver {
   constructor(
     private readonly restaurantService: RestaurantService,

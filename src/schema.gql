@@ -15,7 +15,7 @@ type BusinessTime {
 
 input CreateAddressDto {
   formattedAddress: String!
-  location: LocationDto
+  location: LocationDto!
 }
 
 input CreateBusinessTimeDto {
@@ -43,11 +43,11 @@ input CreatePhotoDto {
 
 input CreateRestaurantDto {
   address: CreateAddressDto!
-  description: String
-  email: String
+  description: String!
+  email: String!
   name: String!
-  openHours: CreateOpenHoursDto
-  phone: String
+  openHours: CreateOpenHoursDto!
+  phone: String!
   website: String
 }
 
@@ -75,6 +75,16 @@ type Mutation {
 
   """Update restaurant"""
   updateRestaurant(files: [Upload!], id: ID!, input: UpdateRestaurantGQLDto!): Restaurant!
+}
+
+type OpenHours {
+  Friday: BusinessTime!
+  Monday: BusinessTime!
+  Saturday: BusinessTime!
+  Sunday: BusinessTime!
+  Thursday: BusinessTime!
+  Tuesday: BusinessTime!
+  Wednesday: BusinessTime!
 }
 
 type Period {
@@ -119,7 +129,7 @@ type Restaurant {
   description: String!
   email: String!
   name: String!
-  openHours: BusinessTime!
+  openHours: OpenHours!
   overAllRating: Float
   phone: String!
   photos: [Photo!]!

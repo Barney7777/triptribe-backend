@@ -20,7 +20,6 @@ export class AuthService {
 
   async register(registerData: AuthRegisterDto) {
     const user = await this.userService.create(registerData);
-    console.log('注册成功');
     // queue task: send email when user register successfull
     await this.sendEmailQueue.add(QUEUE_PROCESS_REGISTER, {
       email: registerData.email,

@@ -20,17 +20,17 @@ The backend is built with the following technologies:
 ## Setup the Database locally
 
 1. Install Docker (https://www.docker.com/get-started/).
-2. Create a Docker container using the MongoDB image by running the following command.
+2. Create the Docker container using the docker compose file using following command.
 
 ```bash
-$ docker run --name triptribe-mongodb -d -p 27017:27017 -v mongodb_data:/data/db mongo
+$ docker compose up
 
 ```
 
 ## Running the app
 
-Ensure the triptribe-mongodb container is running in Docker Desktop,
-or run `docker start triptribe-mongodb` to start the container.
+Ensure the triptribe-backend container is running in Docker Desktop,
+or run `docker compose start` to start the container.
 
 Remember to stop the container after exiting the app.
 

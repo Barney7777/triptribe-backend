@@ -4,6 +4,7 @@ import { Photo, PhotoSchema } from '@/schema/photo.schema';
 import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { Address, AddressSchema } from '@/schema/address.schema';
 import { Field, Float, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
+import { OpenHours } from '@/schema/openHour.schema';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
@@ -33,7 +34,7 @@ export class Restaurant {
   @Prop({ required: true })
   phone: string;
 
-  @Field(() => BusinessTime)
+  @Field(() => OpenHours)
   @Prop({
     _id: false,
     type: {

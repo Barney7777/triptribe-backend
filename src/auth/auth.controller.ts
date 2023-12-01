@@ -1,10 +1,9 @@
-import { Controller, Post, Body, UseGuards, Req, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { plainToClass } from 'class-transformer';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { CurrentUser } from './CurrentUser.decorator';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,7 +13,6 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
   version: '1',
 })
 @ApiTags('auth')
-@UseFilters(AllExceptionsFilter)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

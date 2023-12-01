@@ -10,36 +10,32 @@ export class CreateRestaurantDto {
   @IsString()
   name: string;
 
-  @Field({ nullable: true })
+  @Field()
   @IsString()
-  @IsOptional()
-  description?: string;
+  description: string;
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
   website?: string;
 
-  @Field({ nullable: true })
+  @Field()
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  email: string;
 
-  @Field({ nullable: true })
+  @Field()
   @IsString()
-  @IsOptional()
-  phone?: string;
+  phone: string;
 
-  @Field(() => CreateOpenHoursDto, { nullable: true })
+  @Field(() => CreateOpenHoursDto)
   @ValidateNested()
   @Type(() => CreateOpenHoursDto)
-  @Transform(({ value }) => JSON.parse(value))
-  @IsOptional()
-  openHours?: CreateOpenHoursDto;
+  @Transform(({ value }) => JSON.parse(JSON.stringify(value)))
+  openHours: CreateOpenHoursDto;
 
   @Field(() => CreateAddressDto)
   @ValidateNested()
   @Type(() => CreateAddressDto)
-  @Transform(({ value }) => JSON.parse(value))
+  @Transform(({ value }) => JSON.parse(JSON.stringify(value)))
   address: CreateAddressDto;
 }
