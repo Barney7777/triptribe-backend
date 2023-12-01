@@ -30,6 +30,7 @@ import {
 } from '@nestjs/swagger';
 import { plainToClass } from 'class-transformer';
 import { PhotoType } from '@/schema/photo.schema';
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
@@ -372,6 +373,7 @@ export class RestaurantController {
     const updateRestaurant = plainToClass(UpdateRestaurantDto, updateRestaurantDto);
     return this.restaurantService.update(params.id, updateRestaurant, currentUser._id, files);
   }
+  
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -380,5 +382,10 @@ export class RestaurantController {
     @CurrentUser() currentUser
   ): Promise<Restaurant> {
     return this.restaurantService.remove(params.id, currentUser._id);
+  }
+
+  @Get(':id/rating-distributions')
+  async getAttractionRating(@Param() params: RestaurantFindOneDto): Promise<RatingDistribution[]> {
+    return await this.restaurantService.findRestaurantRating(params.id);
   }
 }

@@ -9,11 +9,15 @@ import { PhotoType } from '@/schema/photo.schema';
 import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
+import { Review } from '@/review/schema/review.schema';
+
 @Injectable()
 export class RestaurantService {
   constructor(
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    @InjectModel(Review.name) private reviewModel: Model<Review>
   ) {}
 
   async findAll(): Promise<Restaurant[]> {
@@ -164,5 +168,19 @@ export class RestaurantService {
       throw new NotFoundException('this restaurant does not exist');
     }
     return restaurant;
+  }
+
+  async findRestaurantRating(restaurantId: string): Promise<RatingDistribution[]> {
+    const restaurant = await this.restaurantModel.findOne({ _id: restaurantId });
+    if (!restaurant) {
+      throw new NotFoundException('this restaurant does not exist');
+    }
+    const ratingDistribution = await this.reviewModel.aggregate([
+      { $match: { placeId: restaurantId, placeType: 'Restaurant' } },
+      { $group: { _id: '$rating', count: { $sum: 1 } } },
+      { $project: { _id: 0, rating: '$_id', count: 1 } },
+      { $sort: { rating: -1 } },
+    ]);
+    return ratingDistribution;
   }
 }

@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   UploadedFiles,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -34,9 +35,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PhotoType } from '@/schema/photo.schema';
+import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
+import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 
 @Controller('attractions')
 @ApiTags('attractions')
+@UseFilters(AllExceptionsFilter)
 export class AttractionController {
   constructor(private readonly attractionService: AttractionService) {}
 
@@ -376,5 +380,11 @@ export class AttractionController {
   ): Promise<Attraction> {
     const attractionDto = plainToClass(UpdateAttractionDto, updateAttractionDto);
     return await this.attractionService.updateAttraction(id, files, attractionDto, currentUser._id);
+  }
+
+  @Get(':id/rating-distributions')
+  @Version('1')
+  async getAttractionRating(@Param() params: AttractionFindOneDto): Promise<RatingDistribution[]> {
+    return await this.attractionService.findAttractionRating(params.id);
   }
 }

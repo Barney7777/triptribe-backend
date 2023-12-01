@@ -18,6 +18,8 @@ import { UpdatePhotoDto } from './dto/photoDto/update-photo.dto';
 import { PhotoType } from '@/schema/photo.schema';
 import { isValidObjectId } from 'mongoose';
 import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
+import { Review } from '@/review/schema/review.schema';
+import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
 
 // interface SaveToDatabase {
 //   name?: string;
@@ -34,7 +36,8 @@ import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
 export class AttractionService {
   constructor(
     @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
-    private uploadfileService: FileUploadService
+    private uploadfileService: FileUploadService,
+    @InjectModel(Review.name) private reviewModel: Model<Review>
   ) {}
 
   async findOne(id: string): Promise<Attraction> {
@@ -205,5 +208,19 @@ export class AttractionService {
 
     const review = await this.attractionModel.findByIdAndDelete(id).exec();
     return review;
+  }
+
+  async findAttractionRating(attractionId: string): Promise<RatingDistribution[]> {
+    const attraction = await this.attractionModel.findOne({ _id: attractionId });
+    if (!attraction) {
+      throw new NotFoundException('this attraction does not exist');
+    }
+    const ratingDistribution = await this.reviewModel.aggregate([
+      { $match: { placeId: attractionId, placeType: 'Attraction' } },
+      { $group: { _id: '$rating', count: { $sum: 1 } } },
+      { $project: { _id: 0, rating: '$_id', count: 1 } },
+      { $sort: { rating: -1 } },
+    ]);
+    return ratingDistribution;
   }
 }

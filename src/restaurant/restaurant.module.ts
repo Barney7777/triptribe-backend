@@ -5,10 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Restaurant, RestaurantSchema } from './schema/restaurant.schema';
 import { FileUploadModule } from '@/file/file.module';
 import { RestaurantResolver } from './restaurant.resolver';
+import { Review, ReviewSchema } from '@/review/schema/review.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Restaurant.name, schema: RestaurantSchema }]),
+    MongooseModule.forFeature([
+      { name: Restaurant.name, schema: RestaurantSchema },
+      { name: Review.name, schema: ReviewSchema },
+    ]),
     FileUploadModule,
   ],
   controllers: [RestaurantController],
