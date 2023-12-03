@@ -1,6 +1,5 @@
-import { Controller, Post, Body, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { GlobalSearchDto } from './dto/globalSearch.dto';
 import { IGlobalSearch } from './type/interfaces/globalSearch.do';
 import { plainToClass } from 'class-transformer';
@@ -11,7 +10,6 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
   version: '1',
 })
 @ApiTags('search')
-@UseFilters(AllExceptionsFilter)
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 

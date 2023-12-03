@@ -8,7 +8,6 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
@@ -18,7 +17,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { AuthGuard } from '@nestjs/passport';
 import { Review } from './schema/review.schema';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
@@ -40,7 +38,6 @@ import { PhotoType } from '@/schema/photo.schema';
   version: '1',
 })
 @ApiTags('reviews')
-@UseFilters(AllExceptionsFilter)
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 

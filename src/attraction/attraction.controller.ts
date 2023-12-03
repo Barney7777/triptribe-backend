@@ -11,7 +11,6 @@ import {
   UseInterceptors,
   UsePipes,
   ValidationPipe,
-  Version,
 } from '@nestjs/common';
 import { AttractionService } from './attraction.service';
 import { Attraction } from '@/attraction/schema/attraction.schema';
@@ -38,7 +37,10 @@ import { PhotoType } from '@/schema/photo.schema';
 import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
 import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 
-@Controller('attractions')
+@Controller({
+  path: 'attractions',
+  version: '1',
+})
 @ApiTags('attractions')
 @UseFilters(AllExceptionsFilter)
 export class AttractionController {
@@ -58,7 +60,6 @@ export class AttractionController {
   @ApiResponse({ status: 200, description: 'Retrieve an attraction successfully' })
   @ApiResponse({ status: 404, description: 'Attraction Not Found' })
   @Get(':id')
-  @Version('1')
   async findOne(@Param() params: AttractionFindOneDto): Promise<Attraction> {
     return this.attractionService.findOne(params.id);
   }
@@ -69,7 +70,6 @@ export class AttractionController {
   })
   @ApiResponse({ status: 200, description: 'Retrieve all attractions successfully' })
   @Get()
-  @Version('1')
   async findAll(): Promise<Attraction[]> {
     return this.attractionService.findAll();
   }
@@ -204,7 +204,6 @@ export class AttractionController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post()
-  @Version('1')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async create(
@@ -369,7 +368,6 @@ export class AttractionController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
-  @Version('1')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async updateAttraction(
@@ -383,7 +381,6 @@ export class AttractionController {
   }
 
   @Get(':id/rating-distributions')
-  @Version('1')
   async getAttractionRating(@Param() params: AttractionFindOneDto): Promise<RatingDistribution[]> {
     return await this.attractionService.findAttractionRating(params.id);
   }

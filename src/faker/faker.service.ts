@@ -14,10 +14,12 @@ import { Review } from '@/review/schema/review.schema';
 import { Photo } from '@/schema/photo.schema';
 import { IRestaurant } from './types/interfaces/restaurant.do';
 import { IReview, PlaceType } from './types/interfaces/review.do';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FakerService implements OnModuleInit, OnModuleDestroy {
   constructor(
+    private readonly configService: ConfigService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
@@ -34,7 +36,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async connectToDatabase(): Promise<void> {
-    const DATABASE_URL = 'mongodb://localhost:27017/tripTribeDb';
+    const DATABASE_URL = `mongodb://${this.configService.get(
+      'database.host'
+    )}:${this.configService.get('database.port')}/${this.configService.get('database.name')}`;
     await mongoose.connect(DATABASE_URL);
     console.log('Connected to MongoDB');
   }

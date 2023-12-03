@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   UploadedFiles,
   UseGuards,
-  UseFilters,
   Delete,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -34,14 +33,12 @@ import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribu
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 
 @Controller({
   path: 'restaurants',
   version: '1',
 })
 @ApiTags('restaurants')
-@UseFilters(AllExceptionsFilter)
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 

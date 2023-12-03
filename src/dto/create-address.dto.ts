@@ -19,9 +19,9 @@ export class CreateAddressDto {
   @IsString()
   formattedAddress: string;
 
-  @Field(() => LocationDto, { nullable: true })
+  @Field(() => LocationDto)
   @ValidateNested()
   @Type(() => LocationDto)
   @IsOptional()
-  location?: LocationDto;
+  location: LocationDto;
 }
