@@ -9,7 +9,7 @@ export class UpdateReviewDto extends PartialType(BaseReviewDto) {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdatePhotoDto)
-  photos: UpdatePhotoDto[];
+  photos?: UpdatePhotoDto[];
 
   //"placeId" "placeType" can not be updated
   // So, take "placeId" "placeType" Exclude from object then use rest data to update
