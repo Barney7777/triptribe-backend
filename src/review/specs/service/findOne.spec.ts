@@ -7,6 +7,7 @@ import { Photo, PhotoType } from '@/schema/photo.schema';
 import { ReviewService } from '../../review.service';
 import { Review } from '../../schema/review.schema';
 import { IReview } from '../../types/interfaces/review.do';
+import { NotFoundException } from '@nestjs/common';
 
 interface IPhoto extends Photo {
   _id: string;
@@ -107,49 +108,16 @@ describe('ReviewService.findOne', () => {
     });
   });
 
-  it('should return 404 when call findOne and review not exist', async () => {
+  it('should return NotFoundException when call findOne and review not exist', async () => {
     const id: string = '655c94255ad11af262221b77';
 
-    const mockResult = {
-      statusCode: 404,
-      timestamp: '2023-11-26T06:36:41.966Z',
-      exception: {
-        response: {
-          message: 'The review does not exist',
-          error: 'Not Found',
-          statusCode: 404,
-        },
-        status: 404,
-        options: {},
-        message: 'The review does not exist',
-        name: 'NotFoundException',
-      },
-      path: '/api/v1/reviews/655c94255ad11af262221b77',
-    };
+    const mockFindByIdResult = null;
 
     const mockedReviewModelFindById = jest.spyOn(reviewModel, 'findById').mockReturnValueOnce({
-      exec: () => mockResult,
+      exec: () => mockFindByIdResult,
     } as any);
 
-    const result = await service.findOne(id);
-
+    await expect(service.findOne(id)).rejects.toThrowError(NotFoundException);
     expect(mockedReviewModelFindById).toBeCalledWith('655c94255ad11af262221b77');
-
-    expect(result).toEqual({
-      statusCode: 404,
-      timestamp: '2023-11-26T06:36:41.966Z',
-      exception: {
-        response: {
-          message: 'The review does not exist',
-          error: 'Not Found',
-          statusCode: 404,
-        },
-        status: 404,
-        options: {},
-        message: 'The review does not exist',
-        name: 'NotFoundException',
-      },
-      path: '/api/v1/reviews/655c94255ad11af262221b77',
-    });
   });
 });

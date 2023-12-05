@@ -113,7 +113,7 @@ export class ReviewService {
     let deletePhotos;
     if (currentPhotos) {
       deletePhotos = previousPhotos?.filter((photo) => {
-        return !currentPhotos.some(
+        return !currentPhotos?.some(
           (currentPhoto) => currentPhoto?.imageUrl?.toString() === photo.imageUrl.toString()
         );
       });

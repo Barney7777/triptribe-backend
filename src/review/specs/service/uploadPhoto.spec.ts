@@ -4,6 +4,7 @@ import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { PhotoType } from '@/schema/photo.schema';
 import { ReviewService } from '../../review.service';
+import { InternalServerErrorException } from '@nestjs/common';
 
 describe('ReviewService.uploadPhoto', () => {
   let service: ReviewService;
@@ -126,5 +127,56 @@ describe('ReviewService.uploadPhoto', () => {
         uploadUserId: '655c94215ad11af262220c2f',
       },
     ]);
+  });
+
+  it('should return Exception when call uploadPhoto and it return an exception', async () => {
+    const files = [
+      {
+        mimetype: 'image/jpeg',
+        size: 1024,
+        buffer: Buffer.from('fake file content', 'utf-8'),
+        originalname: 'originalname',
+        encoding: 'encoding',
+      },
+      {
+        mimetype: 'image/jpeg',
+        size: 1024,
+        buffer: Buffer.from('fake file content', 'utf-8'),
+        originalname: 'originalname',
+        encoding: 'encoding',
+      },
+    ];
+    const userId: string = '655c94215ad11af262220c33';
+
+    const mockedFileServiceUploadPhoto = jest
+      .spyOn(fileService, 'uploadPhoto')
+      .mockRejectedValue(new InternalServerErrorException('Error uploading image'));
+
+    await expect(async () => {
+      await service.uploadPhoto(userId, files);
+    })
+      .rejects.toThrowError(InternalServerErrorException)
+      .catch(() => {});
+
+    expect(mockedFileServiceUploadPhoto).toBeCalledWith(
+      '655c94215ad11af262220c33',
+      [
+        {
+          mimetype: 'image/jpeg',
+          size: 1024,
+          buffer: Buffer.from('fake file content', 'utf-8'),
+          originalname: 'originalname',
+          encoding: 'encoding',
+        },
+        {
+          mimetype: 'image/jpeg',
+          size: 1024,
+          buffer: Buffer.from('fake file content', 'utf-8'),
+          originalname: 'originalname',
+          encoding: 'encoding',
+        },
+      ],
+      PhotoType.REVIEW
+    );
   });
 });
