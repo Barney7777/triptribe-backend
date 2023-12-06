@@ -370,7 +370,6 @@ export class RestaurantController {
     const updateRestaurant = plainToClass(UpdateRestaurantDto, updateRestaurantDto);
     return this.restaurantService.update(params.id, updateRestaurant, currentUser._id, files);
   }
-  
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))

@@ -1,9 +1,10 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, HttpCode } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
+import { SavePlaceDto } from './dto/save-place.dto';
 
 @Controller({
   path: 'users',
@@ -35,5 +36,14 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async find(@Param('id') id: string): Promise<User> {
     return this.userService.findOne(id);
+  }
+
+  @Post('me/saves')
+  @ApiBearerAuth()
+  @ApiResponse({ status: 201, description: 'Place saved successfully' })
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
+  create(@CurrentUser() currentUser, @Body() savePlaceDto: SavePlaceDto): Promise<void> {
+    return this.userService.addSavedPlace(currentUser, savePlaceDto);
   }
 }
