@@ -1,13 +1,31 @@
 import { Model } from 'mongoose';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  // BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
+import { SavePlaceDto } from './dto/save-place.dto';
 import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
+
+interface CurrentUser {
+  _id: string;
+  savedAttractions?: string[];
+  savedRestaurants?: string[];
+}
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
+    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>
+  ) {}
 
   getMe(currentUser): User {
     return currentUser;
@@ -52,6 +70,80 @@ export class UserService {
     const createdUser = new this.userModel(createUserData);
     return createdUser.save();
   }
+
+  async addSavedPlace(currentUser: CurrentUser, savePlaceDto: SavePlaceDto): Promise<void> {
+    const user = currentUser;
+    let place;
+
+    user.savedRestaurants = user.savedRestaurants || [];
+    user.savedAttractions = user.savedAttractions || [];
+    if (
+      user.savedAttractions.includes(savePlaceDto.placeId) ||
+      user.savedRestaurants.includes(savePlaceDto.placeId)
+    ) {
+      return;
+    }
+
+    if (savePlaceDto.placeType === 'Restaurant') {
+      place = await this.restaurantModel.findById(savePlaceDto.placeId);
+      if (!place) {
+        throw new NotFoundException('Restaurant not found');
+      }
+      const newSavedList = [...user.savedRestaurants];
+      newSavedList.push(place._id);
+      const newUserData = { savedRestaurants: newSavedList };
+      await this.userModel.findByIdAndUpdate(user['_id'], newUserData, { new: true }).exec();
+      return;
+    } else if (savePlaceDto.placeType === 'Attraction') {
+      place = await this.attractionModel.findById(savePlaceDto.placeId);
+      if (!place) {
+        throw new NotFoundException('Attraction not found');
+      }
+      const newSavedList = [...user.savedAttractions];
+      newSavedList.push(place._id);
+      const newUserData = { savedAttractions: newSavedList };
+      await this.userModel.findByIdAndUpdate(user['_id'], newUserData, { new: true }).exec();
+      return;
+    }
+  }
+
+  // async deleteSavedPlace(
+  //   userId: string,
+  //   savePlaceDto: SavePlaceDto
+  // ): Promise<{ savedRestaurants: Restaurant[] } | { savedAttractions: Attraction[] } | undefined> {
+  //   let place;
+
+  //   if (savePlaceDto.placeType === 'Restaurant') {
+  //     place = await this.restaurantModel.findById(savePlaceDto.placeId);
+  //   } else if (savePlaceDto.placeType === 'Attraction') {
+  //     place = await this.attractionModel.findById(savePlaceDto.placeId);
+  //   }
+
+  //   if (!place) {
+  //     throw new BadRequestException('Place not found');
+  //   }
+
+  //   const user = await this.userModel.findById(userId);
+  //   if (!user) {
+  //     throw new BadRequestException('User not found');
+  //   }
+
+  //   if (savePlaceDto.placeType === 'Restaurant') {
+  //     const index = user.savedRestaurants.indexOf(place._id);
+  //     if (index > -1) {
+  //       user.savedRestaurants.splice(index, 1);
+  //       await user.save();
+  //       return { savedRestaurants: user.savedRestaurants };
+  //     }
+  //   } else if (savePlaceDto.placeType === 'Attraction') {
+  //     const index = user.savedAttractions.indexOf(place._id);
+  //     if (index > -1) {
+  //       user.savedAttractions.splice(index, 1);
+  //       await user.save();
+  //       return { savedAttractions: user.savedAttractions };
+  //     }
+  //   }
+  // }
 
   async updatePassword(userId: string, newPassword: EditPasswordDto) {
     const { newPassword: checkedNewpassword } = newPassword;
