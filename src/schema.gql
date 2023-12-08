@@ -117,8 +117,14 @@ type Query {
   """Get all restaurants"""
   getAllRestaurants: [Restaurant!]!
 
+  """Get ME"""
+  getMe: User!
+
   """Get restaurant by id"""
   getOneRestaurant(id: ID!): Restaurant!
+
+  """Get user by id"""
+  getOneUser(id: ID!): User!
 }
 
 type Restaurant {
@@ -150,3 +156,16 @@ input UpdateRestaurantGQLDto {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+type User {
+  _id: ID!
+  description: String
+  email: String!
+  firstName: String
+  lastName: String
+  nickname: String!
+  role: String!
+  savedAttractions: [ID!]
+  savedRestaurants: [ID!]
+  userAvatar: [Photo!]!
+}
