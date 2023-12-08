@@ -2,13 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from '@/user/user.service';
 import { UserDocument } from '@/user/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
-import { AuthRegisterDto } from './dto/auth-register.dto';
 import dayjs from 'dayjs';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { AuthRegisterDto } from './dto/auth-register.dto';
 
 @Injectable()
 export class AuthService {

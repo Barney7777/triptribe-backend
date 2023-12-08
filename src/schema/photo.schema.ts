@@ -20,7 +20,6 @@ registerEnumType(PhotoType, {
 @Schema()
 export class Photo {
   @Field(() => ID)
-  // @Prop({ required: true })
   _id: string;
 
   @Field()

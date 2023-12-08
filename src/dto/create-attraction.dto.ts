@@ -2,6 +2,7 @@ import {
   IsArray,
   IsEmail,
   IsMongoId,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -16,19 +17,22 @@ import { Type } from 'class-transformer';
 
 export class CreateAttractionDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsString()
+  @IsNotEmpty()
   description: string;
 
   @IsString()
   @IsOptional()
-  website: string;
+  website?: string;
 
   @IsEmail()
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   phone: string;
 
   @ValidateNested()

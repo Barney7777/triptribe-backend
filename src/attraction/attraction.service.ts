@@ -9,28 +9,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { ICreateAttaraction } from './types/interfaces/createAttraction.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
-import { CreateAttractionDto } from './dto/attractionDto/create-attraction.dto';
+import { CreateAttractionDto } from './dto/create-attraction.dto';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
 import { FileUploadService } from '@/file/file.service';
-import { UpdateAttractionDto } from './dto/attractionDto/update-attraction.dto';
-import { UpdatePhotoDto } from './dto/photoDto/update-photo.dto';
+import { UpdateAttractionDto } from './dto/update-attraction.dto';
 import { PhotoType } from '@/schema/photo.schema';
-import { isValidObjectId } from 'mongoose';
-import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
+import { AttractionFindOneDto } from './dto/get-attraction.dto';
 import { Review } from '@/review/schema/review.schema';
 import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
-
-// interface SaveToDatabase {
-//   name?: string;
-//   description?: string;
-//   website?: string;
-//   email?: string;
-//   phone?: string;
-//   // photos:CreatePhotoDto[];
-//   createdUserId: string;
-//   overAllRating: number;
-// }
 
 @Injectable()
 export class AttractionService {
@@ -119,43 +106,15 @@ export class AttractionService {
     return attractions;
   }
 
-  async uploadPhoto(userId: UserIdDto['_id'], files: FileUploadDto[]) {
-    if (files.length === 0) {
-      return [];
-    }
-
-    const uploadResult = await this.uploadfileService.uploadPhoto(
-      userId,
-      files,
-      PhotoType.ATTRACTION
-    );
-
-    if (!uploadResult || !Array.isArray(uploadResult)) {
-      throw new BadRequestException('Upload failed, no results returned.');
-    }
-
-    const uploadPic = uploadResult.map((photo) => ({
-      imageUrl: photo.data.imageUrl,
-      imageType: PhotoType.ATTRACTION,
-      imageAlt: photo.data.imageAlt,
-      uploadUserId: photo.data.uploadUserId,
-    }));
-    return uploadPic;
-  }
-
   async updateAttraction(
-    id: AttractionFindOneDto['id'],
+    id: string,
     files: FileUploadDto[],
     updateAttractionDto: UpdateAttractionDto,
     userId: UserIdDto['_id']
   ): Promise<Attraction> {
-    if (!isValidObjectId(id)) {
-      throw new BadRequestException('Provided _id is not a valid MongoDB ObjectId');
-    }
-
     const current_userId = userId;
-    const attractionData = await this.findOneFromMe(id, current_userId);
-    const previousPhotos = attractionData?.photos;
+    const previousAttraction = await this.findOneFromMe(id, current_userId);
+    const previousPhotos = previousAttraction?.photos;
     const currentPhotos = updateAttractionDto.photos || [];
 
     const deletePhotos = previousPhotos?.filter((photo) => {
@@ -163,33 +122,28 @@ export class AttractionService {
         (currentPhoto) => currentPhoto.imageUrl?.toString() === photo.imageUrl.toString()
       );
     });
-
     if (deletePhotos !== undefined && deletePhotos?.length > 0) {
       console.log('deletePhotos', deletePhotos);
-      // TODO!!! if deletePhoto array exist,call function to delete photo
+      // TODO!!! if deletePhoto exists, call function to delete photos in db and aws
     }
 
-    let newPicArray;
+    // upload new photos to AWS and save it with current photos
     if (files && files.length > 0) {
-      newPicArray = (await this.uploadPhoto(userId, files)) as UpdatePhotoDto[];
+      const results = await this.uploadfileService.uploadPhoto(userId, files, PhotoType.ATTRACTION);
+      const newPicArray = results.map((photo) => photo.data);
+      currentPhotos.push(...newPicArray);
     }
 
-    if (!updateAttractionDto.photos) {
-      updateAttractionDto.photos = [];
-    }
+    const dataToUpdate = { ...updateAttractionDto, userId, photos: currentPhotos };
 
-    updateAttractionDto.photos.push(...newPicArray);
+    const updatedAttraction = await this.attractionModel
+      .findByIdAndUpdate(id, dataToUpdate, { new: true })
+      .exec();
 
-    const dataToUpdate = { ...updateAttractionDto, userId: userId };
-
-    try {
-      const updatedAttraction = await this.attractionModel
-        .findByIdAndUpdate(id, dataToUpdate, { new: true })
-        .exec();
-      return updatedAttraction as Attraction;
-    } catch (error) {
+    if (!updatedAttraction) {
       throw new BadRequestException('Update operation failed');
     }
+    return updatedAttraction;
   }
 
   async findOneFromMe(attractionId: string, current_userId: string) {

@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { CreateAddressDto } from '@/dto/create-address.dto';
 import { CreateOpenHoursDto } from '@/dto/create-openHours.dto';
 import { Transform, Type } from 'class-transformer';
@@ -8,10 +8,12 @@ import { Field, InputType } from '@nestjs/graphql';
 export class CreateRestaurantDto {
   @Field()
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   description: string;
 
   @Field({ nullable: true })
@@ -25,6 +27,7 @@ export class CreateRestaurantDto {
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   phone: string;
 
   @Field(() => CreateOpenHoursDto)

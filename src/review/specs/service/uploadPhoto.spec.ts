@@ -3,7 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '../../review.service';
+import { ReviewService } from '@/review/review.service';
 import { InternalServerErrorException } from '@nestjs/common';
 
 describe('ReviewService.uploadPhoto', () => {

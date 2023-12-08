@@ -3,9 +3,9 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Photo, PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '../../review.service';
-import { IReview } from '../../types/interfaces/review.do';
-import { PlaceType } from '../../dto/reviewDto/base-review.dto';
+import { ReviewService } from '@/review/review.service';
+import { IReview } from '@/review/types/interfaces/review.do';
+import { PlaceType } from '@/review/dto/base-review.dto';
 
 interface IPhoto extends Photo {
   _id: string;

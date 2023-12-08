@@ -3,11 +3,11 @@ import {
   // BadRequestException,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
 import { Model } from 'mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { SavePlaceDto } from './dto/save-place.dto';
@@ -16,6 +16,7 @@ import { Multer } from 'multer';
 import { FileUploadService } from '@/file/file.service';
 import { PhotoType } from '@/schema/photo.schema';
 import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
+import { AuthRegisterDto } from '@/auth/dto/auth-register.dto';
 
 interface CurrentUser {
   _id: string;
@@ -39,15 +40,16 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
     if (!user) {
-      throw new NotFoundException('User not existed');
+      throw new NotFoundException('User does not exist');
     }
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: AuthRegisterDto): Promise<User> {
+    // check if user already existed
     const existingUser = await this.userModel.findOne({ email: createUserDto.email });
     if (existingUser) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('user already exists');
     }
 
     const nicknameParts = createUserDto.email?.split('@');
@@ -75,7 +77,7 @@ export class UserService {
     if (!existingUser) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-    const updateData = { ...updateUserDto };
+    let currentAvatar = existingUser.userAvatar;
 
     if (avatarFile) {
       const uploadResults = await this.fileUploadService.uploadPhoto(
@@ -84,33 +86,19 @@ export class UserService {
         PhotoType.USER
       );
 
-      const photoDocuments = uploadResults.map((result) => {
-        // Map to CreatePhotoDto
-        return {
-          imageUrl: result.data.imageUrl,
-          imageAlt: result.data.imageAlt,
-          imageType: PhotoType.USER,
-          uploadUserId: result.data.uploadUserId, // Use @CurrentUser decorator to get the current user ID
-        };
-      });
-
-      // using findOneAndUpdate update user date with photo change
-      const updatedUser = await this.userModel.findOneAndUpdate(
-        { _id: userId },
-        { $set: { ...updateData, userAvatar: photoDocuments } },
-        { new: true }
-      );
-
-      return updatedUser as User;
+      currentAvatar = uploadResults.map((result) => result.data)[0];
     }
-    // using findOneAndUpdate update user date, photo does not change
-    const updatedUser = await this.userModel.findOneAndUpdate(
-      { _id: userId },
-      { $set: { ...updateData } },
-      { new: true }
-    );
 
-    return updatedUser as User;
+    const dataToUpdate = {
+      ...updateUserDto,
+      userAvatar: currentAvatar,
+    };
+    // using findOneAndUpdate update user date with photo change
+    const updatedUser = await this.userModel.findByIdAndUpdate(userId, dataToUpdate, { new: true });
+    if (!updatedUser) {
+      throw new BadRequestException('update operation failed');
+    }
+    return updatedUser;
   }
 
   async addSavedPlace(currentUser: CurrentUser, savePlaceDto: SavePlaceDto): Promise<void> {

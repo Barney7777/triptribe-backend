@@ -1,26 +1,38 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateReviewDto } from './dto/reviewDto/create-review.dto';
-import { UpdateReviewDto } from './dto/reviewDto/update-review.dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './schema/review.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { FileUploadService } from '@/file/file.service';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { PhotoType } from '@/schema/photo.schema';
-import { QueryReviewDto } from './dto/reviewDto/query-review.dto';
+import { QueryReviewDto } from './dto/query-review.dto';
 import { IReview } from './types/interfaces/review.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
+import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { Attraction } from '@/attraction/schema/attraction.schema';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectModel(Review.name) private reviewModel: Model<Review>,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
+    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>
   ) {}
   async create(files: FileUploadDto[], reviewDto: CreateReviewDto, userId: UserIdDto['_id']) {
-    let photoDocuments: CreatePhotoDto[] = []; // Explicitly specify the type as CreatePhotoDto[]
+    const { placeId, placeType } = reviewDto;
+    if (!(await this.checkPlaceExists(placeId, placeType))) {
+      throw new NotFoundException('the place id does not exist or place type is wrong');
+    }
+    let photoDocuments: CreatePhotoDto[] = [];
 
     if (files && files.length > 0) {
       const uploadResults = await this.fileUploadService.uploadPhoto(
@@ -29,23 +41,11 @@ export class ReviewService {
         PhotoType.REVIEW
       );
 
-      // Filter out unsuccessful upload results and map them to CreatePhotoDto
-      photoDocuments = uploadResults
-        // .filter((result) => result.success) // Filter out unsuccessful uploads
-        .map((result) => {
-          // Map to CreatePhotoDto
-          return {
-            imageUrl: result.data.imageUrl,
-            imageAlt: result.data.imageAlt,
-            imageType: PhotoType.REVIEW,
-            uploadUserId: result.data.uploadUserId, // Use @CurrentUser decorator to get the current user ID
-          };
-        });
+      photoDocuments = uploadResults.map((photo) => photo.data);
     }
 
     // spread reviewDto and put "photos" and "userId" together in reviewData
     const reviewData: IReview = { ...reviewDto, userId, photos: photoDocuments };
-    // console.log('reviewData', reviewData);
 
     const review = await this.reviewModel.create(reviewData);
     return review;
@@ -64,49 +64,16 @@ export class ReviewService {
     return review;
   }
 
-  async uploadPhoto(userId: UserIdDto['_id'], files: FileUploadDto[]) {
-    try {
-      // if files array no data, return []
-      if (!files || !files.length) {
-        return [];
-      }
-
-      // call fileUploadService.uploadPhoto function, set 'files' as param
-      const uploadResult = await this.fileUploadService.uploadPhoto(
-        userId,
-        files,
-        PhotoType.REVIEW
-      );
-
-      // clarify an array "newPicArray", return value array.map into photos,
-      const newPicArray = uploadResult.map((photo) => ({
-        // need change return value object's "imageUrl" field to "imageUrl" and put value in
-        imageUrl: photo.data.imageUrl,
-        imageAlt: photo.data.imageAlt,
-        // "imageType" as "review"
-        imageType: PhotoType.REVIEW,
-        // mock data, "uploadUserId" as JWT strategy return value "req.user._id"
-        uploadUserId: photo.data.uploadUserId,
-      }));
-      return newPicArray;
-    } catch (error) {
-      throw new AllExceptionsFilter(error);
-    }
-  }
-
   async update(
     id: QueryReviewDto['id'],
     files: FileUploadDto[],
     updateReviewDto: UpdateReviewDto,
     userId: UserIdDto['_id']
-  ) {
-    //call verifyOwner() to verify currentUser with reviewCreator
+  ): Promise<Review> {
+    // verify if current user is owner
     const previousReview = await this.findOneFromMe(id, userId);
-    // photos is previous photos
-    const previousPhotos = previousReview?.photos;
-    // console.log('photos', previousPhotos);
 
-    // photo array upload this time
+    const previousPhotos = previousReview?.photos;
     let currentPhotos = updateReviewDto.photos;
 
     // compare 2 photos array (previousPhotos and currentPhotos), find deletePhotos array
@@ -123,23 +90,27 @@ export class ReviewService {
     }
     if (deletePhotos !== undefined && deletePhotos?.length > 0) {
       console.log('deletePhotos', deletePhotos);
-      // TODO!!! if deletePhoto array exist,call function to delete photo
+      // TODO!!! if deletePhoto exists, call function to delete photos in DB and AWS
     }
-    // call uploadPhoto function, set 'files' as param
-    const newPicArray = await this.uploadPhoto(userId, files);
-    // push newPicArray into currentPhotos
-    currentPhotos.push(...newPicArray);
 
-    // assign "currentPhotos" to "photos" , "userId" as "current_userId"
+    // upload new photos to AWS and save it with current photos
+    if (files && files.length > 0) {
+      const results = await this.fileUploadService.uploadPhoto(userId, files, PhotoType.REVIEW);
+      const newPicArray = results.map((photo) => photo.data);
+      currentPhotos.push(...newPicArray);
+    }
+
     const dataToUpdate: IReview = {
       ...updateReviewDto,
       userId: userId,
       photos: currentPhotos,
     };
-    // console.log('dataToUpdate', dataToUpdate);
 
     // call model to set 'dataToUpdate' to update
     const review = await this.reviewModel.findByIdAndUpdate(id, dataToUpdate, { new: true }).exec();
+    if (!review) {
+      throw new BadRequestException('Update operation failed');
+    }
     return review;
   }
 
@@ -155,10 +126,22 @@ export class ReviewService {
   }
 
   async remove(id: QueryReviewDto['id'], userId: UserIdDto['_id']) {
-    //call verifyOwner() to verify currentUser with reviewCreator
+    // verify if current user is owner
     await this.findOneFromMe(id, userId);
 
     const review = await this.reviewModel.findByIdAndDelete(id).exec();
     return review;
+  }
+
+  async checkPlaceExists(placeId: string, placeType: string): Promise<boolean> {
+    const restaurantDocument = await this.restaurantModel.findById(placeId).exec();
+    const attractionDocument = await this.attractionModel.findById(placeId).exec();
+    if (
+      (restaurantDocument && placeType === 'Restaurant') ||
+      (attractionDocument && placeType === 'Attraction')
+    ) {
+      return true;
+    }
+    return false;
   }
 }

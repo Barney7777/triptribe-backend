@@ -1,6 +1,6 @@
 import { PhotoType } from '@/schema/photo.schema';
 import { Field, InputType } from '@nestjs/graphql';
-import { IsString, IsEnum } from 'class-validator';
+import { IsString, IsEnum, IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreatePhotoDto {
@@ -10,6 +10,7 @@ export class CreatePhotoDto {
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   imageUrl: string;
 
   @Field(() => PhotoType)
@@ -18,5 +19,6 @@ export class CreatePhotoDto {
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   uploadUserId: string;
 }

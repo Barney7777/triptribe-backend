@@ -1,7 +1,7 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 
-import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 @InputType()
 export class LocationDto {
   //lng must in front of lat
@@ -18,6 +18,7 @@ export class LocationDto {
 export class CreateAddressDto {
   @Field()
   @IsString()
+  @IsNotEmpty()
   formattedAddress: string;
 
   @Field(() => LocationDto)

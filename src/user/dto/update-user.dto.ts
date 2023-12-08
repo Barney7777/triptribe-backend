@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import { Photo } from '@/schema/photo.schema';
 import { IsString, IsOptional, IsNotEmptyObject } from 'class-validator';
 
@@ -22,13 +21,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNotEmptyObject()
   readonly userAvatar?: Photo;
-
-  @Exclude()
-  readonly role?: string;
-
-  @Exclude()
-  readonly createdAt?: Date;
-
-  @Exclude()
-  readonly updatedAt?: Date;
 }

@@ -25,7 +25,7 @@ export class RestaurantService {
   }
 
   async findOne(id: string): Promise<Restaurant> {
-    const restaurant = await this.restaurantModel.findById(id.toString()).exec();
+    const restaurant = await this.restaurantModel.findById(id).exec();
     if (!restaurant) {
       throw new NotFoundException('this restaurant does not exist');
     }
@@ -68,16 +68,9 @@ export class RestaurantService {
     createdUserId: UserIdDto['_id'],
     files?: FileUploadDto[]
   ): Promise<Restaurant> {
-    const { photos: currentPhotos } = await this.verifyRestaurant(id, createdUserId);
-
-    const restPhotos = currentPhotos.filter(
-      (photo) => updateRestaurantDto.photos?.some((p) => p.imageUrl === photo.imageUrl)
-    );
-
     if (!files || !files.length) {
-      const updatedDto = { ...updateRestaurantDto, photos: restPhotos };
       const updatedRestaurant = await this.restaurantModel
-        .findByIdAndUpdate(id, updatedDto, { new: true })
+        .findByIdAndUpdate(id, updateRestaurantDto, { new: true })
         .exec();
       if (!updatedRestaurant) {
         throw new NotFoundException('this restaurant does not exist');
@@ -92,6 +85,11 @@ export class RestaurantService {
       PhotoType.RESTAURANT
     );
     const photos = results.map((photo) => photo.data);
+
+    const { photos: currentPhotos } = await this.verifyRestaurant(id, createdUserId);
+    const restPhotos = currentPhotos.filter(
+      (photo) => updateRestaurantDto.photos?.some((p) => p.imageUrl === photo.imageUrl)
+    );
     // TODO: update photos if photos order change
     const newPhotos = [...restPhotos, ...photos];
     const updatedDto = { ...updateRestaurantDto, photos: newPhotos };
