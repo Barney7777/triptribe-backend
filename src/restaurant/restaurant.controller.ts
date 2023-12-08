@@ -381,7 +381,7 @@ export class RestaurantController {
   }
 
   @Get(':id/rating-distributions')
-  async getAttractionRating(@Param() params: RestaurantFindOneDto): Promise<RatingDistribution[]> {
+  async getRestaurantRating(@Param() params: RestaurantFindOneDto): Promise<RatingDistribution[]> {
     return await this.restaurantService.findRestaurantRating(params.id);
   }
 }

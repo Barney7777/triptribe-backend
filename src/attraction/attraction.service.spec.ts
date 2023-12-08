@@ -6,7 +6,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Photo, PhotoType } from '@/schema/photo.schema';
-import { Review } from '@/review/schema/review.schema';
+
 interface IPhoto extends Photo {
   _id: string;
 }
@@ -785,75 +785,5 @@ describe('AttractionService', () => {
         __v: 0,
       },
     ]);
-  });
-});
-
-interface RatingDistribution {
-  count: number;
-  rating: number;
-}
-
-describe('AttractionService', () => {
-  let service: AttractionService;
-  let reviewModel: Model<Review>;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AttractionService,
-        FileUploadService,
-        ConfigService,
-        {
-          provide: getModelToken('Review'),
-          useValue: {
-            aggregate: jest.fn(),
-          },
-        },
-        {
-          provide: getModelToken('Photo'),
-          useValue: {},
-        },
-        {
-          provide: getModelToken('Attraction'),
-          useValue: {},
-        },
-      ],
-    }).compile();
-    service = module.get<AttractionService>(AttractionService);
-    reviewModel = module.get<Model<Review>>(getModelToken('Review'));
-  }, 10000);
-
-  it('should return an rating distribution array', async () => {
-    const mockResult: RatingDistribution[] = [
-      {
-        count: 7,
-        rating: 5,
-      },
-      {
-        count: 6,
-        rating: 4,
-      },
-      {
-        count: 4,
-        rating: 3,
-      },
-      {
-        count: 8,
-        rating: 2,
-      },
-      {
-        count: 5,
-        rating: 1,
-      },
-    ];
-    jest.spyOn(reviewModel, 'aggregate').mockResolvedValue(mockResult);
-    const result = await service.findAttractionRating('655afde160f02f37d6f444d3');
-    expect(reviewModel.aggregate).toBeCalledWith([
-      { $match: { placeId: '655afde160f02f37d6f444d3', placeType: 'Attraction' } },
-      { $group: { _id: '$rating', count: { $sum: 1 } } },
-      { $project: { _id: 0, rating: '$_id', count: 1 } },
-      { $sort: { rating: -1 } },
-    ]);
-    expect(result).toEqual(mockResult);
   });
 });

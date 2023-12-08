@@ -48,6 +48,10 @@ describe('SearchService', () => {
           provide: getModelToken('Photo'),
           useValue: {},
         },
+        {
+          provide: getModelToken('Review'),
+          useValue: {},
+        },
       ],
     }).compile();
     service = module.get<SearchService>(SearchService);

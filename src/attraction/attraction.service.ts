@@ -211,7 +211,7 @@ export class AttractionService {
   }
 
   async findAttractionRating(attractionId: string): Promise<RatingDistribution[]> {
-    const attraction = await this.attractionModel.findOne({ _id: attractionId });
+    const attraction = await this.attractionModel.findOne({ _id: attractionId }).exec();
     if (!attraction) {
       throw new NotFoundException('this attraction does not exist');
     }

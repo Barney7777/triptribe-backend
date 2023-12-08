@@ -171,7 +171,7 @@ export class RestaurantService {
   }
 
   async findRestaurantRating(restaurantId: string): Promise<RatingDistribution[]> {
-    const restaurant = await this.restaurantModel.findOne({ _id: restaurantId });
+    const restaurant = await this.restaurantModel.findOne({ _id: restaurantId }).exec();
     if (!restaurant) {
       throw new NotFoundException('this restaurant does not exist');
     }
