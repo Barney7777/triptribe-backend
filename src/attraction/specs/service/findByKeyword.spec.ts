@@ -1,5 +1,5 @@
 import { Model, Types } from 'mongoose';
-import { AttractionService } from './attraction.service';
+import { AttractionService } from '@/attraction/attraction.service';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
