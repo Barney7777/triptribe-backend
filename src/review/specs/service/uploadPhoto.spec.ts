@@ -5,12 +5,19 @@ import { ConfigService } from '@nestjs/config';
 import { PhotoType } from '@/schema/photo.schema';
 import { ReviewService } from '@/review/review.service';
 import { InternalServerErrorException } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
+import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 
 describe('ReviewService.uploadPhoto', () => {
   let service: ReviewService;
   let fileService: FileUploadService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        BullModule.registerQueue({
+          name: QUEUE_NAME_DATABASE_SYNC,
+        }),
+      ],
       providers: [
         ReviewService,
         FileUploadService,

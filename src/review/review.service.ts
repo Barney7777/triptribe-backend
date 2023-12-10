@@ -18,6 +18,9 @@ import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Attraction } from '@/attraction/schema/attraction.schema';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { QUEUE_PROCESS_CALCULATE_OVERALLRATING } from '@/common/constant/queue.constant';
 
 @Injectable()
 export class ReviewService {
@@ -25,7 +28,8 @@ export class ReviewService {
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     private readonly fileUploadService: FileUploadService,
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
-    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>
+    @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
+    @InjectQueue('database-sync') private databaseSync: Queue
   ) {}
   async create(files: FileUploadDto[], reviewDto: CreateReviewDto, userId: UserIdDto['_id']) {
     const { placeId, placeType } = reviewDto;
@@ -48,6 +52,16 @@ export class ReviewService {
     const reviewData: IReview = { ...reviewDto, userId, photos: photoDocuments };
 
     const review = await this.reviewModel.create(reviewData);
+
+    await this.databaseSync.add(
+      QUEUE_PROCESS_CALCULATE_OVERALLRATING,
+      {
+        placeType: review.placeType,
+        placeId: review.placeId,
+      },
+      { delay: 100 }
+    );
+
     return review;
   }
 
