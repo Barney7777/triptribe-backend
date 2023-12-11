@@ -34,8 +34,8 @@ export class GlobalSearchDto {
 
   @ApiProperty({
     example: {
+      lng: -98.3598,
       lat: -29.9485,
-      lng: -88.3598,
     },
   })
   @IsOptional()

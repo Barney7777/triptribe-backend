@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { IPhoto, PhotoSchema } from './photo.entity.js';
 import { BusinessTimeSchema, IBusinessTime } from './businessTime.entity.js';
-import { IAddress } from './address.entity.js';
+import { AddressSchema, IAddress } from './address.entity.js';
 
 export interface IAttraction {
   name: string;
@@ -43,6 +43,8 @@ export const AttractionSchema = new Schema<IAttraction>({
     },
     default: {},
   },
+  address: { type: AddressSchema, required: false },
+  overAllRating: { type: 'number', required: false },
   photos: { type: [PhotoSchema], required: false },
   createdUserId: { type: 'string', required: true },
 });

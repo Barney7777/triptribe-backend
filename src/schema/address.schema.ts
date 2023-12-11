@@ -4,13 +4,14 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @ObjectType()
 @Schema({ _id: false })
 export class Location {
-  @Field()
-  @Prop({ required: true })
-  lat: number;
-
+  //lng must in front of lat
   @Field()
   @Prop({ required: true })
   lng: number;
+
+  @Field()
+  @Prop({ required: true })
+  lat: number;
 }
 
 @ObjectType()

@@ -4,13 +4,14 @@ import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 @InputType()
 export class LocationDto {
-  @Field(() => Float)
-  @IsNumber()
-  lat: number;
-
+  //lng must in front of lat
   @Field(() => Float)
   @IsNumber()
   lng: number;
+
+  @Field(() => Float)
+  @IsNumber()
+  lat: number;
 }
 
 @InputType()

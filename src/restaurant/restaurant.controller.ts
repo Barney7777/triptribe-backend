@@ -177,8 +177,8 @@ export class RestaurantController {
           example: {
             formattedAddress: '25474 Ratke Passage Suite 979',
             location: {
+              lng: -140.1176,
               lat: -88.9277,
-              lng: -40.1176,
             },
           },
         },
@@ -325,8 +325,8 @@ export class RestaurantController {
           example: {
             formattedAddress: '25474 Ratke Passage Suite 979',
             location: {
+              lng: -140.1176,
               lat: -88.9277,
-              lng: -40.1176,
             },
           },
         },

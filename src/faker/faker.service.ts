@@ -139,9 +139,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     };
 
     const formattedAddress: string = faker.location.streetAddress({ useFullAddress: true });
+    const lng: number = faker.location.longitude({ max: 180, min: -180 });
     const lat: number = faker.location.latitude({ max: 90, min: -90 });
-    const lng: number = faker.location.longitude({ max: 90, min: -90 });
-    const location = { lat, lng };
+    const location = { lng, lat };
     const address: IAddress = { formattedAddress, location };
     const overAllRating: number = 0;
     const photos: IPhoto[] = [];
@@ -209,9 +209,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     };
 
     const formattedAddress: string = faker.location.streetAddress({ useFullAddress: true });
+    const lng: number = faker.location.longitude({ max: 180, min: -180 });
     const lat: number = faker.location.latitude({ max: 90, min: -90 });
-    const lng: number = faker.location.longitude({ max: 90, min: -90 });
-    const location = { lat, lng };
+    const location = { lng, lat };
     const address: IAddress = { formattedAddress, location };
     const overAllRating: number = 0;
     const photos: IPhoto[] = [];

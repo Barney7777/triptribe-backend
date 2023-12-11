@@ -144,8 +144,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
@@ -281,8 +281,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
@@ -395,8 +395,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
@@ -532,8 +532,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
@@ -645,8 +645,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
@@ -767,8 +767,8 @@ describe('RestaurantService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
-            lng: -88.3598,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 3.2,
