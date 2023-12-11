@@ -17,14 +17,12 @@ The backend is built with the following technologies:
 1. Clone the repository to your local machine.
 2. Install the project dependencies by running `npm install`.
 
-## Setup the Database locally
+## Setup the Database and Redis locally with Docker Desktop
 
 1. Install Docker (https://www.docker.com/get-started/).
-2. Create the Docker container using the docker compose file using following command.
-
+2. Create a Docker container using the MongoDB image and Redis image by running the following command at the root path of this project.
 ```bash
-$ docker compose up
-
+$ npm run docker:up 
 ```
 
 ## Running the app
@@ -118,3 +116,4 @@ After starting the app, use the URL: http://localhost:3000/admin to access panel
 Default login detail:
 email: 'admin@triptribe.com',
 password: 'password',
+
