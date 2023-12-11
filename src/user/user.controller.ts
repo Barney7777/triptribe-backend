@@ -1,10 +1,26 @@
-import { Body, Controller, Get, Param, Post, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Param,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Post,
+  HttpCode,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
+
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Multer } from 'multer';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
 import { SavePlaceDto } from './dto/save-place.dto';
+import { plainToClass } from 'class-transformer';
 
 @Controller({
   path: 'users',
@@ -48,5 +64,21 @@ export class UserController {
   @HttpCode(201)
   create(@CurrentUser() currentUser, @Body() savePlaceDto: SavePlaceDto): Promise<void> {
     return this.userService.addSavedPlace(currentUser, savePlaceDto);
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+    })
+  )
+  async updateProfile(
+    @Param('id') userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() avatar: Multer.File
+  ) {
+    const updatedUserDto = plainToClass(UpdateUserDto, updateUserDto);
+    return this.userService.updateUser(userId, updatedUserDto, avatar);
   }
 }

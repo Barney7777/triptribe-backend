@@ -8,6 +8,8 @@ import { Model } from 'mongoose';
 // import { SavePlaceDto } from './dto/save-place.dto';
 import { NotFoundException } from '@nestjs/common';
 import { SavePlaceDto } from './dto/save-place.dto';
+import { FileUploadService } from '@/file/file.service';
+import { ConfigService } from '@nestjs/config';
 //  BadRequestException
 interface IUser {
   _id: string;
@@ -25,6 +27,8 @@ describe('UserService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
+        FileUploadService,
+        ConfigService,
         {
           provide: getModelToken(User.name),
           useValue: {
@@ -33,6 +37,10 @@ describe('UserService', () => {
             save: jest.fn(),
             findByIdAndUpdate: jest.fn(),
           },
+        },
+        {
+          provide: getModelToken('Photo'),
+          useValue: {},
         },
         {
           provide: getModelToken(Restaurant.name),
