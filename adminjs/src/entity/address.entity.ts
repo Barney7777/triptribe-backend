@@ -1,13 +1,13 @@
 import { model, Schema } from 'mongoose';
 
 export interface ILocation {
-  lat: number;
   lng: number;
+  lat: number;
 }
 
 export const LocationSchema = new Schema<ILocation>({
-  lat: { type: 'number', required: true },
   lng: { type: 'number', required: true },
+  lat: { type: 'number', required: true },
 });
 
 export interface IAddress {

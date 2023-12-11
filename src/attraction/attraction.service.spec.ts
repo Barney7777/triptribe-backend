@@ -142,8 +142,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,
@@ -279,8 +279,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,
@@ -393,8 +393,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,
@@ -530,8 +530,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,
@@ -643,8 +643,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,
@@ -765,8 +765,8 @@ describe('AttractionService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
-            lng: 10.1117,
+            lng: -140.1176,
+            lat: -88.9277,
           },
         },
         overAllRating: 2.9,

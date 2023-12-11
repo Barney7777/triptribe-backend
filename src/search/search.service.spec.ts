@@ -151,8 +151,8 @@ describe('SearchService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
             lng: -88.3598,
+            lat: -29.9485,
           },
         },
         overAllRating: 3.2,
@@ -257,8 +257,8 @@ describe('SearchService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
             lng: 10.1117,
+            lat: -57.8146,
           },
         },
         overAllRating: 2.9,
@@ -371,8 +371,8 @@ describe('SearchService', () => {
         address: {
           formattedAddress: '652 Fay Islands Suite 584',
           location: {
-            lat: -29.9485,
             lng: -88.3598,
+            lat: -29.9485,
           },
         },
         overAllRating: 3.2,
@@ -475,8 +475,8 @@ describe('SearchService', () => {
         address: {
           formattedAddress: '536 Mueller Ferry Apt. 633',
           location: {
-            lat: -57.8146,
             lng: 10.1117,
+            lat: -57.8146,
           },
         },
         overAllRating: 2.9,
