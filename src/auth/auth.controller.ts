@@ -2,11 +2,11 @@ import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthRegisterDto } from './dto/auth-register.dto';
 import { plainToClass } from 'class-transformer';
 import { CurrentUser } from './CurrentUser.decorator';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthRegisterDto } from './dto/auth-register.dto';
 
 @Controller({
   path: 'auth',
@@ -24,10 +24,12 @@ export class AuthController {
     description: 'User account to register',
     schema: {
       type: 'object',
-      required: ['email', 'password'],
+      required: ['email', 'password', 'firstName', 'lastName'],
       properties: {
         email: { type: 'string', example: 'do222@om141ai5l1.com' },
         password: { type: 'string', example: 'Abc12345+' },
+        firstName: { type: 'string', example: 'David' },
+        lastName: { type: 'string', example: 'Beckham' },
       },
     },
   })

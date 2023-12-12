@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import { CreateReviewDto } from './dto/reviewDto/create-review.dto';
-import { UpdateReviewDto } from './dto/reviewDto/update-review.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
@@ -30,8 +30,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { PlaceType } from './dto/reviewDto/base-review.dto';
+import { PlaceType } from './dto/create-review.dto';
 import { PhotoType } from '@/schema/photo.schema';
+import { QueryReviewDto } from './dto/query-review.dto';
 
 @Controller({
   path: 'reviews',
@@ -140,13 +141,13 @@ export class ReviewController {
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   update(
-    @Param('id') id: string,
+    @Param() params: QueryReviewDto,
     @UploadedFiles() files: FileUploadDto[],
     @Body() updateReviewDto: UpdateReviewDto,
     @CurrentUser() currentUser
   ): Promise<Review | null> {
     const reviewDto = plainToClass(UpdateReviewDto, updateReviewDto);
-    return this.reviewService.update(id, files, reviewDto, currentUser._id);
+    return this.reviewService.update(params.id, files, reviewDto, currentUser._id);
   }
 
   @ApiOperation({ summary: 'Get all Reviews', description: 'Retrieve all reviews successfully' })
@@ -167,8 +168,8 @@ export class ReviewController {
   @ApiResponse({ status: 200, description: 'Retrieve a review successfully' })
   @ApiResponse({ status: 404, description: 'Review Not Found' })
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Review | null> {
-    return this.reviewService.findOne(id);
+  findOne(@Param() params: QueryReviewDto): Promise<Review | null> {
+    return this.reviewService.findOne(params.id);
   }
 
   @ApiBearerAuth()
@@ -185,7 +186,7 @@ export class ReviewController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  remove(@Param('id') id: string, @CurrentUser() currentUser): Promise<Review | null> {
-    return this.reviewService.remove(id, currentUser._id);
+  remove(@Param() params: QueryReviewDto, @CurrentUser() currentUser): Promise<Review | null> {
+    return this.reviewService.remove(params.id, currentUser._id);
   }
 }

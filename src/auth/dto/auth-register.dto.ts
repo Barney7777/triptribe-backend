@@ -1,29 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { BaseUserDto, UserRole } from '@/user/dto/base-user.dto';
-import { Exclude } from 'class-transformer';
+import { BaseUserDto } from '@/user/dto/base-user.dto';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class AuthRegisterDto extends PartialType(BaseUserDto) {
-  @Exclude()
-  nickname: string;
-
-  @Exclude()
+export class AuthRegisterDto extends BaseUserDto {
+  @IsString()
+  @IsNotEmpty()
   firstName: string;
 
-  @Exclude()
+  @IsString()
+  @IsNotEmpty()
   lastName: string;
-
-  @Exclude()
-  role: UserRole.USER;
-
-  @Exclude()
-  description: string;
-
-  @Exclude()
-  authToken: string;
-
-  @Exclude()
-  savedAttractions: object[];
-
-  @Exclude()
-  savedRestaurants: object[];
 }

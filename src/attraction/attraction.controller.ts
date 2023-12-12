@@ -14,15 +14,15 @@ import {
 } from '@nestjs/common';
 import { AttractionService } from './attraction.service';
 import { Attraction } from '@/attraction/schema/attraction.schema';
-import { AttractionFindOneDto } from './dto/attractionDto/get-attraction.dto';
+import { AttractionFindOneDto } from './dto/get-attraction.dto';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
-import { CreateAttractionDto } from './dto/attractionDto/create-attraction.dto';
+import { CreateAttractionDto } from './dto/create-attraction.dto';
 import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
 import { plainToClass } from 'class-transformer';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
-import { UpdateAttractionDto } from './dto/attractionDto/update-attraction.dto';
+import { UpdateAttractionDto } from './dto/update-attraction.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -371,13 +371,18 @@ export class AttractionController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
   async updateAttraction(
-    @Param('id') id: string,
+    @Param() params: AttractionFindOneDto,
     @CurrentUser() currentUser,
     @UploadedFiles() files: FileUploadDto[],
     @Body() updateAttractionDto: UpdateAttractionDto
   ): Promise<Attraction> {
     const attractionDto = plainToClass(UpdateAttractionDto, updateAttractionDto);
-    return await this.attractionService.updateAttraction(id, files, attractionDto, currentUser._id);
+    return await this.attractionService.updateAttraction(
+      params.id,
+      files,
+      attractionDto,
+      currentUser._id
+    );
   }
 
   @Get(':id/rating-distributions')

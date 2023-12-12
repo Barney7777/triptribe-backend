@@ -1,4 +1,4 @@
-import { UpdatePhotoDto } from '@/review/dto/photoDto/update-photo.dto';
+import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
 
 export interface IReview {
   title?: string;
@@ -6,6 +6,6 @@ export interface IReview {
   rating?: number;
   userId: string;
   placeId?: string;
-  photos?: UpdatePhotoDto[];
+  photos?: CreatePhotoDto[];
   placeType?: string;
 }

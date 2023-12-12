@@ -57,15 +57,15 @@ export class User {
   // @Prop()
   // authToken: string;
   @Field(() => [ID], { nullable: true })
-  @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Attraction' }] })
+  @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Attraction' }], default: [] })
   savedAttractions: Attraction[];
 
   @Field(() => [ID], { nullable: true })
-  @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Restaurant' }] })
+  @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Restaurant' }], default: [] })
   savedRestaurants: Restaurant[];
 
-  @Field(() => [Photo])
-  @Prop({ type: [PhotoSchema], default: [] })
+  @Field(() => Photo)
+  @Prop({ type: PhotoSchema })
   userAvatar: Photo;
 }
 

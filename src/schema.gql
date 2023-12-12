@@ -167,5 +167,5 @@ type User {
   role: String!
   savedAttractions: [ID!]
   savedRestaurants: [ID!]
-  userAvatar: [Photo!]!
+  userAvatar: Photo!
 }

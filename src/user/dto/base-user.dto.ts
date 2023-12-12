@@ -1,10 +1,5 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsEmail, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-  BUSINESS_OWNER = 'businessOwner',
-}
 export class BaseUserDto {
   @IsEmail()
   email: string;
@@ -17,34 +12,4 @@ export class BaseUserDto {
     minUppercase: 1,
   })
   password: string;
-
-  @IsString()
-  nickname: string;
-
-  @IsString()
-  @IsOptional()
-  firstName: string;
-
-  @IsString()
-  @IsOptional()
-  lastName: string;
-
-  @IsEnum(UserRole)
-  role: UserRole.USER;
-
-  @IsString()
-  @IsOptional()
-  description: string;
-
-  @IsString()
-  @IsOptional()
-  authToken: string;
-
-  @IsArray()
-  @IsOptional()
-  savedAttractions: object[];
-
-  @IsArray()
-  @IsOptional()
-  savedRestaurants: object[];
 }

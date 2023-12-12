@@ -4,10 +4,10 @@ import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
 import { Photo, PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '../../review.service';
-import { Review } from '../../schema/review.schema';
-import { IReview } from '../../types/interfaces/review.do';
-import { PlaceType } from '../../dto/reviewDto/base-review.dto';
+import { ReviewService } from '@/review/review.service';
+import { Review } from '@/review/schema/review.schema';
+import { IReview } from '@/review/types/interfaces/review.do';
+import { PlaceType } from '@/review/dto/base-review.dto';
 import { ForbiddenException } from '@nestjs/common';
 
 interface IPhoto extends Photo {
