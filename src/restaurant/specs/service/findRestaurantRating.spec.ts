@@ -8,10 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { Review } from '@/review/schema/review.schema';
 import { NotFoundException } from '@nestjs/common';
 
-interface RatingDistribution {
+type RatingDistribution = {
   count: number;
   rating: number;
-}
+};
 
 describe('RestaurantService', () => {
   let service: RestaurantService;

@@ -6,6 +6,9 @@ import { NotFoundException } from '@nestjs/common';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
+import { AttractionFindOneDto } from '@/attraction/dto/attractionDto/get-attraction.dto';
+import { validate } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 
 describe('Attraction Controller', () => {
   let attractionController: AttractionController;
@@ -83,6 +86,14 @@ describe('Attraction Controller', () => {
         attractionController.getAttractionRating({ id: mockAttractionId })
       ).rejects.toThrow(new Error('this attraction does not exist'));
       expect(attractionService.findAttractionRating).toHaveBeenCalledWith(mockAttractionId);
+    });
+
+    it('should handle invalid attraction ID with DTO validation', async () => {
+      const invalidDto: AttractionFindOneDto = { id: 'invalidID' };
+      const invalidDtoClass = plainToClass(AttractionFindOneDto, invalidDto);
+      const validationErrors = await validate(invalidDtoClass);
+      expect(validationErrors.length).not.toBe(0);
+      expect(validationErrors[0].constraints!.isMongoId).toContain('id must be a mongodb id');
     });
   });
 });
