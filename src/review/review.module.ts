@@ -9,6 +9,7 @@ import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 import { DatabaseSyncConsumer } from './consumers/review.consumer';
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
+import { ReviewResolver } from './review.resolver';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.sch
     }),
   ],
   controllers: [ReviewController],
-  providers: [ReviewService, DatabaseSyncConsumer],
+  providers: [ReviewService, DatabaseSyncConsumer, ReviewResolver],
 })
 export class ReviewModule {}

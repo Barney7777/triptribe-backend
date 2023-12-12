@@ -51,6 +51,14 @@ input CreateRestaurantDto {
   website: String
 }
 
+input CreateReviewDto {
+  description: String!
+  placeId: String!
+  placeType: String!
+  rating: Float!
+  title: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -70,11 +78,20 @@ type Mutation {
   """Create restaurant"""
   createRestaurant(files: [Upload!], input: CreateRestaurantDto!): Restaurant!
 
+  """Create review"""
+  createReview(files: [Upload!], input: CreateReviewDto!): Review!
+
   """Delete restaurant"""
   deleteRestaurant(id: ID!): Restaurant!
 
+  """Delete review"""
+  deleteReview(id: ID!): Review!
+
   """Update restaurant"""
   updateRestaurant(files: [Upload!], id: ID!, input: UpdateRestaurantGQLDto!): Restaurant!
+
+  """Update review"""
+  updateReview(files: [Upload!], id: ID!, input: UpdateReviewGQLDto!): Review!
 }
 
 type OpenHours {
@@ -117,11 +134,17 @@ type Query {
   """Get all restaurants"""
   getAllRestaurants: [Restaurant!]!
 
+  """Get all reviews"""
+  getAllReviews: [Review!]!
+
   """Get ME"""
   getMe: User!
 
   """Get restaurant by id"""
   getOneRestaurant(id: ID!): Restaurant!
+
+  """Get review by id"""
+  getOneReview(id: ID!): Review!
 
   """Get user by id"""
   getOneUser(id: ID!): User!
@@ -143,6 +166,19 @@ type Restaurant {
   website: String
 }
 
+type Review {
+  _id: ID!
+  createdAt: DateTime!
+  description: String!
+  photos: [Photo!]!
+  placeId: ID!
+  placeType: String!
+  rating: Float!
+  title: String!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
 input UpdateRestaurantGQLDto {
   address: CreateAddressDto
   description: String
@@ -152,6 +188,15 @@ input UpdateRestaurantGQLDto {
   phone: String
   photos: [CreatePhotoDto!]
   website: String
+}
+
+input UpdateReviewGQLDto {
+  description: String
+  photos: [CreatePhotoDto!]
+  placeId: String
+  placeType: String
+  rating: Float
+  title: String
 }
 
 """The `Upload` scalar type represents a file upload."""
