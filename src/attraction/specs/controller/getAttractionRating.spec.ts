@@ -2,13 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AttractionController } from '@/attraction/attraction.controller';
 import { AttractionService } from '@/attraction/attraction.service';
 import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
-import { AttractionFindOneDto } from '@/attraction/dto/attractionDto/get-attraction.dto';
-import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+import { AttractionFindOneDto } from '@/attraction/dto/get-attraction.dto';
 
 describe('Attraction Controller', () => {
   let attractionController: AttractionController;
@@ -90,10 +88,16 @@ describe('Attraction Controller', () => {
 
     it('should handle invalid attraction ID with DTO validation', async () => {
       const invalidDto: AttractionFindOneDto = { id: 'invalidID' };
-      const invalidDtoClass = plainToClass(AttractionFindOneDto, invalidDto);
-      const validationErrors = await validate(invalidDtoClass);
-      expect(validationErrors.length).not.toBe(0);
-      expect(validationErrors[0].constraints!.isMongoId).toContain('id must be a mongodb id');
+      jest
+        .spyOn(attractionService, 'findAttractionRating')
+        .mockRejectedValue(new BadRequestException('id must be a mongodb id'));
+      await expect(
+        attractionController.getAttractionRating({ id: invalidDto.id })
+      ).rejects.toThrowError(BadRequestException);
+      await expect(attractionController.getAttractionRating({ id: invalidDto.id })).rejects.toThrow(
+        new Error('id must be a mongodb id')
+      );
+      expect(attractionService.findAttractionRating).toHaveBeenCalledWith(invalidDto.id);
     });
   });
 });

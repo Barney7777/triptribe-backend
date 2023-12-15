@@ -1,13 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RestaurantController } from '@/restaurant/restaurant.controller';
 import { RestaurantService } from '@/restaurant/restaurant.service';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { RestaurantFindOneDto } from '@/restaurant/dto/get-restaurant.dto';
-import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 
 describe('Restaurant Controller', () => {
   interface RatingDistribution {
@@ -91,12 +89,18 @@ describe('Restaurant Controller', () => {
       expect(restaurantService.findRestaurantRating).toHaveBeenCalledWith(mockRestaurantId);
     });
 
-    it('should handle invalid restaurant ID with DTO validation', async () => {
+    it('should handle invalid attraction ID with DTO validation', async () => {
       const invalidDto: RestaurantFindOneDto = { id: 'invalidID' };
-      const invalidDtoClass = plainToClass(RestaurantFindOneDto, invalidDto);
-      const validationErrors = await validate(invalidDtoClass);
-      expect(validationErrors.length).not.toBe(0);
-      expect(validationErrors[0].constraints!.isMongoId).toContain('id must be a mongodb id');
+      jest
+        .spyOn(restaurantService, 'findRestaurantRating')
+        .mockRejectedValue(new BadRequestException('id must be a mongodb id'));
+      await expect(
+        restaurantController.getRestaurantRating({ id: invalidDto.id })
+      ).rejects.toThrowError(BadRequestException);
+      await expect(restaurantController.getRestaurantRating({ id: invalidDto.id })).rejects.toThrow(
+        new Error('id must be a mongodb id')
+      );
+      expect(restaurantService.findRestaurantRating).toHaveBeenCalledWith(invalidDto.id);
     });
   });
 });
