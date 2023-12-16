@@ -6,12 +6,9 @@ import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { RestaurantFindOneDto } from '@/restaurant/dto/get-restaurant.dto';
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 
 describe('Restaurant Controller', () => {
-  interface RatingDistribution {
-    count: number;
-    rating: number;
-  }
   let restaurantController: RestaurantController;
   let restaurantService: RestaurantService;
 
