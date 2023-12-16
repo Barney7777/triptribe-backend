@@ -3,9 +3,11 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Photo, PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '@/review/review.service';
-import { IReview } from '@/review/types/interfaces/review.do';
-import { PlaceType } from '@/review/dto/base-review.dto';
+import { ReviewService } from '../../review.service';
+import { IReview } from '../../types/interfaces/review.do';
+import { PlaceType } from '../../dto/reviewDto/base-review.dto';
+import { BullModule } from '@nestjs/bull';
+import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 
 interface IPhoto extends Photo {
   _id: string;
@@ -22,6 +24,11 @@ describe('ReviewService.findOneFromMe', () => {
   let service: ReviewService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        BullModule.registerQueue({
+          name: QUEUE_NAME_DATABASE_SYNC,
+        }),
+      ],
       providers: [
         ReviewService,
         FileUploadService,

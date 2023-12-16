@@ -7,6 +7,8 @@ import { Photo, PhotoType } from '@/schema/photo.schema';
 import { ReviewService } from '../../review.service';
 import { Review } from '../../schema/review.schema';
 import { IReview } from '../../types/interfaces/review.do';
+import { BullModule } from '@nestjs/bull';
+import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 
 interface IPhoto extends Photo {
   _id: string;
@@ -25,6 +27,11 @@ describe('ReviewService.create', () => {
   let reviewModel: Model<Review>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        BullModule.registerQueue({
+          name: QUEUE_NAME_DATABASE_SYNC,
+        }),
+      ],
       providers: [
         ReviewService,
         FileUploadService,
