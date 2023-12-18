@@ -8,6 +8,32 @@ import { OpenHours } from '@/schema/openHour.schema';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
+enum MealEnum {
+  BREAKFAST = 'Breakfast',
+  BRUNCH = 'Brunch',
+  LUNCH = 'Lunch',
+  DINNER = 'Dinner',
+}
+
+enum CuisineEnum {
+  AUSTRALIAN = 'Australian',
+  ASIAN = 'Asian',
+  CAFE = 'Cafe',
+  ITALIAN = 'Italian',
+}
+
+@Schema({ _id: false })
+class TagsType {
+  @Prop({ type: [String], enum: Object.values(MealEnum) })
+  meals: MealEnum[];
+
+  @Prop({ type: [String], enum: Object.values(CuisineEnum) })
+  cuisines: CuisineEnum[];
+
+  @Prop({ type: Number, default: 0 })
+  cost: number;
+}
+
 @ObjectType()
 @Schema({ timestamps: true })
 export class Restaurant {
@@ -79,6 +105,9 @@ export class Restaurant {
 
   @Field(() => GraphQLISODateTime)
   updatedAt: string;
+
+  @Prop({ type: TagsType, default: {} })
+  tags: TagsType;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
