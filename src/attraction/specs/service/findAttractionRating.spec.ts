@@ -7,11 +7,7 @@ import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Review } from '@/review/schema/review.schema';
 import { NotFoundException } from '@nestjs/common';
-
-interface RatingDistribution {
-  count: number;
-  rating: number;
-}
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 
 describe('AttractionService', () => {
   let service: AttractionService;
