@@ -7,9 +7,9 @@ import { Photo, PhotoType } from '@/schema/photo.schema';
 import { ReviewService } from '@/review/review.service';
 import { Review } from '@/review/schema/review.schema';
 import { IReview } from '@/review/types/interfaces/review.do';
-import { PlaceType } from '@/review/dto/base-review.dto';
+import { PlaceType } from '@/review/dto/create-review.dto';
 import { ForbiddenException } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { getQueueToken } from '@nestjs/bull';
 import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 
 interface IPhoto extends Photo {
@@ -28,11 +28,6 @@ describe('ReviewService.remove', () => {
   let reviewModel: Model<Review>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        BullModule.registerQueue({
-          name: QUEUE_NAME_DATABASE_SYNC,
-        }),
-      ],
       providers: [
         ReviewService,
         FileUploadService,
@@ -46,6 +41,18 @@ describe('ReviewService.remove', () => {
         },
         {
           provide: getModelToken('Photo'),
+          useValue: {},
+        },
+        {
+          provide: getModelToken('Restaurant'),
+          useValue: {},
+        },
+        {
+          provide: getModelToken('Attraction'),
+          useValue: {},
+        },
+        {
+          provide: getQueueToken(QUEUE_NAME_DATABASE_SYNC),
           useValue: {},
         },
       ],

@@ -16,11 +16,11 @@ import { QueryReviewDto } from './dto/query-review.dto';
 import { IReview } from './types/interfaces/review.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreatePhotoDto } from '@/file/dto/create-photo.dto';
-import { Restaurant } from '@/restaurant/schema/restaurant.schema';
-import { Attraction } from '@/attraction/schema/attraction.schema';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { QUEUE_PROCESS_CALCULATE_OVERALLRATING } from '@/common/constant/queue.constant';
+import { Restaurant, RestaurantDocument } from '@/restaurant/schema/restaurant.schema';
+import { Attraction, AttractionDocument } from '@/attraction/schema/attraction.schema';
 
 @Injectable()
 export class ReviewService {
@@ -33,8 +33,9 @@ export class ReviewService {
   ) {}
   async create(files: FileUploadDto[], reviewDto: CreateReviewDto, userId: UserIdDto['_id']) {
     const { placeId, placeType } = reviewDto;
-    if (!(await this.checkPlaceExists(placeId, placeType))) {
-      throw new NotFoundException('the place id does not exist or place type is wrong');
+    const place = await this.checkPlaceExists(placeId, placeType);
+    if (!place) {
+      throw new NotFoundException('The place id or place type does not exist');
     }
     let photoDocuments: CreatePhotoDto[] = [];
 
@@ -116,7 +117,7 @@ export class ReviewService {
 
     const dataToUpdate: IReview = {
       ...updateReviewDto,
-      userId: userId,
+      userId,
       photos: currentPhotos,
     };
 
@@ -148,14 +149,17 @@ export class ReviewService {
   }
 
   async checkPlaceExists(placeId: string, placeType: string): Promise<boolean> {
-    const restaurantDocument = await this.restaurantModel.findById(placeId).exec();
-    const attractionDocument = await this.attractionModel.findById(placeId).exec();
-    if (
-      (restaurantDocument && placeType === 'Restaurant') ||
-      (attractionDocument && placeType === 'Attraction')
-    ) {
-      return true;
+    if (placeType !== 'Restaurant' && placeType !== 'Attraction') {
+      return false;
     }
-    return false;
+    let document: RestaurantDocument | AttractionDocument | null = null;
+
+    if (placeType === 'Restaurant') {
+      document = await this.restaurantModel.findById(placeId).exec();
+    } else if (placeType === 'Attraction') {
+      document = await this.attractionModel.findById(placeId).exec();
+    }
+
+    return !!document;
   }
 }

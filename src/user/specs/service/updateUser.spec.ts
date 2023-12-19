@@ -80,15 +80,13 @@ describe('UserService.updateUser', () => {
       firstName: 'Test',
       lastName: 'User',
       description: 'A test user',
-      userAvatar: [
-        {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
-          imageType: PhotoType.USER,
-          uploadUserId: '65693d3bd09cde779fae7c1d',
-          _id: '65693d3bd09cde779fae7c1d',
-        },
-      ],
+      userAvatar: {
+        imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
+        imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
+        imageType: PhotoType.USER,
+        uploadUserId: '65693d3bd09cde779fae7c1d',
+        _id: '65693d3bd09cde779fae7c1d',
+      },
     };
     const updateUserDto = {
       nickname: 'updatedTestUser',
@@ -102,58 +100,42 @@ describe('UserService.updateUser', () => {
       firstName: 'Updated',
       lastName: 'User',
       description: 'An updated test user',
-      userAvatar: [
-        {
+      userAvatar: {
+        imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
+        imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
+        imageType: PhotoType.USER,
+        uploadUserId: '65693d3bd09cde779fae7c1d',
+        _id: '65693d3bd09cde779fae7c1d',
+      },
+    };
+
+    jest.spyOn(userModel, 'findById').mockReturnValueOnce({ exec: () => mockUser } as any);
+
+    const mockUserModelFindByIdAndUpdate = jest
+      .spyOn(userModel, 'findByIdAndUpdate')
+      .mockResolvedValueOnce(mockUpdatedUser);
+
+    const result = await service.updateUser(userId, updateUserDto, null);
+
+    expect(mockUserModelFindByIdAndUpdate).toHaveBeenCalledWith(
+      '65693d3bd09cde779fae7c1d',
+      {
+        nickname: 'updatedTestUser',
+        firstName: 'Updated',
+        lastName: 'User',
+        description: 'An updated test user',
+        userAvatar: {
           imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
           imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
           imageType: PhotoType.USER,
           uploadUserId: '65693d3bd09cde779fae7c1d',
           _id: '65693d3bd09cde779fae7c1d',
-        },
-      ],
-    };
-
-    // jest.spyOn(userModel, 'findById').mockResolvedValueOnce(mockUser);
-    const mockUserModelFindById = jest
-      .spyOn(userModel, 'findById')
-      .mockReturnValueOnce({ exec: () => mockUser } as any);
-    const mockUserModelFindOneAndUpdate = jest
-      .spyOn(userModel, 'findOneAndUpdate')
-      .mockResolvedValueOnce(mockUpdatedUser);
-
-    const result = await service.updateUser(userId, updateUserDto, null); //执行
-
-    //expect
-    expect(mockUserModelFindById).toHaveBeenCalledWith('65693d3bd09cde779fae7c1d');
-    expect(mockUserModelFindOneAndUpdate).toHaveBeenCalledWith(
-      { _id: '65693d3bd09cde779fae7c1d' },
-      {
-        $set: {
-          nickname: 'updatedTestUser',
-          firstName: 'Updated',
-          lastName: 'User',
-          description: 'An updated test user',
         },
       },
       { new: true }
     );
 
-    expect(result).toEqual({
-      _id: '65693d3bd09cde779fae7c1d',
-      nickname: 'updatedTestUser',
-      firstName: 'Updated',
-      lastName: 'User',
-      description: 'An updated test user',
-      userAvatar: [
-        {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
-          imageType: PhotoType.USER,
-          uploadUserId: '65693d3bd09cde779fae7c1d',
-          _id: '65693d3bd09cde779fae7c1d',
-        },
-      ],
-    });
+    expect(result).toEqual(mockUpdatedUser);
   });
 
   it('should update user avatar information when avatar upload is successful', async () => {
@@ -176,27 +158,23 @@ describe('UserService.updateUser', () => {
     };
     const mockUpdatedUser = {
       _id: '65693d3bd09cde779fae7c1d',
-      nickname: 'testUser',
-      firstName: 'Test',
+      nickname: 'updateUser',
+      firstName: 'Update',
       lastName: 'User',
-      description: 'A test user',
-      userAvatar: [
-        {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 1',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
-          imageType: PhotoType.USER,
-          uploadUserId: '65693d3bd09cde779fae7c1d',
-          _id: '65693d3bd09cde779fae7c11',
-        },
-      ],
+      description: 'An updated user',
+      userAvatar: {
+        imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 1',
+        imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
+        imageType: PhotoType.USER,
+        uploadUserId: '65693d3bd09cde779fae7c1d',
+        _id: '65693d3bd09cde779fae7c11',
+      },
     };
 
     const mockUpdatedUserDto = {
-      _id: '65693d3bd09cde779fae7c1d',
-      nickname: 'testUser',
-      firstName: 'Test',
-      lastName: 'User',
-      description: 'A test user',
+      nickname: 'updateUser',
+      firstName: 'Update',
+      description: 'An updated user',
     };
 
     const mockAvatarFile = {
@@ -209,7 +187,6 @@ describe('UserService.updateUser', () => {
 
     const mockUploadResult = [
       {
-        success: true,
         data: {
           imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 1',
           imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
@@ -224,39 +201,17 @@ describe('UserService.updateUser', () => {
       .spyOn(userModel, 'findById')
       .mockReturnValueOnce({ exec: () => mockUser } as any);
 
-    const mockUserModelFindOneAndUpdate = jest
-      .spyOn(userModel, 'findOneAndUpdate')
-      .mockResolvedValueOnce(mockUpdatedUser);
-
     const mockFileUploadServiceUploadPhoto = jest
       .spyOn(fileUploadService, 'uploadPhoto')
       .mockResolvedValueOnce(mockUploadResult);
 
+    const mockUserModelfindByIdAndUpdate = jest
+      .spyOn(userModel, 'findByIdAndUpdate')
+      .mockResolvedValueOnce(mockUpdatedUser);
+
     const result = await service.updateUser(userId, mockUpdatedUserDto, mockAvatarFile);
 
-    expect(mockUserModelFindById).toHaveBeenCalledWith('65693d3bd09cde779fae7c1d');
-    expect(mockUserModelFindOneAndUpdate).toHaveBeenCalledWith(
-      { _id: '65693d3bd09cde779fae7c1d' },
-      {
-        $set: {
-          _id: '65693d3bd09cde779fae7c1d',
-          nickname: 'testUser',
-          firstName: 'Test',
-          lastName: 'User',
-          description: 'A test user',
-          userAvatar: [
-            {
-              imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 1',
-              imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
-              imageType: PhotoType.USER,
-              uploadUserId: '65693d3bd09cde779fae7c1d',
-            },
-          ],
-        },
-      },
-      { new: true }
-    );
-
+    expect(mockUserModelFindById).toBeCalledWith('65693d3bd09cde779fae7c1d');
     expect(mockFileUploadServiceUploadPhoto).toBeCalledWith(
       '65693d3bd09cde779fae7c1d',
       [
@@ -270,22 +225,23 @@ describe('UserService.updateUser', () => {
       ],
       PhotoType.USER
     );
-
-    expect(result).toEqual({
-      _id: '65693d3bd09cde779fae7c1d',
-      nickname: 'testUser',
-      firstName: 'Test',
-      lastName: 'User',
-      description: 'A test user',
-      userAvatar: [
-        {
+    expect(mockUserModelfindByIdAndUpdate).toBeCalledWith(
+      '65693d3bd09cde779fae7c1d',
+      {
+        nickname: 'updateUser',
+        firstName: 'Update',
+        description: 'An updated user',
+        userAvatar: {
           imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 1',
           imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
           imageType: PhotoType.USER,
           uploadUserId: '65693d3bd09cde779fae7c1d',
           _id: '65693d3bd09cde779fae7c11',
         },
-      ],
-    });
+      },
+      { new: true }
+    );
+
+    expect(result).toEqual(mockUpdatedUser);
   });
 });

@@ -10,7 +10,6 @@ import { Types } from 'mongoose';
 import { Photo, PhotoType } from '@/schema/photo.schema';
 import { IResultWithType } from './type/interfaces/resultWithType.do';
 import { IRestaurant } from '@/restaurant/restaurant.service.spec';
-import { IAttraction } from '@/attraction/attraction.service.spec';
 
 interface IPhoto extends Photo {
   _id: string;
@@ -173,7 +172,7 @@ describe('SearchService', () => {
       },
     ];
 
-    const mockAttractionsSearchResult: IAttraction[] = [
+    const mockAttractionsSearchResult = [
       {
         _id: '65573aebb5ccb958b78ee39a',
         name: 'S 5th Street',

@@ -3,35 +3,21 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
-import { Photo, PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '../../review.service';
-import { Review } from '../../schema/review.schema';
-import { IReview } from '../../types/interfaces/review.do';
-import { BullModule } from '@nestjs/bull';
+import { PhotoType } from '@/schema/photo.schema';
+import { ReviewService } from '@/review/review.service';
+import { Review } from '@/review/schema/review.schema';
+import { getQueueToken } from '@nestjs/bull';
 import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
-
-interface IPhoto extends Photo {
-  _id: string;
-}
-interface IReviews extends IReview {
-  _id: string;
-  photos: IPhoto[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+import { NotFoundException } from '@nestjs/common';
 
 describe('ReviewService.create', () => {
   let service: ReviewService;
   let fileService: FileUploadService;
   let reviewModel: Model<Review>;
+  const current_userId = '655c94215ad11af262220c33';
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        BullModule.registerQueue({
-          name: QUEUE_NAME_DATABASE_SYNC,
-        }),
-      ],
       providers: [
         ReviewService,
         FileUploadService,
@@ -43,8 +29,20 @@ describe('ReviewService.create', () => {
           },
         },
         {
+          provide: getModelToken('Restaurant'),
+          useValue: {},
+        },
+        {
+          provide: getModelToken('Attraction'),
+          useValue: {},
+        },
+        {
           provide: getModelToken('Photo'),
           useValue: {},
+        },
+        {
+          provide: getQueueToken(QUEUE_NAME_DATABASE_SYNC),
+          useValue: { add: jest.fn(), process: jest.fn() },
         },
       ],
     }).compile();
@@ -57,22 +55,32 @@ describe('ReviewService.create', () => {
     jest.clearAllMocks();
   });
 
-  it('should return a review with photos:[] when call create and files is empty array', async () => {
-    const current_userId: string = '655c94215ad11af262220c33';
+  it('should throw NotFoundException when placeId or placeType not exist', async () => {
+    const mockParams = {
+      title: 'review New 13',
+      description: 'This is a review new 1',
+      rating: 5,
+      placeId: '6531d56a016ba782a35a8fd6',
+      placeType: 'OtherPlace',
+    };
+    const { placeId, placeType } = mockParams;
+    const mockCheckPlaceExists = jest.spyOn(service, 'checkPlaceExists').mockResolvedValue(false);
+    await expect(service.create([], mockParams, current_userId)).rejects.toThrowError(
+      NotFoundException
+    );
+    expect(mockCheckPlaceExists).toBeCalledWith(placeId, placeType);
+  });
 
+  it('should return a review with photos:[] when call create and files is empty array', async () => {
     const mockParams = {
       title: 'review New 13',
       description: 'This is a review new 1',
       rating: 5,
       placeId: '6531d56a016ba782a35a8fd6',
       placeType: 'Attraction',
-      photos: [],
-      userId: '655c94215ad11af262220c33',
-      createdAt: new Date('2023-11-27T00:28:24.250Z'),
-      updatedAt: new Date('2023-11-27T00:28:24.250Z'),
     };
 
-    const mockResult: IReviews = {
+    const mockResult = {
       title: 'review New 13',
       description: 'This is a review new 1',
       rating: 5,
@@ -85,6 +93,8 @@ describe('ReviewService.create', () => {
       updatedAt: '2023-11-27T00:28:24.250Z',
       __v: 0,
     };
+
+    jest.spyOn(service, 'checkPlaceExists').mockResolvedValue(true);
 
     const mockedReviewModelCreate = jest
       .spyOn(reviewModel, 'create')
@@ -99,29 +109,13 @@ describe('ReviewService.create', () => {
       placeId: '6531d56a016ba782a35a8fd6',
       placeType: 'Attraction',
       photos: [],
-      userId: '655c94215ad11af262220c33',
-      createdAt: new Date('2023-11-27T00:28:24.250Z'),
-      updatedAt: new Date('2023-11-27T00:28:24.250Z'),
+      userId: current_userId,
     });
 
-    expect(result).toEqual({
-      title: 'review New 13',
-      description: 'This is a review new 1',
-      rating: 5,
-      photos: [],
-      userId: '655c94215ad11af262220c33',
-      placeId: '6531d56a016ba782a35a8fd6',
-      placeType: 'Attraction',
-      _id: '6563e2a8d74487a4439c2254',
-      createdAt: '2023-11-27T00:28:24.250Z',
-      updatedAt: '2023-11-27T00:28:24.250Z',
-      __v: 0,
-    });
+    expect(result).toEqual(mockResult);
   });
 
   it('should return a review with photos data when call create and files is not empty array', async () => {
-    const current_userId: string = '655c94215ad11af262220c33';
-
     const mockFiles = [
       {
         mimetype: 'image/jpeg',
@@ -145,13 +139,9 @@ describe('ReviewService.create', () => {
       rating: 5,
       placeId: '6531d56a016ba782a35a8fd6',
       placeType: 'Attraction',
-      photos: [],
-      userId: '655c94215ad11af262220c33',
-      createdAt: new Date('2023-11-27T00:28:24.250Z'),
-      updatedAt: new Date('2023-11-27T00:28:24.250Z'),
     };
 
-    const mockResult: IReviews = {
+    const mockResult = {
       title: 'review New 13',
       description: 'This is a review new 1',
       rating: 5,
@@ -164,11 +154,11 @@ describe('ReviewService.create', () => {
           _id: '655c94255ad11af262221be2',
         },
         {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
+          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 1',
+          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
           imageType: PhotoType.REVIEW,
           uploadUserId: '655c94215ad11af262220c33',
-          _id: '655c94255ad11af262221b66',
+          _id: '655c94215ad11af262220c34',
         },
       ],
       userId: '655c94215ad11af262220c33',
@@ -182,28 +172,26 @@ describe('ReviewService.create', () => {
 
     const mockUploadResult = [
       {
-        success: true,
         data: {
-          _id: '655c94215ad11af262220c33',
           imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
           imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
           imageType: PhotoType.REVIEW,
           uploadUserId: '655c94215ad11af262220c33',
+          _id: '655c94255ad11af262221be2',
         },
-        imageName: '65573aecb5ccb958b78ee5fa',
       },
       {
-        success: true,
         data: {
-          _id: '655c94215ad11af262220c33',
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
+          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 1',
+          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
           imageType: PhotoType.REVIEW,
           uploadUserId: '655c94215ad11af262220c33',
+          _id: '655c94215ad11af262220c34',
         },
-        imageName: '65573aecb5ccb958b78ee5fb',
       },
     ];
+
+    jest.spyOn(service, 'checkPlaceExists').mockResolvedValue(true);
 
     jest.spyOn(fileService, 'uploadPhoto').mockResolvedValueOnce(mockUploadResult);
 
@@ -225,46 +213,19 @@ describe('ReviewService.create', () => {
           imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
           imageType: PhotoType.REVIEW,
           uploadUserId: '655c94215ad11af262220c33',
-        },
-        {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
-          imageType: PhotoType.REVIEW,
-          uploadUserId: '655c94215ad11af262220c33',
-        },
-      ],
-      userId: '655c94215ad11af262220c33',
-      createdAt: new Date('2023-11-27T00:28:24.250Z'),
-      updatedAt: new Date('2023-11-27T00:28:24.250Z'),
-    });
-
-    expect(result).toEqual({
-      title: 'review New 13',
-      description: 'This is a review new 1',
-      rating: 5,
-      photos: [
-        {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee5fa review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
-          imageType: PhotoType.REVIEW,
-          uploadUserId: '655c94215ad11af262220c33',
           _id: '655c94255ad11af262221be2',
         },
         {
-          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 0',
-          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237440',
+          imageAlt: 'Attraction 65573aecb5ccb958b78ee533 review photo 1',
+          imageUrl: 'https://loremflickr.com/640/480/attraction?lock=7208175602237441',
           imageType: PhotoType.REVIEW,
           uploadUserId: '655c94215ad11af262220c33',
-          _id: '655c94255ad11af262221b66',
+          _id: '655c94215ad11af262220c34',
         },
       ],
-      userId: '655c94215ad11af262220c33',
-      placeId: '6531d56a016ba782a35a8fd6',
-      placeType: 'Attraction',
-      _id: '6563e2a8d74487a4439c2254',
-      createdAt: '2023-11-27T00:28:24.250Z',
-      updatedAt: '2023-11-27T00:28:24.250Z',
-      __v: 0,
+      userId: current_userId,
     });
+
+    expect(result).toEqual(mockResult);
   });
 });
