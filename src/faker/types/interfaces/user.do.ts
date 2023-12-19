@@ -9,5 +9,5 @@ export interface IUser {
   description: string;
   savedAttractions: string[];
   savedRestaurants: string[];
-  userAvatar: IPhoto[];
+  userAvatar: IPhoto;
 }

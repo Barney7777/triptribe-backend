@@ -21,4 +21,9 @@ export interface IRestaurant {
   overAllRating: number;
   photos: IPhoto[];
   createdUserId: string;
+  tags: {
+    meals: string[];
+    cuisines: string[];
+    cost: number;
+  };
 }

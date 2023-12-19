@@ -21,4 +21,9 @@ export interface IAttraction {
   overAllRating: number;
   photos: IPhoto[];
   createdUserId: string;
+  tags: {
+    types: string[];
+    durations: string[];
+    cost: number;
+  };
 }

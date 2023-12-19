@@ -61,14 +61,12 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     const imageUrl: string = faker.internet.avatar();
     const imageType: string = 'User';
     const uploadUserId: string = faker.database.mongodbObjectId();
-    const userAvatar: IPhoto[] = [
-      {
-        imageAlt,
-        imageUrl,
-        imageType,
-        uploadUserId,
-      },
-    ];
+    const userAvatar: IPhoto = {
+      imageAlt,
+      imageUrl,
+      imageType,
+      uploadUserId,
+    };
 
     return {
       email,
@@ -115,6 +113,12 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     const createdPhoto = new this.photoModel(fakePhoto);
     await createdPhoto.save();
   }
+
+  getRandomOptionsSubset = (Data_Options: string[]) => {
+    const subsetLength = faker.number.int({ min: 1, max: Data_Options.length });
+    const randomOptionsSubset = faker.helpers.shuffle(Data_Options).slice(0, subsetLength);
+    return randomOptionsSubset;
+  };
 
   async createRandomAttraction(userId: string): Promise<IAttraction> {
     const name: string = faker.location.street();
@@ -163,6 +167,21 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
 
     const createdUserId: string = userId;
 
+    const TYPES_OPTION = [
+      'Sight & landmarks',
+      'Nature & Parks',
+      'Museums',
+      'Fun & Games',
+      'Nightlife',
+    ];
+    const DURATIONS_OPTION = ['Up to 1 hour', '1 to 4 hours', '4 hours to 1 day'];
+
+    const tags = {
+      types: this.getRandomOptionsSubset(TYPES_OPTION),
+      durations: this.getRandomOptionsSubset(DURATIONS_OPTION),
+      cost: Number(faker.finance.amount(5, 200, 0)),
+    };
+
     return {
       name,
       description,
@@ -174,6 +193,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
       overAllRating,
       photos,
       createdUserId,
+      tags,
     };
   }
 
@@ -233,6 +253,15 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
 
     const createdUserId: string = userId;
 
+    const MEALS_OPTION = ['Breakfast', 'Brunch', 'Lunch', 'Dinner'];
+    const CUISINES_OPTION = ['Australian', 'Asian', 'Cafe', 'Italian'];
+
+    const tags = {
+      meals: this.getRandomOptionsSubset(MEALS_OPTION),
+      cuisines: this.getRandomOptionsSubset(CUISINES_OPTION),
+      cost: Number(faker.finance.amount(5, 200, 0)),
+    };
+
     return {
       name,
       description,
@@ -244,6 +273,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
       overAllRating,
       photos,
       createdUserId,
+      tags,
     };
   }
 
