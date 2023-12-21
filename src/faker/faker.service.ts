@@ -90,7 +90,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
       const newUser = await this.userModel.findOne({ email: user.email });
       await this.userModel.updateOne(
         { _id: newUser?._id },
-        { $set: { [`userAvatar.${0}.uploadUserId`]: newUser?._id } },
+        { $set: { [`userAvatar.uploadUserId`]: newUser?._id } },
         { new: true }
       );
     }
@@ -104,7 +104,7 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     const newUser = await this.userModel.findOne({ email: user.email });
     await this.userModel.updateOne(
       { _id: newUser?._id },
-      { $set: { [`userAvatar.${0}.uploadUserId`]: newUser?._id } },
+      { $set: { [`userAvatar.uploadUserId`]: newUser?._id } },
       { new: true }
     );
   }
