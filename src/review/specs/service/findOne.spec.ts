@@ -8,7 +8,7 @@ import { ReviewService } from '../../review.service';
 import { Review } from '../../schema/review.schema';
 import { IReview } from '../../types/interfaces/review.do';
 import { NotFoundException } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { getQueueToken } from '@nestjs/bull';
 import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
 
 interface IPhoto extends Photo {
@@ -27,11 +27,6 @@ describe('ReviewService.findOne', () => {
   let reviewModel: Model<Review>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        BullModule.registerQueue({
-          name: QUEUE_NAME_DATABASE_SYNC,
-        }),
-      ],
       providers: [
         ReviewService,
         FileUploadService,
@@ -45,6 +40,18 @@ describe('ReviewService.findOne', () => {
         },
         {
           provide: getModelToken('Photo'),
+          useValue: {},
+        },
+        {
+          provide: getModelToken('Restaurant'),
+          useValue: {},
+        },
+        {
+          provide: getModelToken('Attraction'),
+          useValue: {},
+        },
+        {
+          provide: getQueueToken(QUEUE_NAME_DATABASE_SYNC),
           useValue: {},
         },
       ],
@@ -116,7 +123,7 @@ describe('ReviewService.findOne', () => {
   });
 
   it('should return NotFoundException when call findOne and review not exist', async () => {
-    const id: string = '655c94255ad11af262221b77';
+    const id = '655c94255ad11af262221b77';
 
     const mockFindByIdResult = null;
 
