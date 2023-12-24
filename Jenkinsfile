@@ -1,3 +1,8 @@
+def COLOR_MAP = [
+    'SUCCESS': 'good', 
+    'FAILURE': 'danger',
+]
+
 pipeline {
     agent any
 
@@ -5,6 +10,7 @@ pipeline {
         registryCredential = 'ecr:ap-southeast-2:awscreds'
         appRegistry = "067912176361.dkr.ecr.ap-southeast-2.amazonaws.com/triptribe-backend"
         backendRegistry = "https://067912176361.dkr.ecr.ap-southeast-2.amazonaws.com"
+        scannerHome = tool 'sonar-backend'
     }
     
     stages {
@@ -22,6 +28,18 @@ pipeline {
                 DATABASE_PORT=27017
                 DATABASE_HOST=172.17.0.1
                 DATABASE_NAME=tripTribeDb\' > .env'''
+            }
+        }
+
+        stage('Sonarqube analysis') {
+            steps {
+                withSonarQubeEnv('sonar-backend'){
+                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=$JOB_NAME \
+                    -Dsonar.projectName=$JOB_NAME \
+                    -Dsonar.projectVersion=$BUILD_NUMBER \
+                    -Dsonar.sources=src/
+                    '''
+                }
             }
         }
 
@@ -45,6 +63,14 @@ pipeline {
                 }
           }
      }
+    }
+    post {
+        always {
+            echo 'Slack Notifications.'
+            slackSend channel: '#devops',
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+        }
     }
     // post {
     //     // Clean after build
