@@ -1,9 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: staging
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +17,7 @@ spec:
     spec:
       containers:
       - name: $APP_NAME
-        image: "$REPOSITORY_URI:jenkins-my_backend_pipeline-12"
+        image: "${REPOSITORY_URI}:${BUILD_NUMBER}"
         imagePullPolicy:
         ports:
         - containerPort: 80
@@ -33,4 +28,3 @@ spec:
           requests:
             cpu: 200m
             memory: 256Mi
-
