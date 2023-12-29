@@ -9,7 +9,7 @@ spec:
     matchLabels:
       run: $APP_NAME
   # remove replica if using gitops
-  replicas: 1
+  # replicas: 1
   template:
     metadata:
       labels:
