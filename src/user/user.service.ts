@@ -1,6 +1,5 @@
 import {
   Injectable,
-  // BadRequestException,
   ConflictException,
   NotFoundException,
   BadRequestException,
@@ -17,12 +16,9 @@ import { FileUploadService } from '@/file/file.service';
 import { PhotoType } from '@/schema/photo.schema';
 import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
 import { AuthRegisterDto } from '@/auth/dto/auth-register.dto';
-
-interface CurrentUser {
-  _id: string;
-  savedAttractions?: string[];
-  savedRestaurants?: string[];
-}
+import { getSavedPlaceDto } from './dto/get-saved-place.dto';
+import { deleteSavedPlaceDto } from './dto/delete-save-place.dto';
+import { PlaceType } from './dto/save-place.dto';
 
 @Injectable()
 export class UserService {
@@ -101,20 +97,47 @@ export class UserService {
     return updatedUser;
   }
 
-  async addSavedPlace(currentUser: CurrentUser, savePlaceDto: SavePlaceDto): Promise<void> {
+  async getSavedPlaces(
+    currentUser: User,
+    placeType: getSavedPlaceDto['placeType']
+  ): Promise<Attraction[] | Restaurant[]> {
+    const userId = currentUser['_id'];
+
+    // Find the user and populate the relevant field based on placeType
+    const poulateType =
+      placeType === PlaceType.RESTAURANT ? 'savedRestaurants' : 'savedAttractions';
+    const populatedUser = await this.userModel.findById(userId).populate(poulateType).exec();
+
+    if (!populatedUser) {
+      throw new BadRequestException('User not found.');
+    }
+
+    if (placeType === PlaceType.RESTAURANT) {
+      return populatedUser.savedRestaurants;
+    } else if (placeType === PlaceType.ATTRACTION) {
+      return populatedUser.savedAttractions;
+    } else {
+      throw new BadRequestException(
+        'Invalid placeType. PlaceType can only be "Restaurant" or "Attraction".'
+      );
+    }
+  }
+
+  async addSavedPlace(currentUser: User, savePlaceDto: SavePlaceDto): Promise<void> {
     const user = currentUser;
     let place;
 
-    user.savedRestaurants = user.savedRestaurants || [];
-    user.savedAttractions = user.savedAttractions || [];
+    const savedAttractionIds = user.savedAttractions.map((attraction) => attraction._id.toString());
+    const savedRestaurantIds = user.savedRestaurants.map((restaurant) => restaurant._id.toString());
+
     if (
-      user.savedAttractions.includes(savePlaceDto.placeId) ||
-      user.savedRestaurants.includes(savePlaceDto.placeId)
+      savedAttractionIds.includes(savePlaceDto.placeId) ||
+      savedRestaurantIds.includes(savePlaceDto.placeId)
     ) {
       return;
     }
 
-    if (savePlaceDto.placeType === 'Restaurant') {
+    if (savePlaceDto.placeType === PlaceType.RESTAURANT) {
       place = await this.restaurantModel.findById(savePlaceDto.placeId);
       if (!place) {
         throw new NotFoundException('Restaurant not found');
@@ -124,7 +147,7 @@ export class UserService {
       const newUserData = { savedRestaurants: newSavedList };
       await this.userModel.findByIdAndUpdate(user['_id'], newUserData, { new: true }).exec();
       return;
-    } else if (savePlaceDto.placeType === 'Attraction') {
+    } else if (savePlaceDto.placeType === PlaceType.ATTRACTION) {
       place = await this.attractionModel.findById(savePlaceDto.placeId);
       if (!place) {
         throw new NotFoundException('Attraction not found');
@@ -137,43 +160,36 @@ export class UserService {
     }
   }
 
-  // async deleteSavedPlace(
-  //   userId: string,
-  //   savePlaceDto: SavePlaceDto
-  // ): Promise<{ savedRestaurants: Restaurant[] } | { savedAttractions: Attraction[] } | undefined> {
-  //   let place;
-
-  //   if (savePlaceDto.placeType === 'Restaurant') {
-  //     place = await this.restaurantModel.findById(savePlaceDto.placeId);
-  //   } else if (savePlaceDto.placeType === 'Attraction') {
-  //     place = await this.attractionModel.findById(savePlaceDto.placeId);
-  //   }
-
-  //   if (!place) {
-  //     throw new BadRequestException('Place not found');
-  //   }
-
-  //   const user = await this.userModel.findById(userId);
-  //   if (!user) {
-  //     throw new BadRequestException('User not found');
-  //   }
-
-  //   if (savePlaceDto.placeType === 'Restaurant') {
-  //     const index = user.savedRestaurants.indexOf(place._id);
-  //     if (index > -1) {
-  //       user.savedRestaurants.splice(index, 1);
-  //       await user.save();
-  //       return { savedRestaurants: user.savedRestaurants };
-  //     }
-  //   } else if (savePlaceDto.placeType === 'Attraction') {
-  //     const index = user.savedAttractions.indexOf(place._id);
-  //     if (index > -1) {
-  //       user.savedAttractions.splice(index, 1);
-  //       await user.save();
-  //       return { savedAttractions: user.savedAttractions };
-  //     }
-  //   }
-  // }
+  async deleteSavedPlace(
+    currentUser: User,
+    deleteSavedPlaceDto: deleteSavedPlaceDto
+  ): Promise<{ savedRestaurants: Restaurant[] } | { savedAttractions: Attraction[] } | undefined> {
+    const user = currentUser;
+    const savedAttractionIds = user.savedAttractions.map((attraction) => attraction._id.toString());
+    const savedRestaurantIds = user.savedRestaurants.map((restaurant) => restaurant._id.toString());
+    if (deleteSavedPlaceDto.placeType === PlaceType.RESTAURANT) {
+      const placeIndex = savedRestaurantIds.indexOf(deleteSavedPlaceDto.placeId);
+      if (placeIndex !== -1) {
+        user.savedRestaurants.splice(placeIndex, 1);
+        const newUserData = { savedRestaurants: user.savedRestaurants };
+        await this.userModel.findByIdAndUpdate(user['_id'], newUserData, { new: true }).exec();
+        return newUserData;
+      }
+      return;
+    } else if (deleteSavedPlaceDto.placeType === PlaceType.ATTRACTION) {
+      const placeIndex = savedAttractionIds.indexOf(deleteSavedPlaceDto.placeId);
+      if (placeIndex !== -1) {
+        user.savedAttractions.splice(placeIndex, 1);
+        const newUserData = { savedAttractions: user.savedAttractions };
+        await this.userModel.findByIdAndUpdate(user['_id'], newUserData, { new: true }).exec();
+        return newUserData;
+      }
+      return;
+    }
+    throw new BadRequestException(
+      'Invalid placeType. PlaceType can only be "Restaurant" or "Attraction".'
+    );
+  }
 
   async updatePassword(userId: string, newPassword: EditPasswordDto) {
     const { newPassword: checkedNewpassword } = newPassword;
