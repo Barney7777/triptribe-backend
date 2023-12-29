@@ -33,6 +33,8 @@ class TagsType {
 }
 @Schema({ timestamps: true })
 export class Attraction {
+  _id: string;
+
   @Prop({ required: true })
   name: string;
 
