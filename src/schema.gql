@@ -59,10 +59,36 @@ input CreateReviewDto {
   title: String!
 }
 
+"""Type of Cuisine"""
+enum CuisineEnum {
+  ASIAN
+  AUSTRALIAN
+  CAFE
+  ITALIAN
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input GetRestaurantListFiltersDto {
+  cost: Float
+  cuisines: [CuisineEnum!]
+  currentTime: DateTime
+  distance: Float
+  isOpenNow: Boolean
+  location: LocationDto
+  meals: [MealEnum!]
+  rating: Float
+}
+
+input GetRestaurantListInput {
+  filters: GetRestaurantListFiltersDto
+  limit: Float
+  skip: Float
+  sort: String
+}
 
 type Location {
   lat: Float!
@@ -72,6 +98,14 @@ type Location {
 input LocationDto {
   lat: Float!
   lng: Float!
+}
+
+"""Type of Meal"""
+enum MealEnum {
+  BREAKFAST
+  BRUNCH
+  DINNER
+  LUNCH
 }
 
 type Mutation {
@@ -131,8 +165,8 @@ enum PhotoType {
 }
 
 type Query {
-  """Get all restaurants"""
-  getAllRestaurants: [Restaurant!]!
+  """Get all restaurants or get restaurants by filter"""
+  getAllRestaurants(input: GetRestaurantListInput!): RestaurantFilterResult!
 
   """Get all reviews"""
   getAllReviews: [Review!]!
@@ -164,6 +198,13 @@ type Restaurant {
   photos: [Photo!]!
   updatedAt: DateTime!
   website: String
+}
+
+type RestaurantFilterResult {
+  data: [Restaurant!]!
+  limit: Float!
+  skip: Float!
+  total: Float!
 }
 
 type Review {

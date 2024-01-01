@@ -15,7 +15,7 @@ import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { RestaurantFindOneDto } from './dto/get-restaurant.dto';
-import { Restaurant } from './schema/restaurant.schema';
+import { Restaurant, RestaurantFilterResult } from './schema/restaurant.schema';
 import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
 import {
   ApiBearerAuth,
@@ -36,6 +36,7 @@ import { CurrentUser } from '@/auth/CurrentUser.decorator';
 import { ReviewCreator } from '@/review/types/interfaces/review-creator';
 import { ReviewService } from '@/review/review.service';
 import { PlaceType } from '@/common/constant/place-type';
+import { GetRestaurantListInput } from './dto/filter-restaurant.dto';
 
 @Controller({
   path: 'restaurants',
@@ -49,13 +50,13 @@ export class RestaurantController {
   ) {}
 
   @ApiOperation({
-    summary: 'Get all Restaurants',
-    description: 'Retrieve all restaurants successfully',
+    summary: 'Get all Restaurants or get Restaurants by filter',
+    description: 'Retrieve restaurants successfully',
   })
-  @ApiResponse({ status: 200, description: 'Retrieve all restaurants successfully' })
+  @ApiResponse({ status: 200, description: 'Retrieve restaurants successfully' })
   @Get()
-  async findAll(): Promise<Restaurant[]> {
-    return this.restaurantService.findAll();
+  async findAll(@Body() query: GetRestaurantListInput): Promise<RestaurantFilterResult> {
+    return this.restaurantService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get a Restaurant', description: 'Retrieve a restaurant successfully' })

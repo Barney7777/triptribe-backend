@@ -3,24 +3,41 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from '@/schema/photo.schema';
 import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { Address, AddressSchema } from '@/schema/address.schema';
-import { Field, Float, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  GraphQLISODateTime,
+  ID,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { OpenHours } from '@/schema/openHour.schema';
 
 export type RestaurantDocument = mongoose.HydratedDocument<Restaurant>;
 
-enum MealEnum {
+export enum MealEnum {
   BREAKFAST = 'Breakfast',
   BRUNCH = 'Brunch',
   LUNCH = 'Lunch',
   DINNER = 'Dinner',
 }
 
-enum CuisineEnum {
+export enum CuisineEnum {
   AUSTRALIAN = 'Australian',
   ASIAN = 'Asian',
   CAFE = 'Cafe',
   ITALIAN = 'Italian',
 }
+
+registerEnumType(MealEnum, {
+  name: 'MealEnum',
+  description: 'Type of Meal',
+});
+
+registerEnumType(CuisineEnum, {
+  name: 'CuisineEnum',
+  description: 'Type of Cuisine',
+});
 
 @Schema({ _id: false })
 class TagsType {
@@ -111,3 +128,18 @@ export class Restaurant {
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
+
+@ObjectType()
+export class RestaurantFilterResult {
+  @Field()
+  total: number;
+
+  @Field()
+  skip: number;
+
+  @Field()
+  limit: number;
+
+  @Field(() => [Restaurant])
+  data: Restaurant[];
+}

@@ -1,5 +1,5 @@
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Restaurant } from './schema/restaurant.schema';
+import { Restaurant, RestaurantFilterResult } from './schema/restaurant.schema';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { FileUploadService } from '@/file/file.service';
@@ -10,6 +10,7 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '@/auth/utils/gqlAuthGuard.strategy';
 import { UpdateRestaurantGQLDto } from './dto/update-restaurant.dto';
 import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
+import { GetRestaurantListInput } from './dto/filter-restaurant.dto';
 
 @Resolver(() => Restaurant)
 @UseFilters(HttpExceptionFilter)
@@ -19,11 +20,13 @@ export class RestaurantResolver {
     private readonly fileUploadService: FileUploadService
   ) {}
 
-  @Query(() => [Restaurant], {
-    description: 'Get all restaurants',
+  @Query(() => RestaurantFilterResult, {
+    description: 'Get all restaurants or get restaurants by filter',
   })
-  async getAllRestaurants(): Promise<Restaurant[]> {
-    return this.restaurantService.findAll();
+  async getAllRestaurants(
+    @Args('input') input: GetRestaurantListInput
+  ): Promise<RestaurantFilterResult> {
+    return await this.restaurantService.findAll(input);
   }
 
   @Query(() => Restaurant, {
