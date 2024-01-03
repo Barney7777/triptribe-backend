@@ -25,5 +25,6 @@ import { ReviewResolver } from './review.resolver';
   ],
   controllers: [ReviewController],
   providers: [ReviewService, DatabaseSyncConsumer, ReviewResolver],
+  exports: [ReviewService],
 })
 export class ReviewModule {}

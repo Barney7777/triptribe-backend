@@ -5,10 +5,15 @@ import { User } from '@/user/schema/user.schema';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Field, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
+import { PlaceType } from '@/common/constant/place-type';
 
 export type ReviewDocument = mongoose.HydratedDocument<Review>;
 @ObjectType()
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class Review {
   @Field(() => ID)
   _id: string;
@@ -38,8 +43,8 @@ export class Review {
   placeId: Attraction | Restaurant;
 
   @Field()
-  @Prop({ required: true, enum: ['Attraction', 'Restaurant'] })
-  placeType: 'Attraction' | 'Restaurant';
+  @Prop({ required: true, enum: [PlaceType.Attraction, PlaceType.Restaurant] })
+  placeType: PlaceType.Attraction | PlaceType.Restaurant;
 
   @Field(() => GraphQLISODateTime)
   createdAt: string;
@@ -51,3 +56,9 @@ export class Review {
 export const ReviewSchema = SchemaFactory.createForClass(Review);
 
 ReviewSchema.index({ placeType: 1, placeId: 1 });
+
+ReviewSchema.virtual('creator', {
+  ref: 'User',
+  localField: 'userId',
+  foreignField: '_id',
+}).get((value) => value[0]);
