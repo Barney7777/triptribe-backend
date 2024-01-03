@@ -33,6 +33,9 @@ import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribu
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '@/auth/CurrentUser.decorator';
+import { ReviewCreator } from '@/review/types/interfaces/review-creator';
+import { ReviewService } from '@/review/review.service';
+import { PlaceType } from '@/common/constant/place-type';
 
 @Controller({
   path: 'restaurants',
@@ -40,7 +43,10 @@ import { CurrentUser } from '@/auth/CurrentUser.decorator';
 })
 @ApiTags('restaurants')
 export class RestaurantController {
-  constructor(private readonly restaurantService: RestaurantService) {}
+  constructor(
+    private readonly restaurantService: RestaurantService,
+    private readonly reviewService: ReviewService
+  ) {}
 
   @ApiOperation({
     summary: 'Get all Restaurants',
@@ -383,5 +389,23 @@ export class RestaurantController {
   @Get(':id/rating-distributions')
   async getRestaurantRating(@Param() params: RestaurantFindOneDto): Promise<RatingDistribution[]> {
     return await this.restaurantService.findRestaurantRating(params.id);
+  }
+
+  @ApiOperation({
+    summary: 'Find Reviews by Restaurant ID',
+    description: 'Find all reviews by Restaurant ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Restaurant ID',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Find Reviews by Restaurant ID successfully' })
+  @ApiResponse({ status: 404, description: 'Review Not Found' })
+  @Get(':id/reviews')
+  findReviewsByRestaurantId(@Param() params: RestaurantFindOneDto): Promise<ReviewCreator[]> {
+    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Restaurant, params.id);
   }
 }

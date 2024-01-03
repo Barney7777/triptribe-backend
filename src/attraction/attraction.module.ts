@@ -5,6 +5,7 @@ import { AttractionController } from './attraction.controller';
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { FileUploadModule } from '@/file/file.module';
 import { Review, ReviewSchema } from '@/review/schema/review.schema';
+import { ReviewModule } from '@/review/review.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Review, ReviewSchema } from '@/review/schema/review.schema';
       { name: Review.name, schema: ReviewSchema },
     ]),
     FileUploadModule,
+    ReviewModule,
   ],
   controllers: [AttractionController],
   providers: [AttractionService],

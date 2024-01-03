@@ -36,6 +36,9 @@ import {
 import { PhotoType } from '@/schema/photo.schema';
 import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
 import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
+import { ReviewCreator } from '@/review/types/interfaces/review-creator';
+import { ReviewService } from '@/review/review.service';
+import { PlaceType } from '@/common/constant/place-type';
 
 @Controller({
   path: 'attractions',
@@ -44,7 +47,10 @@ import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 @ApiTags('attractions')
 @UseFilters(AllExceptionsFilter)
 export class AttractionController {
-  constructor(private readonly attractionService: AttractionService) {}
+  constructor(
+    private readonly attractionService: AttractionService,
+    private readonly reviewService: ReviewService
+  ) {}
 
   @ApiOperation({
     summary: 'Get an attraction',
@@ -388,5 +394,23 @@ export class AttractionController {
   @Get(':id/rating-distributions')
   async getAttractionRating(@Param() params: AttractionFindOneDto): Promise<RatingDistribution[]> {
     return await this.attractionService.findAttractionRating(params.id);
+  }
+
+  @ApiOperation({
+    summary: 'Find Reviews by Attraction ID',
+    description: 'Find all reviews by Attraction ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Attraction ID',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Find Reviews by Attraction ID successfully' })
+  @ApiResponse({ status: 404, description: 'Review Not Found' })
+  @Get(':id/reviews')
+  findReviewsByAttractionId(@Param() params: AttractionFindOneDto): Promise<ReviewCreator[]> {
+    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Attraction, params.id);
   }
 }

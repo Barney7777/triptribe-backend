@@ -6,6 +6,7 @@ import { Restaurant, RestaurantSchema } from './schema/restaurant.schema';
 import { FileUploadModule } from '@/file/file.module';
 import { RestaurantResolver } from './restaurant.resolver';
 import { Review, ReviewSchema } from '@/review/schema/review.schema';
+import { ReviewModule } from '@/review/review.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { Review, ReviewSchema } from '@/review/schema/review.schema';
       { name: Review.name, schema: ReviewSchema },
     ]),
     FileUploadModule,
+    ReviewModule,
   ],
   controllers: [RestaurantController],
   exports: [RestaurantService],

@@ -21,6 +21,8 @@ import { Queue } from 'bull';
 import { QUEUE_PROCESS_CALCULATE_OVERALLRATING } from '@/common/constant/queue.constant';
 import { Restaurant, RestaurantDocument } from '@/restaurant/schema/restaurant.schema';
 import { Attraction, AttractionDocument } from '@/attraction/schema/attraction.schema';
+import { User } from '@/user/schema/user.schema';
+import { PlaceType } from '@/common/constant/place-type';
 
 @Injectable()
 export class ReviewService {
@@ -138,6 +140,19 @@ export class ReviewService {
       throw new ForbiddenException('You have no permission to access this resource!');
     }
     return reviewData;
+  }
+
+  async findAllByPlaceTypeAndId(placeType: PlaceType, placeId: string) {
+    const isPlaceExist = await this.checkPlaceExists(placeId, placeType);
+    if (!isPlaceExist) {
+      throw new NotFoundException('The place does not exist');
+    }
+
+    const reviews = await this.reviewModel
+      .find({ placeId, placeType })
+      .populate<{ creator: User }>('creator')
+      .exec();
+    return reviews;
   }
 
   async remove(id: QueryReviewDto['id'], userId: UserIdDto['_id']) {
