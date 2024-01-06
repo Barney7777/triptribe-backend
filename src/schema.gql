@@ -7,6 +7,22 @@ type Address {
   location: Location
 }
 
+type Attraction {
+  _id: ID!
+  address: Address!
+  createdAt: DateTime!
+  createdUserId: ID!
+  description: String!
+  email: String!
+  name: String!
+  openHours: OpenHours!
+  overAllRating: Float
+  phone: String!
+  photos: [Photo!]!
+  updatedAt: DateTime!
+  website: String
+}
+
 type BusinessTime {
   isClosed: Boolean!
   isOpenAllDay: Boolean!
@@ -165,6 +181,9 @@ enum PhotoType {
 }
 
 type Query {
+  """Get all attractions"""
+  getAllAttractions: [Attraction!]!
+
   """Get all restaurants or get restaurants by filter"""
   getAllRestaurants(input: GetRestaurantListInput!): RestaurantFilterResult!
 
