@@ -1,16 +1,19 @@
-import { Model } from 'mongoose';
+import { Model, PipelineStage } from 'mongoose';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileUploadService } from '@/file/file.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { Restaurant } from './schema/restaurant.schema';
+import { Restaurant, RestaurantFilterResult } from './schema/restaurant.schema';
 import { PhotoType } from '@/schema/photo.schema';
 import { GlobalSearchDto } from '@/search/dto/globalSearch.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 import { Review } from '@/review/schema/review.schema';
+import dayjs from 'dayjs';
+import { GetRestaurantListInput } from './dto/filter-restaurant.dto';
+import { DEFAULT_LIMIT, DEFAULT_SKIP } from '@/common/constant/pagination.constant';
 
 @Injectable()
 export class RestaurantService {
@@ -20,8 +23,143 @@ export class RestaurantService {
     @InjectModel(Review.name) private reviewModel: Model<Review>
   ) {}
 
-  async findAll(): Promise<Restaurant[]> {
-    return await this.restaurantModel.find().exec();
+  async findAll(query: GetRestaurantListInput): Promise<RestaurantFilterResult> {
+    const { sort, limit = DEFAULT_LIMIT, skip = DEFAULT_SKIP, filters } = query;
+    const sortMappings = {
+      rating_asc: { overAllRating: 1 },
+      rating_desc: { overAllRating: -1 },
+      cost_asc: { 'tags.cost': 1 },
+      cost_desc: { 'tags.cost': -1 },
+      default: { overAllRating: -1 },
+    };
+
+    const sortString = sortMappings[sort || 'default'];
+    const aggregatePipeline: PipelineStage[] = [];
+
+    if (filters) {
+      const { meals, cuisines, cost, rating, location, distance, isOpenNow, currentTime } = filters;
+
+      const parsedDate = dayjs(currentTime);
+
+      const dayOfWeek = parsedDate.format('dddd');
+      const current = parsedDate.format('HH:mm');
+
+      if (location) {
+        aggregatePipeline.push({
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [location.lng, location.lat],
+            },
+            distanceField: 'distance',
+            spherical: true,
+            maxDistance: distance,
+            key: 'address.location',
+          },
+        });
+      }
+
+      if (isOpenNow) {
+        aggregatePipeline.push({
+          $addFields: {
+            isOpen: {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: '$openHours.' + dayOfWeek + '.period',
+                      as: 'period',
+                      cond: {
+                        $and: [
+                          { $gte: [current, '$$period.openTime'] },
+                          { $lt: [current, '$$period.closeTime'] },
+                        ],
+                      },
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        });
+      } else {
+        aggregatePipeline.push({
+          $addFields: {
+            isOpen: false,
+          },
+        });
+      }
+
+      const matchList: object[] = [];
+
+      if (meals && meals.length > 0) {
+        matchList.push({
+          'tags.meals': {
+            $in: meals,
+          },
+        });
+      }
+
+      if (cuisines && cuisines.length > 0) {
+        matchList.push({
+          'tags.cuisines': {
+            $in: cuisines,
+          },
+        });
+      }
+
+      if (cost) {
+        matchList.push({
+          'tags.cost': { $lte: cost },
+        });
+      }
+
+      if (rating) {
+        matchList.push({
+          overAllRating: { $gte: rating },
+        });
+      }
+
+      if (isOpenNow) {
+        matchList.push(
+          {
+            [`openHours.${dayOfWeek}.isClosed`]: false,
+          },
+          { isOpen: true }
+        );
+      }
+
+      aggregatePipeline.push({ $match: { $and: matchList } });
+    }
+
+    aggregatePipeline.push({
+      $facet: {
+        data: [
+          {
+            $sort: sortString,
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+        ],
+        total: [{ $count: 'total' }],
+      },
+    });
+
+    const [{ data, total }] = await this.restaurantModel.aggregate(aggregatePipeline);
+
+    const restaurantsFilterResult: RestaurantFilterResult = {
+      total: total.length > 0 ? total[0].total : 0,
+      skip,
+      limit,
+      data: data || [],
+    };
+
+    return restaurantsFilterResult;
   }
 
   async findOne(id: string): Promise<Restaurant> {

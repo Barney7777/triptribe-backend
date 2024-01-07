@@ -65,7 +65,7 @@ export class User {
   savedRestaurants: Restaurant[];
 
   @Field(() => Photo)
-  @Prop({ type: PhotoSchema })
+  @Prop({ type: PhotoSchema, default: {} })
   userAvatar: Photo;
 }
 
