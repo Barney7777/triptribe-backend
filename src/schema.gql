@@ -23,6 +23,13 @@ type Attraction {
   website: String
 }
 
+type AttractionFilterResult {
+  data: [Attraction!]!
+  limit: Float!
+  skip: Float!
+  total: Float!
+}
+
 type BusinessTime {
   isClosed: Boolean!
   isOpenAllDay: Boolean!
@@ -87,6 +94,31 @@ enum CuisineEnum {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+"""Type of Duration"""
+enum DurationEnum {
+  FOUR_HOURS_TO_ONE_DAY
+  ONE_TO_FOUR_HOURS
+  UP_TO_ONE_HOUR
+}
+
+input GetAttractionListFiltersDto {
+  cost: Float
+  currentTime: DateTime
+  distance: Float
+  durations: [DurationEnum!]
+  isOpenNow: Boolean
+  location: LocationDto
+  rating: Float
+  types: [TypeEnum!]
+}
+
+input GetAttractionListInput {
+  filters: GetAttractionListFiltersDto
+  limit: Float
+  skip: Float
+  sort: String
+}
 
 input GetRestaurantListFiltersDto {
   cost: Float
@@ -181,8 +213,8 @@ enum PhotoType {
 }
 
 type Query {
-  """Get all attractions"""
-  getAllAttractions: [Attraction!]!
+  """Get all attractions or get attractions by filter"""
+  getAllAttractions(input: GetAttractionListInput!): AttractionFilterResult!
 
   """Get all restaurants or get restaurants by filter"""
   getAllRestaurants(input: GetRestaurantListInput!): RestaurantFilterResult!
@@ -237,6 +269,15 @@ type Review {
   title: String!
   updatedAt: DateTime!
   userId: ID!
+}
+
+"""Type of Type"""
+enum TypeEnum {
+  FUN_AND_GAMES
+  MUSEUMS
+  NATURE_AND_PARKS
+  NIGHTLIFE
+  SIGHT_AND_LANDMARKS
 }
 
 input UpdateRestaurantGQLDto {
