@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AttractionService } from './attraction.service';
-import { Attraction } from '@/attraction/schema/attraction.schema';
+import { Attraction, AttractionFilterResult } from '@/attraction/schema/attraction.schema';
 import { AttractionFindOneDto } from './dto/get-attraction.dto';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { CreateAttractionDto } from './dto/create-attraction.dto';
@@ -39,6 +39,7 @@ import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 import { ReviewCreator } from '@/review/types/interfaces/review-creator';
 import { ReviewService } from '@/review/review.service';
 import { PlaceType } from '@/common/constant/place-type';
+import { GetAttractionListInput } from './dto/filter-attraction.dto';
 
 @Controller({
   path: 'attractions',
@@ -71,13 +72,13 @@ export class AttractionController {
   }
 
   @ApiOperation({
-    summary: 'Get all Attractions',
+    summary: 'Get all Attractions or get Attractions by filter',
     description: 'Retrieve all attractions successfully',
   })
-  @ApiResponse({ status: 200, description: 'Retrieve all attractions successfully' })
+  @ApiResponse({ status: 200, description: 'Retrieve attractions successfully' })
   @Get()
-  async findAll(): Promise<Attraction[]> {
-    return this.attractionService.findAll();
+  async findAll(@Body() query: GetAttractionListInput): Promise<AttractionFilterResult> {
+    return this.attractionService.findAll(query);
   }
 
   @ApiBearerAuth()

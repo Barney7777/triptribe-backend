@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, PipelineStage } from 'mongoose';
 import {
   BadRequestException,
   ForbiddenException,
@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Attraction } from '@/attraction/schema/attraction.schema';
+import { Attraction, AttractionFilterResult } from '@/attraction/schema/attraction.schema';
 import { ICreateAttaraction } from './types/interfaces/createAttraction.do';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { CreateAttractionDto } from './dto/create-attraction.dto';
@@ -18,6 +18,9 @@ import { PhotoType } from '@/schema/photo.schema';
 import { AttractionFindOneDto } from './dto/get-attraction.dto';
 import { Review } from '@/review/schema/review.schema';
 import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
+import { GetAttractionListInput } from './dto/filter-attraction.dto';
+import { DEFAULT_LIMIT, DEFAULT_SKIP } from '@/common/constant/pagination.constant';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class AttractionService {
@@ -35,8 +38,144 @@ export class AttractionService {
     return attraction;
   }
 
-  async findAll(): Promise<Attraction[]> {
-    return await this.attractionModel.find().exec();
+  async findAll(query: GetAttractionListInput): Promise<AttractionFilterResult> {
+    const { sort, limit = DEFAULT_LIMIT, skip = DEFAULT_SKIP, filters } = query;
+    const sortMappings = {
+      rating_asc: { overAllRating: 1 },
+      rating_desc: { overAllRating: -1 },
+      cost_asc: { 'tags.cost': 1 },
+      cost_desc: { 'tags.cost': -1 },
+      default: { overAllRating: -1 },
+    };
+
+    const sortString = sortMappings[sort || 'default'];
+    const aggregatePipeline: PipelineStage[] = [];
+
+    if (filters) {
+      const { types, durations, cost, rating, location, distance, isOpenNow, currentTime } =
+        filters;
+
+      const parsedDate = dayjs(currentTime);
+
+      const dayOfWeek = parsedDate.format('dddd');
+      const current = parsedDate.format('HH:mm');
+
+      if (location) {
+        aggregatePipeline.push({
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [location.lng, location.lat],
+            },
+            distanceField: 'distance',
+            spherical: true,
+            maxDistance: distance,
+            key: 'address.location',
+          },
+        });
+      }
+
+      if (isOpenNow) {
+        aggregatePipeline.push({
+          $addFields: {
+            isOpen: {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: '$openHours.' + dayOfWeek + '.period',
+                      as: 'period',
+                      cond: {
+                        $and: [
+                          { $gte: [current, '$$period.openTime'] },
+                          { $lt: [current, '$$period.closeTime'] },
+                        ],
+                      },
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        });
+      } else {
+        aggregatePipeline.push({
+          $addFields: {
+            isOpen: false,
+          },
+        });
+      }
+
+      const matchList: object[] = [];
+
+      if (types && types.length > 0) {
+        matchList.push({
+          'tags.types': {
+            $in: types,
+          },
+        });
+      }
+
+      if (durations && durations.length > 0) {
+        matchList.push({
+          'tags.durations': {
+            $in: durations,
+          },
+        });
+      }
+
+      if (cost) {
+        matchList.push({
+          'tags.cost': { $lte: cost },
+        });
+      }
+
+      if (rating) {
+        matchList.push({
+          overAllRating: { $gte: rating },
+        });
+      }
+
+      if (isOpenNow) {
+        matchList.push(
+          {
+            [`openHours.${dayOfWeek}.isClosed`]: false,
+          },
+          { isOpen: true }
+        );
+      }
+
+      aggregatePipeline.push({ $match: { $and: matchList } });
+    }
+
+    aggregatePipeline.push({
+      $facet: {
+        data: [
+          {
+            $sort: sortString,
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+        ],
+        total: [{ $count: 'total' }],
+      },
+    });
+
+    const [{ data, total }] = await this.attractionModel.aggregate(aggregatePipeline);
+
+    const attractionsFilterResult: AttractionFilterResult = {
+      total: total.length > 0 ? total[0].total : 0,
+      skip,
+      limit,
+      data: data || [],
+    };
+
+    return attractionsFilterResult;
   }
 
   async create(

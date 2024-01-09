@@ -3,12 +3,19 @@ import * as mongoose from 'mongoose';
 import { Photo, PhotoSchema } from '@/schema/photo.schema';
 import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { Address, AddressSchema } from '@/schema/address.schema';
-import { Field, Float, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  GraphQLISODateTime,
+  ID,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { OpenHours } from '@/schema/openHour.schema';
 
 export type AttractionDocument = mongoose.HydratedDocument<Attraction>;
 
-enum TypeEnum {
+export enum TypeEnum {
   SIGHT_AND_LANDMARKS = 'Sight & landmarks',
   NATURE_AND_PARKS = 'Nature & Parks',
   MUSEUMS = 'Museums',
@@ -16,11 +23,21 @@ enum TypeEnum {
   NIGHTLIFE = 'Nightlife',
 }
 
-enum DurationEnum {
+export enum DurationEnum {
   UP_TO_ONE_HOUR = 'Up to 1 hour',
   ONE_TO_FOUR_HOURS = '1 to 4 hours',
   FOUR_HOURS_TO_ONE_DAY = '4 hours to 1 day',
 }
+
+registerEnumType(TypeEnum, {
+  name: 'TypeEnum',
+  description: 'Type of Type',
+});
+
+registerEnumType(DurationEnum, {
+  name: 'DurationEnum',
+  description: 'Type of Duration',
+});
 
 @Schema({ _id: false })
 class TagsType {
@@ -111,3 +128,18 @@ export class Attraction {
 }
 
 export const AttractionSchema = SchemaFactory.createForClass(Attraction);
+
+@ObjectType()
+export class AttractionFilterResult {
+  @Field()
+  total: number;
+
+  @Field()
+  skip: number;
+
+  @Field()
+  limit: number;
+
+  @Field(() => [Attraction])
+  data: Attraction[];
+}

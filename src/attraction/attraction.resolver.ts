@@ -1,18 +1,21 @@
-import { Query, Resolver } from '@nestjs/graphql';
-import { Attraction } from './schema/attraction.schema';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Attraction, AttractionFilterResult } from './schema/attraction.schema';
 import { UseFilters } from '@nestjs/common';
 import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
 import { AttractionService } from './attraction.service';
+import { GetAttractionListInput } from './dto/filter-attraction.dto';
 
 @Resolver(() => Attraction)
 @UseFilters(HttpExceptionFilter)
 export class AttractionResolver {
   constructor(private readonly attractionService: AttractionService) {}
 
-  @Query(() => [Attraction], {
-    description: 'Get all attractions',
+  @Query(() => AttractionFilterResult, {
+    description: 'Get all attractions or get attractions by filter',
   })
-  async getAllAttractions(): Promise<Attraction[]> {
-    return this.attractionService.findAll();
+  async getAllAttractions(
+    @Args('input') input: GetAttractionListInput
+  ): Promise<AttractionFilterResult> {
+    return this.attractionService.findAll(input);
   }
 }
