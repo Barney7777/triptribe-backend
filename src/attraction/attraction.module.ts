@@ -6,6 +6,7 @@ import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.sch
 import { FileUploadModule } from '@/file/file.module';
 import { Review, ReviewSchema } from '@/review/schema/review.schema';
 import { ReviewModule } from '@/review/review.module';
+import { AttractionResolver } from './attraction.resolver';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ReviewModule } from '@/review/review.module';
     ReviewModule,
   ],
   controllers: [AttractionController],
-  providers: [AttractionService],
+  providers: [AttractionService, AttractionResolver],
   exports: [AttractionService],
 })
 export class AttractionModule {}

@@ -1,4 +1,5 @@
 export default () => ({
+  env: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 8080,
   database: {
     name: process.env.DATABASE_NAME || 'tripTribeDb',
