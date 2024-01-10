@@ -128,6 +128,16 @@ export class ReviewService {
     if (!review) {
       throw new BadRequestException('Update operation failed');
     }
+
+    await this.databaseSync.add(
+      QUEUE_PROCESS_CALCULATE_OVERALLRATING,
+      {
+        placeType: review.placeType,
+        placeId: review.placeId,
+      },
+      { delay: 100 }
+    );
+
     return review;
   }
 
@@ -160,6 +170,16 @@ export class ReviewService {
     await this.findOneFromMe(id, userId);
 
     const review = await this.reviewModel.findByIdAndDelete(id).exec();
+
+    await this.databaseSync.add(
+      QUEUE_PROCESS_CALCULATE_OVERALLRATING,
+      {
+        placeType: review?.placeType,
+        placeId: review?.placeId,
+      },
+      { delay: 100 }
+    );
+
     return review;
   }
 

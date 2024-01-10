@@ -61,4 +61,7 @@ ReviewSchema.virtual('creator', {
   ref: 'User',
   localField: 'userId',
   foreignField: '_id',
-}).get((value) => value[0]);
+}).get((value) => {
+  if (!value) return;
+  return value[0];
+});
