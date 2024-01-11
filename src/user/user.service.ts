@@ -99,9 +99,10 @@ export class UserService {
 
   async getSavedPlaces(
     currentUser: User,
+    id: string,
     placeType: getSavedPlaceDto['placeType']
   ): Promise<Attraction[] | Restaurant[]> {
-    const userId = currentUser['_id'];
+    const userId = id === 'me' ? currentUser._id : id;
 
     // Find the user and populate the relevant field based on placeType
     const poulateType =
