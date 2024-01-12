@@ -89,16 +89,29 @@ export class UserController {
     return this.userService.addSavedPlace(currentUser, savePlaceDto);
   }
 
-  @Get('me/saves/:placeType')
+  @Get(':id/saves/:placeType')
   @ApiBearerAuth()
   @ApiResponse({ status: 201, description: 'Get saved places successfully' })
+  @ApiParam({
+    name: 'id',
+    description: 'User Id',
+    required: true,
+    type: String,
+  })
+  @ApiParam({
+    name: 'placeType',
+    description: 'Place type',
+    required: true,
+    type: getSavedPlaceDto['placeType'],
+  })
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(200)
   async getSavedPlaces(
     @CurrentUser() currentUser,
+    @Param('id') id: string,
     @Param('placeType') placeType: getSavedPlaceDto['placeType']
   ): Promise<Attraction[] | Restaurant[]> {
-    return this.userService.getSavedPlaces(currentUser, placeType);
+    return this.userService.getSavedPlaces(currentUser, id, placeType);
   }
 
   @Delete('me/saves/:placeType/:placeId')
