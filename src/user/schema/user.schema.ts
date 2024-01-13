@@ -51,7 +51,7 @@ export class User {
   role: UserRole;
 
   @Field({ nullable: true })
-  @Prop()
+  @Prop({ default: '' })
   description: string;
 
   // @Prop()
@@ -65,7 +65,7 @@ export class User {
   savedRestaurants: Restaurant[];
 
   @Field(() => Photo)
-  @Prop({ type: PhotoSchema, default: {} })
+  @Prop({ type: PhotoSchema })
   userAvatar: Photo;
 }
 

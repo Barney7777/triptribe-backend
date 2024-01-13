@@ -23,11 +23,11 @@ export class Photo {
   _id: string;
 
   @Field()
-  @Prop({ required: true })
+  @Prop({ required: true, default: '' })
   imageAlt: string;
 
   @Field()
-  @Prop({ required: true })
+  @Prop({ required: true, default: '' })
   imageUrl: string;
 
   @Field(() => PhotoType)
