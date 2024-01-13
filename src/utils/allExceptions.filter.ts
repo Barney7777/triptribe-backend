@@ -28,6 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
       exceptionMessage,
+      exception,
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
     Sentry.captureException(exception);

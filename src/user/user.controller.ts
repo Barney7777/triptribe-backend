@@ -33,6 +33,7 @@ import { SavePlaceDto } from './dto/save-place.dto';
 import { plainToClass } from 'class-transformer';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Controller({
   path: 'users',
@@ -152,5 +153,12 @@ export class UserController {
   ) {
     const updatedUserDto = plainToClass(UpdateUserDto, updateUserDto);
     return this.userService.updateUser(userId, updatedUserDto, avatar);
+  }
+
+  @Put('me/password')
+  @UseGuards(AuthGuard('jwt'))
+  async editPassword(@CurrentUser() currentUser, @Body() params: EditPasswordDto) {
+    const userId = currentUser._id;
+    return await this.userService.editPassword(userId, params);
   }
 }

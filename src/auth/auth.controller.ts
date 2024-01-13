@@ -4,9 +4,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { plainToClass } from 'class-transformer';
 import { CurrentUser } from './CurrentUser.decorator';
-import { EditPasswordDto } from './dto/edit-password.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthRegisterDto } from './dto/auth-register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller({
   path: 'auth',
@@ -82,20 +82,20 @@ export class AuthController {
 
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Edit Password',
-    description: 'Edit Password successfully',
+    summary: 'Reset Password',
+    description: 'Reset Password successfully',
   })
   @ApiBody({
-    type: EditPasswordDto,
-    description: 'New Password to edit',
+    type: ResetPasswordDto,
+    description: 'New Password to reset',
   })
-  @ApiResponse({ status: 201, description: 'Edit Password successfully' })
+  @ApiResponse({ status: 201, description: 'Reset Password successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('password')
   @UseGuards(AuthGuard('jwt'))
-  async editPassword(@CurrentUser() currentUser, @Body() newPassword: EditPasswordDto) {
+  async resetPassword(@CurrentUser() currentUser, @Body() newPassword: ResetPasswordDto) {
     const userId = currentUser._id;
-    return await this.authService.editPassword(userId, newPassword);
+    return await this.authService.resetPassword(userId, newPassword);
   }
 }
