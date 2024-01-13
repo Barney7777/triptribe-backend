@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -7,6 +7,7 @@ import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.sch
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { UserResolver } from './user.resolver';
 import { FileUploadModule } from '@/file/file.module';
+import { ReviewModule } from '@/review/review.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FileUploadModule } from '@/file/file.module';
       { name: Attraction.name, schema: AttractionSchema },
     ]),
     FileUploadModule,
+    forwardRef(() => ReviewModule),
   ],
   controllers: [UserController],
   providers: [UserService, UserResolver],

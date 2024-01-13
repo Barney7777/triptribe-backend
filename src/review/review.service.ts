@@ -23,6 +23,7 @@ import { Restaurant, RestaurantDocument } from '@/restaurant/schema/restaurant.s
 import { Attraction, AttractionDocument } from '@/attraction/schema/attraction.schema';
 import { User } from '@/user/schema/user.schema';
 import { PlaceType } from '@/common/constant/place-type';
+import { UserService } from '@/user/user.service';
 
 @Injectable()
 export class ReviewService {
@@ -31,6 +32,7 @@ export class ReviewService {
     private readonly fileUploadService: FileUploadService,
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
     @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
+    private readonly userService: UserService,
     @InjectQueue('database-sync') private databaseSync: Queue
   ) {}
   async create(files: FileUploadDto[], reviewDto: CreateReviewDto, userId: UserIdDto['_id']) {
@@ -163,6 +165,15 @@ export class ReviewService {
       .populate<{ creator: User }>('creator')
       .exec();
     return reviews;
+  }
+
+  async findAllByUserId(userId: string) {
+    const user = await this.userService.findOne(userId);
+    const reviews = await this.reviewModel
+      .find({ userId })
+      .populate<{ placeId: Attraction | Restaurant }>('placeId')
+      .exec();
+    return { creator: user, reviews: reviews };
   }
 
   async remove(id: QueryReviewDto['id'], userId: UserIdDto['_id']) {

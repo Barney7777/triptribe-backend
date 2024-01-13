@@ -33,6 +33,8 @@ import { SavePlaceDto } from './dto/save-place.dto';
 import { plainToClass } from 'class-transformer';
 import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { ReviewService } from '@/review/review.service';
+import { FindOneDto } from '@/dto/find-one.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Controller({
@@ -41,7 +43,10 @@ import { EditPasswordDto } from './dto/edit-password.dto';
 })
 @ApiTags('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly reviewService: ReviewService
+  ) {}
 
   @Get('me')
   @ApiBearerAuth()
@@ -153,6 +158,24 @@ export class UserController {
   ) {
     const updatedUserDto = plainToClass(UpdateUserDto, updateUserDto);
     return this.userService.updateUser(userId, updatedUserDto, avatar);
+  }
+
+  @ApiOperation({
+    summary: 'Get all reviews by userId',
+    description: 'Retrieve all reviews successfully',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User Id',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Retrieve all reviews successfully' })
+  @ApiResponse({ status: 404, description: 'User Not Exists' })
+  @Get(':id/reviews')
+  findAllReviewsByUserId(@Param() params: FindOneDto) {
+    return this.reviewService.findAllByUserId(params.id);
   }
 
   @Put('me/password')

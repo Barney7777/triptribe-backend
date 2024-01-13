@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { ReviewController } from './review.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +10,7 @@ import { DatabaseSyncConsumer } from './consumers/review.consumer';
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
 import { ReviewResolver } from './review.resolver';
+import { UserModule } from '@/user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ReviewResolver } from './review.resolver';
       { name: Restaurant.name, schema: RestaurantSchema },
     ]),
     FileUploadModule,
+    forwardRef(() => UserModule),
     BullModule.registerQueue({
       name: QUEUE_NAME_DATABASE_SYNC,
     }),
