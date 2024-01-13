@@ -10,6 +10,9 @@ import {
   Post,
   HttpCode,
   Delete,
+  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
@@ -35,6 +38,9 @@ import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { ReviewService } from '@/review/review.service';
 import { FindOneDto } from '@/dto/find-one.dto';
+import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+import { UserReview } from '@/review/dto/user-review.dto';
+import { PaginationResult } from '@/dto/pagination-result.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Controller({
@@ -174,8 +180,12 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Retrieve all reviews successfully' })
   @ApiResponse({ status: 404, description: 'User Not Exists' })
   @Get(':id/reviews')
-  findAllReviewsByUserId(@Param() params: FindOneDto) {
-    return this.reviewService.findAllByUserId(params.id);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  findAllReviewsByUserId(
+    @Param() params: FindOneDto,
+    @Query() query: GetDataListInput
+  ): Promise<PaginationResult<UserReview>> {
+    return this.reviewService.findAllByUserId(params.id, query);
   }
 
   @Put('me/password')

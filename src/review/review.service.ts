@@ -24,6 +24,11 @@ import { Attraction, AttractionDocument } from '@/attraction/schema/attraction.s
 import { User } from '@/user/schema/user.schema';
 import { PlaceType } from '@/common/constant/place-type';
 import { UserService } from '@/user/user.service';
+import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+import { DEFAULT_REVIEW_LIMIT, DEFAULT_SKIP } from '@/common/constant/pagination.constant';
+import { UserReview } from './dto/user-review.dto';
+import { PaginationResult } from '@/dto/pagination-result.dto';
+import { ReviewCreator } from './types/interfaces/review-creator';
 
 @Injectable()
 export class ReviewService {
@@ -154,26 +159,45 @@ export class ReviewService {
     return reviewData;
   }
 
-  async findAllByPlaceTypeAndId(placeType: PlaceType, placeId: string) {
+  async findAllByPlaceTypeAndId(placeType: PlaceType, placeId: string, query: GetDataListInput) {
     const isPlaceExist = await this.checkPlaceExists(placeId, placeType);
     if (!isPlaceExist) {
       throw new NotFoundException('The place does not exist');
     }
+    const { limit = DEFAULT_REVIEW_LIMIT, skip = DEFAULT_SKIP } = query;
+    const total = await this.reviewModel.countDocuments({ placeType, placeId }).exec();
+    const pageCount = Math.floor((total - 1) / limit) + 1;
 
     const reviews = await this.reviewModel
       .find({ placeId, placeType })
       .populate<{ creator: User }>('creator')
+      .limit(limit)
+      .skip(skip)
       .exec();
-    return reviews;
+    const result: PaginationResult<ReviewCreator[]> = {
+      data: reviews,
+      limit,
+      skip,
+      total,
+      pageCount,
+    };
+    return result;
   }
 
-  async findAllByUserId(userId: string) {
+  async findAllByUserId(userId: string, query: GetDataListInput) {
+    const { limit = DEFAULT_REVIEW_LIMIT, skip = DEFAULT_SKIP } = query;
     const user = await this.userService.findOne(userId);
+    const total = await this.reviewModel.countDocuments({ userId: userId }).exec();
+    const pageCount = Math.floor((total - 1) / limit) + 1;
     const reviews = await this.reviewModel
       .find({ userId })
       .populate<{ placeId: Attraction | Restaurant }>('placeId')
+      .limit(limit)
+      .skip(skip)
       .exec();
-    return { creator: user, reviews: reviews };
+    const data: UserReview = { creator: user, reviews: reviews };
+    const result: PaginationResult<UserReview> = { data, limit, skip, total, pageCount };
+    return result;
   }
 
   async remove(id: QueryReviewDto['id'], userId: UserIdDto['_id']) {
