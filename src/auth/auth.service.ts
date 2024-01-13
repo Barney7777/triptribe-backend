@@ -3,12 +3,12 @@ import { UserService } from '@/user/user.service';
 import { UserDocument } from '@/user/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import dayjs from 'dayjs';
-import { EditPasswordDto } from './dto/edit-password.dto';
 import { UserIdDto } from '@/user/dto/userId.dto';
 import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { AuthRegisterDto } from './dto/auth-register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +105,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async editPassword(userId: UserIdDto['_id'], newPassword: EditPasswordDto) {
+  async resetPassword(userId: UserIdDto['_id'], newPassword: ResetPasswordDto) {
     const userIdToString = String(userId);
     const user = await this.userService.findOne(userIdToString);
     if (!user) {

@@ -14,11 +14,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Multer } from 'multer';
 import { FileUploadService } from '@/file/file.service';
 import { PhotoType } from '@/schema/photo.schema';
-import { EditPasswordDto } from '@/auth/dto/edit-password.dto';
 import { AuthRegisterDto } from '@/auth/dto/auth-register.dto';
 import { getSavedPlaceDto } from './dto/get-saved-place.dto';
 import { deleteSavedPlaceDto } from './dto/delete-save-place.dto';
 import { PlaceType } from './dto/save-place.dto';
+import { ResetPasswordDto } from '@/auth/dto/reset-password.dto';
+import { EditPasswordDto } from '@/user/dto/edit-password.dto';
+import { UserIdDto } from './dto/userId.dto';
+import { compareSync } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -192,7 +195,7 @@ export class UserService {
     );
   }
 
-  async updatePassword(userId: string, newPassword: EditPasswordDto) {
+  async updatePassword(userId: string, newPassword: ResetPasswordDto) {
     const { newPassword: checkedNewpassword } = newPassword;
     const res = await this.userModel.updateOne(
       { _id: userId },
@@ -200,5 +203,19 @@ export class UserService {
       { new: true }
     );
     return res;
+  }
+
+  async editPassword(userId: UserIdDto['_id'], editPasswordDto: EditPasswordDto) {
+    const existingUser = await this.userModel.findById(userId).select('+password');
+    if (!existingUser) {
+      throw new BadRequestException(`User with ID ${userId.toString()} not found`);
+    }
+    const { oldPassword, newPassword } = editPasswordDto;
+
+    if (!compareSync(oldPassword, existingUser.password)) {
+      throw new BadRequestException('Your old password is incorrect.');
+    }
+    const editedUser = await this.updatePassword(userId, { newPassword });
+    return editedUser;
   }
 }
