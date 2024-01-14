@@ -19,6 +19,10 @@ import { getSavedPlaceDto } from './dto/get-saved-place.dto';
 import { deleteSavedPlaceDto } from './dto/delete-save-place.dto';
 import { PlaceType } from './dto/save-place.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ResetPasswordDto } from '@/auth/dto/reset-password.dto';
+import { UserIdDto } from './dto/userId.dto';
+import { EditPasswordDto } from './dto/edit-password.dto';
+import { compareSync } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -200,12 +204,6 @@ export class UserService {
     throw new BadRequestException(
       'Invalid placeType. PlaceType can only be "Restaurant" or "Attraction".'
     );
-  }
-
-  async generateEmailValidateToken(email: string): Promise<string> {
-    const payload = { sub: email };
-    const ACCESS_TOKEN_TIME = '7d';
-    return this.jwtService.signAsync(payload, { expiresIn: ACCESS_TOKEN_TIME });
   }
 
   async generateEmailValidateToken(email: string): Promise<string> {
