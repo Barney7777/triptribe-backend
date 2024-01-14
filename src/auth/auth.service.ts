@@ -13,6 +13,7 @@ import { EmailConsumer } from './consumers/email.consumer';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../user/schema/user.schema';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
