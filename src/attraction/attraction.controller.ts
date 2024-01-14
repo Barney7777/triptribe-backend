@@ -1,0 +1,423 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UploadedFiles,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { AttractionService } from './attraction.service';
+import { Attraction, AttractionFilterResult } from '@/attraction/schema/attraction.schema';
+import { AttractionFindOneDto } from './dto/get-attraction.dto';
+import { FilesInterceptor } from '@nestjs/platform-express/multer';
+import { CreateAttractionDto } from './dto/create-attraction.dto';
+import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
+import { plainToClass } from 'class-transformer';
+import { CurrentUser } from '@/auth/CurrentUser.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { FileUploadDto } from '@/file/dto/file-upload.dto';
+import { UpdateAttractionDto } from './dto/update-attraction.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiBodyOptions,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PhotoType } from '@/schema/photo.schema';
+import { RatingDistribution } from './types/interfaces/ratingDistribution.interface';
+import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
+import { ReviewCreator } from '@/review/types/interfaces/review-creator';
+import { ReviewService } from '@/review/review.service';
+import { PlaceType } from '@/common/constant/place-type';
+import { GetAttractionListInput } from './dto/filter-attraction.dto';
+import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+import { PaginationResult } from '@/dto/pagination-result.dto';
+
+@Controller({
+  path: 'attractions',
+  version: '1',
+})
+@ApiTags('attractions')
+@UseFilters(AllExceptionsFilter)
+export class AttractionController {
+  constructor(
+    private readonly attractionService: AttractionService,
+    private readonly reviewService: ReviewService
+  ) {}
+
+  @ApiOperation({
+    summary: 'Get an attraction',
+    description: 'Retrieve an attraction successfully',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Attraction Id',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Retrieve an attraction successfully' })
+  @ApiResponse({ status: 404, description: 'Attraction Not Found' })
+  @Get(':id')
+  async findOne(@Param() params: AttractionFindOneDto): Promise<Attraction> {
+    return this.attractionService.findOne(params.id);
+  }
+
+  @ApiOperation({
+    summary: 'Get all Attractions or get Attractions by filter',
+    description: 'Retrieve all attractions successfully',
+  })
+  @ApiResponse({ status: 200, description: 'Retrieve attractions successfully' })
+  @Get()
+  async findAll(@Body() query: GetAttractionListInput): Promise<AttractionFilterResult> {
+    return this.attractionService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create Attraction',
+    description: 'Create a new attraction successfully',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Attraction data to create',
+    schema: {
+      type: 'object',
+      required: ['name', 'description', 'email', 'phone'],
+      properties: {
+        name: { type: 'string', example: 'Denesik Route' },
+        description: {
+          type: 'string',
+          example:
+            'Pauper delectatio avaritia consectetur super vesco quasi vulticulus necessitatibus constans.',
+        },
+        website: {
+          type: 'string',
+          example: 'http://dimpled-housing.net',
+        },
+        email: {
+          type: 'string',
+          example: 'DenesikRoute13@gmail.com',
+        },
+        phone: {
+          type: 'string',
+          example: '(679) 497-4605 x3175',
+        },
+        openHours: {
+          type: 'object',
+          example: {
+            Monday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Tuesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Wednesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Thursday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Friday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Saturday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Sunday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+          },
+        },
+        address: {
+          type: 'object',
+          example: {
+            formattedAddress: '25474 Ratke Passage Suite 979',
+            location: {
+              lng: -140.1176,
+              lat: -88.9277,
+            },
+          },
+        },
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'An array of images',
+        },
+      },
+    },
+  } as ApiBodyOptions)
+  @ApiResponse({ status: 201, description: 'Create a new attraction successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
+  async create(
+    @CurrentUser() currentUser,
+    @Body() createAttractionDto: CreateAttractionDto,
+    @UploadedFiles() files: FileUploadDto[]
+  ): Promise<Attraction> {
+    const userId = currentUser._id;
+    const attractionDto = plainToClass(CreateAttractionDto, createAttractionDto);
+    return await this.attractionService.create(userId, attractionDto, files);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update Attraction',
+    description: 'Update an attraction successfully',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({
+    name: 'id',
+    description: 'Attraction Id',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiBody({
+    description: 'Attraction data to update',
+    schema: {
+      type: 'object',
+      required: ['name', 'description', 'email', 'phone'],
+      properties: {
+        name: { type: 'string', example: 'Denesik Route' },
+        description: {
+          type: 'string',
+          example:
+            'Pauper delectatio avaritia consectetur super vesco quasi vulticulus necessitatibus constans.',
+        },
+        website: {
+          type: 'string',
+          example: 'http://dimpled-housing.net',
+        },
+        email: {
+          type: 'string',
+          example: 'DenesikRoute13@gmail.com',
+        },
+        phone: {
+          type: 'string',
+          example: '(679) 497-4605 x3175',
+        },
+        openHours: {
+          type: 'object',
+          example: {
+            Monday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Tuesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Wednesday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Thursday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Friday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Saturday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+            Sunday: {
+              isOpenAllDay: false,
+              isClosed: false,
+              period: [
+                {
+                  openTime: '06:00',
+                  closeTime: '18:00',
+                },
+              ],
+            },
+          },
+        },
+        address: {
+          type: 'object',
+          example: {
+            formattedAddress: '25474 Ratke Passage Suite 979',
+            location: {
+              lng: -140.1176,
+              lat: -88.9277,
+            },
+          },
+        },
+        photos: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              imageAlt: { type: 'string' },
+              imageUrl: { type: 'string' },
+              imageType: { type: 'enum', enum: Object.values(PhotoType) },
+              uploadUserId: { type: 'string' },
+              _id: { type: 'string' },
+            },
+          },
+          description: 'An array of photos',
+        },
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'An array of images',
+        },
+      },
+    },
+  } as ApiBodyOptions)
+  @ApiResponse({ status: 200, description: 'Update an attraction successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @UseInterceptors(FilesInterceptor('files', 10), FileValidationInterceptor)
+  async updateAttraction(
+    @Param() params: AttractionFindOneDto,
+    @CurrentUser() currentUser,
+    @UploadedFiles() files: FileUploadDto[],
+    @Body() updateAttractionDto: UpdateAttractionDto
+  ): Promise<Attraction> {
+    const attractionDto = plainToClass(UpdateAttractionDto, updateAttractionDto);
+    return await this.attractionService.updateAttraction(
+      params.id,
+      files,
+      attractionDto,
+      currentUser._id
+    );
+  }
+
+  @Get(':id/rating-distributions')
+  async getAttractionRating(@Param() params: AttractionFindOneDto): Promise<RatingDistribution[]> {
+    return await this.attractionService.findAttractionRating(params.id);
+  }
+
+  @ApiOperation({
+    summary: 'Find Reviews by Attraction ID',
+    description: 'Find all reviews by Attraction ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Attraction ID',
+    required: true,
+    type: String,
+    format: 'ObjectId',
+  })
+  @ApiResponse({ status: 200, description: 'Find Reviews by Attraction ID successfully' })
+  @ApiResponse({ status: 404, description: 'Review Not Found' })
+  @Get(':id/reviews')
+  findReviewsByAttractionId(
+    @Param() params: AttractionFindOneDto,
+    @Query() query: GetDataListInput
+  ): Promise<PaginationResult<ReviewCreator[]>> {
+    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Attraction, params.id, query);
+  }
+}
