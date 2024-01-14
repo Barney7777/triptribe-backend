@@ -18,10 +18,7 @@ import { AuthRegisterDto } from '@/auth/dto/auth-register.dto';
 import { getSavedPlaceDto } from './dto/get-saved-place.dto';
 import { deleteSavedPlaceDto } from './dto/delete-save-place.dto';
 import { PlaceType } from './dto/save-place.dto';
-import { ResetPasswordDto } from '@/auth/dto/reset-password.dto';
-import { EditPasswordDto } from '@/user/dto/edit-password.dto';
-import { UserIdDto } from './dto/userId.dto';
-import { compareSync } from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -29,7 +26,8 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
     @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private jwtService: JwtService
   ) {}
 
   getMe(currentUser): User {
@@ -63,8 +61,17 @@ export class UserService {
       nickname = `${nickname}#${number}`;
     }
 
-    const newUser = new this.userModel({ ...createUserDto, nickname });
+    const email = createUserDto.email;
+    const emailToken = await this.generateEmailAccessToken(email);
+    const newUser = new this.userModel({ ...createUserDto, nickname, emailToken });
     return newUser.save();
+  }
+
+  //generate email accessToken
+  async generateEmailAccessToken(email: string): Promise<string> {
+    const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
+    const EMAIL_TOKEN_TIME = '7d';
+    return this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
   }
 
   async updateUser(
@@ -193,6 +200,18 @@ export class UserService {
     throw new BadRequestException(
       'Invalid placeType. PlaceType can only be "Restaurant" or "Attraction".'
     );
+  }
+
+  async generateEmailValidateToken(email: string): Promise<string> {
+    const payload = { sub: email };
+    const ACCESS_TOKEN_TIME = '7d';
+    return this.jwtService.signAsync(payload, { expiresIn: ACCESS_TOKEN_TIME });
+  }
+
+  async generateEmailValidateToken(email: string): Promise<string> {
+    const payload = { sub: email };
+    const ACCESS_TOKEN_TIME = '7d';
+    return this.jwtService.signAsync(payload, { expiresIn: ACCESS_TOKEN_TIME });
   }
 
   async updatePassword(userId: string, newPassword: ResetPasswordDto) {

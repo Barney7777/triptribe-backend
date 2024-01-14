@@ -17,6 +17,8 @@ import { FakerModule } from './faker/faker.module';
 import { SearchModule } from './search/search.module';
 import { join } from 'path';
 import { BullModule } from '@nestjs/bull';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
@@ -30,9 +32,11 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get('database.host')}:${configService.get(
-          'database.port'
-        )}/${configService.get('database.name')}`,
+        uri: process.env.NODE_ENV
+          ? process.env.DATABASE_CONNECTION_URI
+          : `mongodb://${configService.get('database.host')}:${configService.get(
+              'database.port'
+            )}/${configService.get('database.name')}`,
       }),
     }),
     ThrottlerModule.forRoot([
@@ -58,6 +62,13 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           port: configService.get('redis.port'),
         },
       }),
+    }),
+    BullModule.registerQueue({
+      name: 'send-email',
+    }),
+    BullBoardModule.forRoot({
+      route: '/bull-board',
+      adapter: ExpressAdapter,
     }),
     MailerModule.forRoot({
       transport: {

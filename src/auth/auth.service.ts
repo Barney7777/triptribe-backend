@@ -4,27 +4,38 @@ import { UserDocument } from '@/user/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import dayjs from 'dayjs';
 import { UserIdDto } from '@/user/dto/userId.dto';
-import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { AuthRegisterDto } from './dto/auth-register.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
+import { NotFoundException } from '@nestjs/common';
+import { EmailConsumer } from './consumers/email.consumer';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from '../user/schema/user.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
+    private readonly emailConsumer: EmailConsumer,
+    @InjectModel(User.name) private userModel: Model<User>,
     @InjectQueue('send-email') private sendEmailQueue: Queue
   ) {}
 
-  async register(registerData: AuthRegisterDto) {
+  async register(registerData: AuthRegisterDto, hostname) {
     const user = await this.userService.create(registerData);
-    // queue task: send email when user register successfull
-    await this.sendEmailQueue.add(QUEUE_PROCESS_REGISTER, {
-      email: registerData.email,
-      user,
-    });
+    const userId = user._id;
+    // queue task: send validation email when user register successfull
+    await this.sendEmailQueue.add(
+      QUEUE_PROCESS_REGISTER,
+      {
+        userId,
+        hostname,
+      },
+      { delay: 100 }
+    );
     return user;
   }
 
@@ -113,5 +124,85 @@ export class AuthService {
     }
     const editedUser = await this.userService.updatePassword(userId, newPassword);
     return editedUser;
+  }
+
+  async verifyEmail(token) {
+    const decodedData = await this.decodeEmailToken(token);
+    const email = decodedData.email;
+    const user = await this.userModel.findOne({ email }).exec();
+    if (decodedData.issuedAt === undefined || decodedData.expireTime === undefined) {
+      throw new Error('Invalid token data');
+    }
+    const issuedAt = decodedData.issuedAt;
+    const expireTime = decodedData.expireTime;
+    const issuedAtInSeconds = Math.floor(issuedAt / 1000);
+    const expireTimeInSeconds = Math.floor(expireTime / 1000);
+    const expirationTimestamp = issuedAtInSeconds + expireTimeInSeconds;
+    const currentTimestampInSeconds = Math.floor(Date.now() / 1000);
+    const databaseToken = user?.emailToken;
+
+    if (!user) {
+      return { message: 'User not found' };
+    }
+
+    if (!user.emailToken) {
+      return { message: 'Email token not found' };
+    }
+
+    if (token != databaseToken) {
+      return { message: 'illegal token' };
+    }
+
+    if (currentTimestampInSeconds > expirationTimestamp) {
+      return { message: 'expired token' };
+    } else {
+      await this.deleteEmailToken(user._id);
+      return { message: 'Validated' };
+    }
+  }
+
+  async deleteEmailToken(userId: UserIdDto['_id']): Promise<void> {
+    await this.userModel.updateOne({ _id: userId }, { $unset: { emailToken: 1 } }).exec();
+  }
+
+  async decodeEmailToken(token: string) {
+    const decodedToken: { sub: string; exp: number; iat: number } | null = this.jwtService.decode(
+      token
+    ) as {
+      sub: string;
+      exp: number;
+      iat: number;
+    } | null;
+    const email = decodedToken?.sub as string;
+    const issuedAt = decodedToken?.iat;
+    const expireTime = decodedToken?.exp;
+    return { email, issuedAt, expireTime };
+  }
+
+  async refreshEmailToken(token: string, hostname): Promise<string> {
+    const decodedata = await this.decodeEmailToken(token);
+    console.log('decodedata', decodedata);
+    const email = decodedata.email;
+    console.log('ResendEmail', email);
+    const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
+    const EMAIL_TOKEN_TIME = '7d';
+    const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
+    const user = await this.userModel
+      .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
+      .exec();
+    const userId = await this.userModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.sendEmailQueue.add(
+      QUEUE_PROCESS_REGISTER,
+      {
+        userId,
+        hostname,
+      },
+      { delay: 100 }
+    );
+    return newEmailToken;
   }
 }
