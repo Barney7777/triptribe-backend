@@ -52,7 +52,7 @@ export class EmailConsumer {
     const templateContent = fs.readFileSync(templatePath, 'utf-8');
     const isDevEnvironment = process.env.NODE_ENV === 'development';
     const baseVerificationLink = isDevEnvironment
-      ? 'http://localhost:8080/verify'
+      ? 'http://localhost:3000/verify'
       : `http://${hostname}/verify`;
     const verificationLink = `${baseVerificationLink}?token=${sendVerificationEmailDto.token}`;
     console.log('verificationLink', verificationLink);
