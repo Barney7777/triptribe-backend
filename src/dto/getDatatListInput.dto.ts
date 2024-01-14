@@ -1,5 +1,7 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Field, InputType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 @InputType()
 export class GetDataListInput {
@@ -11,10 +13,14 @@ export class GetDataListInput {
   @Field({ nullable: true })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
+  @ApiProperty({ description: 'page size', example: 10 })
   limit?: number;
 
   @Field({ nullable: true })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
+  @ApiProperty({ description: 'items to be skipped ', example: 10, default: 0 })
   skip?: number;
 }

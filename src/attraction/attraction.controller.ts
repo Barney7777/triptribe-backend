@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFiles,
   UseFilters,
   UseGuards,
@@ -40,6 +41,8 @@ import { ReviewCreator } from '@/review/types/interfaces/review-creator';
 import { ReviewService } from '@/review/review.service';
 import { PlaceType } from '@/common/constant/place-type';
 import { GetAttractionListInput } from './dto/filter-attraction.dto';
+import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+import { PaginationResult } from '@/dto/pagination-result.dto';
 
 @Controller({
   path: 'attractions',
@@ -411,7 +414,10 @@ export class AttractionController {
   @ApiResponse({ status: 200, description: 'Find Reviews by Attraction ID successfully' })
   @ApiResponse({ status: 404, description: 'Review Not Found' })
   @Get(':id/reviews')
-  findReviewsByAttractionId(@Param() params: AttractionFindOneDto): Promise<ReviewCreator[]> {
-    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Attraction, params.id);
+  findReviewsByAttractionId(
+    @Param() params: AttractionFindOneDto,
+    @Query() query: GetDataListInput
+  ): Promise<PaginationResult<ReviewCreator[]>> {
+    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Attraction, params.id, query);
   }
 }

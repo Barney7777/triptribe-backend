@@ -9,6 +9,9 @@ import {
   UploadedFiles,
   UseGuards,
   Delete,
+  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { RestaurantService } from './restaurant.service';
@@ -37,6 +40,8 @@ import { ReviewCreator } from '@/review/types/interfaces/review-creator';
 import { ReviewService } from '@/review/review.service';
 import { PlaceType } from '@/common/constant/place-type';
 import { GetRestaurantListInput } from './dto/filter-restaurant.dto';
+import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+import { PaginationResult } from '@/dto/pagination-result.dto';
 
 @Controller({
   path: 'restaurants',
@@ -55,7 +60,8 @@ export class RestaurantController {
   })
   @ApiResponse({ status: 200, description: 'Retrieve restaurants successfully' })
   @Get()
-  async findAll(@Body() query: GetRestaurantListInput): Promise<RestaurantFilterResult> {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: GetRestaurantListInput): Promise<RestaurantFilterResult> {
     return this.restaurantService.findAll(query);
   }
 
@@ -406,7 +412,10 @@ export class RestaurantController {
   @ApiResponse({ status: 200, description: 'Find Reviews by Restaurant ID successfully' })
   @ApiResponse({ status: 404, description: 'Review Not Found' })
   @Get(':id/reviews')
-  findReviewsByRestaurantId(@Param() params: RestaurantFindOneDto): Promise<ReviewCreator[]> {
-    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Restaurant, params.id);
+  findReviewsByRestaurantId(
+    @Param() params: RestaurantFindOneDto,
+    @Query() query: GetDataListInput
+  ): Promise<PaginationResult<ReviewCreator[]>> {
+    return this.reviewService.findAllByPlaceTypeAndId(PlaceType.Restaurant, params.id, query);
   }
 }
