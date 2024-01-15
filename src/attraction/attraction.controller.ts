@@ -80,7 +80,8 @@ export class AttractionController {
   })
   @ApiResponse({ status: 200, description: 'Retrieve attractions successfully' })
   @Get()
-  async findAll(@Body() query: GetAttractionListInput): Promise<AttractionFilterResult> {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: GetAttractionListInput): Promise<AttractionFilterResult> {
     return this.attractionService.findAll(query);
   }
 
