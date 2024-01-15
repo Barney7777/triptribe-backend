@@ -9,7 +9,8 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
 spec:
   ports:
-  - port: 80
-    targetPort: 80
+   - port: 80
+     targetPort: 8080
   selector:
     run: $APP_NAME
+  type: LoadBalancer
