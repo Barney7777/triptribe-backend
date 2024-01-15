@@ -9,16 +9,17 @@ pipeline {
 
     tools {
         jdk 'openjdk'
-        git 'default'
         dockerTool 'docker-latest'
-        nodejs 'nodejs-21.4.0'
+        nodejs 'nodejs-20.11.0'
         maven 'maven-3.9.6'
         gradle 'gradle-8.5'
+        terraform 'terraform'
     }
 
     environment {
         AWS_DEFAULT_REGION = 'ap-southeast-2'
-        PATH = "/var/lib/jenkins/node-v20.10.0-linux-x64/bin:$PATH"
+        CLUSTER_NAME='UATCluster'
+        PATH = "/var/lib/jenkins/node-v20.10.0-linux-x64/bin:/root/bin:$PATH"
         ECR_REPOSITORY_NAME = 'triptribe-backend'
         AWS_ACCOUNT_ID = '067912176361'
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}"
@@ -91,7 +92,7 @@ pipeline {
             }
             steps {
                 script {
-                        withSonarQubeEnv('sonarqube') {
+                        withSonarQubeEnv('SonarQube') {
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=$JOB_NAME \
@@ -171,6 +172,7 @@ pipeline {
             steps {
                 script {
                     echo 'deploying Backend APP to EKS...'
+                    sh "aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name ${CLUSTER_NAME}"
                     sh 'chmod +x apply_k8s.sh'
                     sh './apply_k8s.sh'
                 }
@@ -217,4 +219,3 @@ pipeline {
 
     
 }
-
