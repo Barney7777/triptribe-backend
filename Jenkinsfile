@@ -123,6 +123,16 @@ pipeline {
         //         sh 'npm run test:e2e'
         //     }
         // }
+        stage('create env file') {
+            steps {
+                sh '''echo \'
+                NODE_ENV=development
+                PORT=8080
+                DATABASE_PORT=27017
+                DATABASE_HOST=13.236.194.250
+                DATABASE_NAME=tripTribeDb\' > .env'''
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
