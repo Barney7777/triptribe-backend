@@ -32,11 +32,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: process.env.NODE_ENV
-          ? process.env.DATABASE_CONNECTION_URI
-          : `mongodb://${configService.get('database.host')}:${configService.get(
-              'database.port'
-            )}/${configService.get('database.name')}`,
+        uri: `mongodb://${configService.get('database.host')}:${configService.get(
+          'database.port'
+        )}/${configService.get('database.name')}`,
       }),
     }),
     ThrottlerModule.forRoot([
