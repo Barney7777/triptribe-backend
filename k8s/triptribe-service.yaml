@@ -4,6 +4,9 @@ kind: Service
 metadata:
   name: $APP_NAME
   namespace: staging
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /api
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
   ports:
   - port: 80
