@@ -127,6 +127,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh 'rm -rf .env'
+                    sh 'cp .env.development .env'
                     // Build Docker image
                     sh "docker build -t ${REPOSITORY_URI}:${BUILD_NUMBER} ."
                 }
