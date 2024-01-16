@@ -7,7 +7,7 @@ import {
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './schema/review.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileUploadDto } from '@/file/dto/file-upload.dto';
 import { FileUploadService } from '@/file/file.service';
@@ -187,10 +187,12 @@ export class ReviewService {
   async findAllByUserId(userId: string, query: GetDataListInput) {
     const { limit = DEFAULT_REVIEW_LIMIT, skip = DEFAULT_SKIP } = query;
     const user = await this.userService.findOne(userId);
-    const total = await this.reviewModel.countDocuments({ userId: userId }).exec();
+    // there are two userId types in database (string and ObjectId)
+    const userIds = [userId, new Types.ObjectId(userId)];
+    const total = await this.reviewModel.countDocuments({ userId: { $in: userIds } }).exec();
     const pageCount = Math.floor((total - 1) / limit) + 1;
     const reviews = await this.reviewModel
-      .find({ userId })
+      .find({ userId: { $in: userIds } })
       .populate<{ placeId: Attraction | Restaurant }>('placeId')
       .limit(limit)
       .skip(skip)
