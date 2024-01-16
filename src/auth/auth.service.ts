@@ -42,9 +42,12 @@ export class AuthService {
 
   async login(user: UserDocument) {
     const userId = String(user._id);
+    const emailToken = user.emailToken;
+    if (emailToken) {
+      return { message: 'Unverified' };
+    }
     const accessToken = await this.generateAccessToken(userId);
     const refreshToken = await this.generateRefreshToken(userId);
-
     return {
       message: 'login success',
       accessToken,
