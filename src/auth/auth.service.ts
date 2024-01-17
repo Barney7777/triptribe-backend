@@ -137,11 +137,7 @@ export class AuthService {
     if (decodedData.issuedAt === undefined || decodedData.expireTime === undefined) {
       throw new Error('Invalid token data');
     }
-    const issuedAt = decodedData.issuedAt;
     const expireTime = decodedData.expireTime;
-    const issuedAtInSeconds = Math.floor(issuedAt / 1000);
-    const expireTimeInSeconds = Math.floor(expireTime / 1000);
-    const expirationTimestamp = issuedAtInSeconds + expireTimeInSeconds;
     const currentTimestampInSeconds = Math.floor(Date.now() / 1000);
     const databaseToken = user?.emailToken;
 
@@ -157,7 +153,7 @@ export class AuthService {
       return { message: 'illegal token' };
     }
 
-    if (currentTimestampInSeconds > expirationTimestamp) {
+    if (currentTimestampInSeconds > expireTime) {
       return { message: 'expired token' };
     } else {
       await this.deleteEmailToken(user._id);
