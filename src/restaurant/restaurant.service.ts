@@ -25,7 +25,6 @@ export class RestaurantService {
 
   async findAll(query: GetRestaurantListInput): Promise<RestaurantFilterResult> {
     const { sort, limit = DEFAULT_LIMIT, skip = DEFAULT_SKIP, filters } = query;
-    console.log(JSON.stringify(query));
     const sortMappings = {
       rating_asc: { overAllRating: 1 },
       rating_desc: { overAllRating: -1 },

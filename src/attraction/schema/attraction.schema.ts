@@ -16,7 +16,7 @@ import { OpenHours } from '@/schema/openHour.schema';
 export type AttractionDocument = mongoose.HydratedDocument<Attraction>;
 
 export enum TypeEnum {
-  SIGHT_AND_LANDMARKS = 'Sight & landmarks',
+  SIGHT_AND_LANDMARKS = 'Sights & Landmarks',
   NATURE_AND_PARKS = 'Nature & Parks',
   MUSEUMS = 'Museums',
   FUN_AND_GAMES = 'Fun & Games',
