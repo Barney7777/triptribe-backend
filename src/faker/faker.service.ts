@@ -8,8 +8,8 @@ import { IPhoto } from './types/interfaces/photo.do';
 import { IAttraction } from './types/interfaces/attraction.do';
 import { IAddress } from './types/interfaces/address.do';
 import { IBusinessTime, IPeriod } from './types/interfaces/businessTime.do';
-import { Attraction } from '@/attraction/schema/attraction.schema';
-import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { Attraction, DurationEnum, TypeEnum } from '@/attraction/schema/attraction.schema';
+import { CuisineEnum, MealEnum, Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Review } from '@/review/schema/review.schema';
 import { Photo } from '@/schema/photo.schema';
 import { IRestaurant } from './types/interfaces/restaurant.do';
@@ -168,13 +168,17 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     const createdUserId: string = userId;
 
     const TYPES_OPTION = [
-      'Sight & landmarks',
-      'Nature & Parks',
-      'Museums',
-      'Fun & Games',
-      'Nightlife',
+      TypeEnum.SIGHT_AND_LANDMARKS,
+      TypeEnum.NATURE_AND_PARKS,
+      TypeEnum.MUSEUMS,
+      TypeEnum.FUN_AND_GAMES,
+      TypeEnum.NIGHTLIFE,
     ];
-    const DURATIONS_OPTION = ['Up to 1 hour', '1 to 4 hours', '4 hours to 1 day'];
+    const DURATIONS_OPTION = [
+      DurationEnum.UP_TO_ONE_HOUR,
+      DurationEnum.ONE_TO_FOUR_HOURS,
+      DurationEnum.FOUR_HOURS_TO_ONE_DAY,
+    ];
 
     const tags = {
       types: this.getRandomOptionsSubset(TYPES_OPTION),
@@ -253,8 +257,13 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
 
     const createdUserId: string = userId;
 
-    const MEALS_OPTION = ['Breakfast', 'Brunch', 'Lunch', 'Dinner'];
-    const CUISINES_OPTION = ['Australian', 'Asian', 'Cafe', 'Italian'];
+    const MEALS_OPTION = [MealEnum.BREAKFAST, MealEnum.BRUNCH, MealEnum.LUNCH, MealEnum.DINNER];
+    const CUISINES_OPTION = [
+      CuisineEnum.AUSTRALIAN,
+      CuisineEnum.ASIAN,
+      CuisineEnum.CAFE,
+      CuisineEnum.ITALIAN,
+    ];
 
     const tags = {
       meals: this.getRandomOptionsSubset(MEALS_OPTION),
