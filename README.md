@@ -93,7 +93,7 @@ $ npm run test:cov
 
 http://localhost:8080/api/photo/upload
 
-3. Switch the request mathed to POST
+3. Switch the request method to POST
 
 4. Select Body parameter
 
