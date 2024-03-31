@@ -190,10 +190,10 @@ export class AuthService {
     const user = await this.userModel
       .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
       .exec();
-    const userId = await this.userModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    const userId = await this.userModel.findOne({ email }).exec();
 
     await this.sendEmailQueue.add(
       QUEUE_PROCESS_REGISTER,
@@ -204,5 +204,25 @@ export class AuthService {
       { delay: 100 }
     );
     return newEmailToken;
+  }
+  async resendEmail(email: string, hostname: string) {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (!user) throw new NotFoundException('User not found');
+
+    const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
+    const EMAIL_TOKEN_TIME = '7d';
+    const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
+    const updateUser = await this.userModel
+      .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
+      .exec();
+
+    await this.sendEmailQueue.add(
+      QUEUE_PROCESS_REGISTER,
+      {
+        updateUser,
+        hostname,
+      },
+      { delay: 100 }
+    );
   }
 }

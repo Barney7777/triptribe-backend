@@ -155,4 +155,10 @@ export class AuthController {
     const hostname = req.hostname;
     return await this.authService.refreshEmailToken(token, hostname);
   }
+
+  @Post('resend')
+  async resendEmail(@Body('email') email: string, @Req() req) {
+    const hostname = req.hostname;
+    return await this.authService.resendEmail(email, hostname);
+  }
 }
