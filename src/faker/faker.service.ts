@@ -54,8 +54,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     const lastName: string = faker.person.lastName();
     const email: string = isFixed
       ? 'triptribeuser@triptribe.com'
-      : faker.internet.email({ firstName, lastName });
-    const nickname: string = faker.internet.userName({ firstName, lastName });
+      : faker.string.alpha(4) + faker.internet.email({ firstName, lastName });
+    const nickname: string =
+      faker.string.alpha(4) + faker.internet.userName({ firstName, lastName });
     const description: string = faker.person.bio();
     const imageAlt: string = 'User Avatar';
     const imageUrl: string = faker.internet.avatar();
@@ -98,6 +99,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
 
   async generateFixedUser(): Promise<void> {
     const user: IUser = this.createRandomUser(true);
+    const existingUser = await this.userModel.findOne({ email: user.email });
+    if (existingUser) return;
+
     const createdUser = new this.userModel(user);
     await createdUser.save();
     // update userAvatar.uploadUserId field
@@ -400,9 +404,9 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
   }
 
   async generateFakeData(): Promise<void> {
-    const fakeUserQty: number = 30;
-    const fakeAttractionsQty: number = 30;
-    const fakeRestaurantsQty: number = 30;
+    const fakeUserQty: number = 100;
+    const fakeAttractionsQty: number = 100;
+    const fakeRestaurantsQty: number = 100;
 
     if (fakeUserQty < fakeAttractionsQty || fakeUserQty < fakeRestaurantsQty) {
       return console.log(
