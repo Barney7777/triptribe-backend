@@ -15,6 +15,7 @@ import { Photo } from '@/schema/photo.schema';
 import { IRestaurant } from './types/interfaces/restaurant.do';
 import { IReview, PlaceType } from './types/interfaces/review.do';
 import { ConfigService } from '@nestjs/config';
+import { geoLocationFaker } from './data/location';
 
 @Injectable()
 export class FakerService implements OnModuleInit, OnModuleDestroy {
@@ -147,8 +148,12 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     };
 
     const formattedAddress: string = faker.location.streetAddress({ useFullAddress: true });
-    const lng: number = faker.location.longitude({ max: 180, min: -180 });
-    const lat: number = faker.location.latitude({ max: 90, min: -90 });
+
+    const { lat: originLat, lon: originLng } = geoLocationFaker[Math.floor(Math.random() * 10)];
+    const [lat, lng] = faker.location.nearbyGPSCoordinate({ origin: [originLat, originLng] });
+
+    // const lng: number = faker.location.longitude({ max: 180, min: -180 });
+    // const lat: number = faker.location.latitude({ max: 90, min: -90 });
     const location = { lng, lat };
     const address: IAddress = { formattedAddress, location };
     const overAllRating: number = 0;
@@ -237,8 +242,12 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
     };
 
     const formattedAddress: string = faker.location.streetAddress({ useFullAddress: true });
-    const lng: number = faker.location.longitude({ max: 180, min: -180 });
-    const lat: number = faker.location.latitude({ max: 90, min: -90 });
+
+    const { lat: originLat, lon: originLng } = geoLocationFaker[Math.floor(Math.random() * 10)];
+    const [lat, lng] = faker.location.nearbyGPSCoordinate({ origin: [originLat, originLng] });
+
+    // const lng: number = faker.location.longitude({ max: 180, min: -180 });
+    // const lat: number = faker.location.latitude({ max: 90, min: -90 });
     const location = { lng, lat };
     const address: IAddress = { formattedAddress, location };
     const overAllRating: number = 0;
