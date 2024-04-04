@@ -156,6 +156,21 @@ export class AuthController {
     return await this.authService.refreshEmailToken(token, hostname);
   }
 
+  @ApiOperation({
+    summary: 'Refresh use user Email',
+    description: 'Refresh Email Token in database',
+  })
+  @ApiBody({
+    description: 'Resend email by input email',
+    schema: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Check user email validate status successfully' })
   @Post('resend')
   async resendEmail(@Body('email') email: string, @Req() req) {
     const hostname = req.hostname;

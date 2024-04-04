@@ -205,6 +205,12 @@ export class AuthService {
     );
     return newEmailToken;
   }
+
+  /**
+   * @summary send email based on email
+   * @param email
+   * @param hostname
+   */
   async resendEmail(email: string, hostname: string) {
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) throw new NotFoundException('User not found');
@@ -215,11 +221,11 @@ export class AuthService {
     const updateUser = await this.userModel
       .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
       .exec();
-
+    console.log(updateUser);
     await this.sendEmailQueue.add(
       QUEUE_PROCESS_REGISTER,
       {
-        updateUser,
+        userId: updateUser,
         hostname,
       },
       { delay: 100 }
