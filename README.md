@@ -17,12 +17,41 @@ The backend is built with the following technologies:
 1. Clone the repository to your local machine.
 2. Install the project dependencies by running `npm install`.
 
+## Creat .env and .env.development files
+
+These two files store environment variables and sensitive information for the development environment and production environment respectively.
+
+1. Copy [.env.example](/.env.example) twice in the root path of the project and
+   change their names to `.env`(for production environment) and `.env.development` (for
+   development environment).
+2. Fill `NODE_ENV` in `.env` file by:
+   ```txt
+   NODE_ENV=production
+   ```
+   Fill `NODE_ENV` in `.env.developemnt` file by:
+   ```txt
+   NODE_ENV=development
+   ```
+3. Request the 7 values of the following environment variables from the DevOops group and
+   fill them correctly into the .env and .env.development files:
+
+   ```txt
+   S3_BUCKET_NAME='request from DevOops'
+   AWS_ACCESS_KEY_ID='request from DevOops'
+   AWS_SECRET_ACCESS_KEY='request from DevOops'
+   AWS_DEFAULT_REGION='request from DevOops'
+   DATABASE_CONNECTION_URI='request from DevOops'
+   JWT_SECRET='request from DevOops'
+   SENTRY_DSN='request from DevOops'
+   ```
+
 ## Setup the Database and Redis locally with Docker Desktop
 
 1. Install Docker (https://www.docker.com/get-started/).
 2. Create a Docker container using the MongoDB image and Redis image by running the following command at the root path of this project.
+
 ```bash
-$ npm run docker:up 
+$ npm run docker:up
 ```
 
 ## Running the app
@@ -85,7 +114,7 @@ $ npm run test:e2e
 $ npm run test:cov
 ````
 
-## Test the file API (Before your test, please make sure you have the AWS Access Key pare. If not, please contact DevOps)
+## Test the file API (Before your test, please make sure you have the AWS Access Key pairs. If not, please contact DevOps)
 
 1. Place your AWS Access Key pare into the .env.development
 
@@ -116,4 +145,3 @@ After starting the app, use the URL: http://localhost:3000/admin to access panel
 Default login detail:
 email: 'admin@triptribe.com',
 password: 'password',
-
