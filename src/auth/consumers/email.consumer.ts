@@ -5,6 +5,10 @@ import { UserService } from '@/user/user.service';
 import nodemailer from 'nodemailer';
 import { NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
+import {
+  TRIPTRIBE_LOGO_FILE_NAME,
+  TRIPTRIBE_TEXT_FILE_NAME,
+} from '@/common/constant/publicAssets.constant';
 
 @Processor(QUEUE_NAME_SEND_EMAIL)
 export class EmailConsumer {
@@ -54,14 +58,20 @@ export class EmailConsumer {
     const baseVerificationLink = isDevEnvironment
       ? 'http://localhost:3000/verify'
       : `http://${hostname}/verify`;
+
+    const publicAssetsUrl = process.env.PUBLIC_ASSETS_URL as string;
+
     const verificationLink = `${baseVerificationLink}?token=${sendVerificationEmailDto.token}`;
     console.log('verificationLink', verificationLink);
     const user = await this.userService.findOne(sendVerificationEmailDto.createdUserId);
     const userNickName = user.nickname;
 
     const emailContent = templateContent
-      .replace('{{ userNickName }}', userNickName)
-      .replace('{{ verificationLink }}', verificationLink);
+      .replace(/{{ userNickName }}/g, userNickName)
+      .replace(/{{ verificationLink }}/g, verificationLink)
+      .replace(/{{ publicAssetsUrl }}/g, publicAssetsUrl)
+      .replace(/{{ triptribeLogoFileName }}/g, TRIPTRIBE_LOGO_FILE_NAME)
+      .replace(/{{ triptribeTextFileName }}/g, TRIPTRIBE_TEXT_FILE_NAME);
 
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
