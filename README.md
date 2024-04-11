@@ -17,32 +17,22 @@ The backend is built with the following technologies:
 1. Clone the repository to your local machine.
 2. Install the project dependencies by running `npm install`.
 
-## Creat .env and .env.development files
+## Create .env.development files
 
-These two files store environment variables and sensitive information for the development environment and production environment respectively.
+This files store environment variables and sensitive information for the development environment respectively.
 
-1. Copy [.env.example](/.env.example) twice in the root path of the project and
-   change their names to `.env`(for production environment) and `.env.development` (for
-   development environment).
-2. Fill `NODE_ENV` in `.env` file by:
-   ```txt
-   NODE_ENV=production
-   ```
-   Fill `NODE_ENV` in `.env.developemnt` file by:
-   ```txt
-   NODE_ENV=development
-   ```
-3. Request the 7 values of the following environment variables from the DevOops group and
-   fill them correctly into the .env and .env.development files:
+1. Copy [.env.example](/.env.example) in the root path of the project and
+   change its names to `.env.development` (for development environment).
+2. Request the 6 values of the following environment variables from the DevOps group and
+   fill them correctly into the `.env.development` file:
 
    ```txt
-   S3_BUCKET_NAME='request from DevOops'
-   AWS_ACCESS_KEY_ID='request from DevOops'
-   AWS_SECRET_ACCESS_KEY='request from DevOops'
-   AWS_DEFAULT_REGION='request from DevOops'
-   DATABASE_CONNECTION_URI='request from DevOops'
-   JWT_SECRET='request from DevOops'
-   SENTRY_DSN='request from DevOops'
+   S3_BUCKET_NAME=
+   AWS_ACCESS_KEY_ID=
+   AWS_SECRET_ACCESS_KEY=
+   AWS_DEFAULT_REGION=
+   JWT_SECRET=
+   SENTRY_DSN=
    ```
 
 ## Setup the Database and Redis locally with Docker Desktop
