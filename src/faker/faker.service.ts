@@ -1,21 +1,23 @@
+import { faker } from '@faker-js/faker';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { User } from '@/user/schema/user.schema';
-import { faker } from '@faker-js/faker';
-import { IUser } from './types/interfaces/user.do';
-import { IPhoto } from './types/interfaces/photo.do';
-import { IAttraction } from './types/interfaces/attraction.do';
-import { IAddress } from './types/interfaces/address.do';
-import { IBusinessTime, IPeriod } from './types/interfaces/businessTime.do';
+
 import { Attraction, DurationEnum, TypeEnum } from '@/attraction/schema/attraction.schema';
 import { CuisineEnum, MealEnum, Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { Review } from '@/review/schema/review.schema';
 import { Photo } from '@/schema/photo.schema';
+import { User } from '@/user/schema/user.schema';
+
+import { geoLocationFaker } from './data/location';
+import { IAddress } from './types/interfaces/address.do';
+import { IAttraction } from './types/interfaces/attraction.do';
+import { IBusinessTime, IPeriod } from './types/interfaces/businessTime.do';
+import { IPhoto } from './types/interfaces/photo.do';
 import { IRestaurant } from './types/interfaces/restaurant.do';
 import { IReview, PlaceType } from './types/interfaces/review.do';
-import { ConfigService } from '@nestjs/config';
-import { geoLocationFaker } from './data/location';
+import { IUser } from './types/interfaces/user.do';
 
 @Injectable()
 export class FakerService implements OnModuleInit, OnModuleDestroy {

@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AttractionService } from './attraction.service';
-import { AttractionController } from './attraction.controller';
+
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
 import { FileUploadModule } from '@/file/file.module';
-import { Review, ReviewSchema } from '@/review/schema/review.schema';
 import { ReviewModule } from '@/review/review.module';
+import { Review, ReviewSchema } from '@/review/schema/review.schema';
+
+import { AttractionController } from './attraction.controller';
 import { AttractionResolver } from './attraction.resolver';
+import { AttractionService } from './attraction.service';
 
 @Module({
   imports: [

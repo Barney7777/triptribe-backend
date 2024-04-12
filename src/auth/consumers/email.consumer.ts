@@ -1,14 +1,16 @@
-import { QUEUE_NAME_SEND_EMAIL, QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
-import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
-import { UserService } from '@/user/user.service';
-import nodemailer from 'nodemailer';
-import { NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
 import {
   TRIPTRIBE_LOGO_FILE_NAME,
   TRIPTRIBE_TEXT_FILE_NAME,
 } from '@/common/constant/publicAssets.constant';
+
+import { Process, Processor } from '@nestjs/bull';
+import { NotFoundException } from '@nestjs/common';
+import { Job } from 'bull';
+import { createTransport } from 'nodemailer';
+
+import { QUEUE_NAME_SEND_EMAIL, QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
+import { UserService } from '@/user/user.service';
 
 @Processor(QUEUE_NAME_SEND_EMAIL)
 export class EmailConsumer {
@@ -73,7 +75,7 @@ export class EmailConsumer {
       .replace(/{{ triptribeLogoFileName }}/g, TRIPTRIBE_LOGO_FILE_NAME)
       .replace(/{{ triptribeTextFileName }}/g, TRIPTRIBE_TEXT_FILE_NAME);
 
-    const transporter = nodemailer.createTransport({
+    const transporter = createTransport({
       service: 'Gmail',
       auth: {
         user: 'triptribegroup@gmail.com',

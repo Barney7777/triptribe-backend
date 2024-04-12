@@ -1,13 +1,15 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { User, UserSchema } from './schema/user.schema';
-import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
+
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
-import { UserResolver } from './user.resolver';
 import { FileUploadModule } from '@/file/file.module';
+import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
 import { ReviewModule } from '@/review/review.module';
+
+import { User, UserSchema } from './schema/user.schema';
+import { UserController } from './user.controller';
+import { UserResolver } from './user.resolver';
+import { UserService } from './user.service';
 
 @Module({
   imports: [

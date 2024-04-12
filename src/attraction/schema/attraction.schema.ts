@@ -1,8 +1,3 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
-import { Photo, PhotoSchema } from '@/schema/photo.schema';
-import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
-import { Address, AddressSchema } from '@/schema/address.schema';
 import {
   Field,
   Float,
@@ -11,7 +6,13 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
+
+import { Address, AddressSchema } from '@/schema/address.schema';
+import { BusinessTime, BusinessTimeSchema } from '@/schema/businessTime.schema';
 import { OpenHours } from '@/schema/openHour.schema';
+import { Photo, PhotoSchema } from '@/schema/photo.schema';
 
 export type AttractionDocument = mongoose.HydratedDocument<Attraction>;
 

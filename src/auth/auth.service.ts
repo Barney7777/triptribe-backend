@@ -1,19 +1,19 @@
-import _ from 'lodash';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { UserService } from '@/user/user.service';
-import { UserDocument } from '@/user/schema/user.schema';
-import { JwtService } from '@nestjs/jwt';
-import dayjs from 'dayjs';
-import { UserIdDto } from '@/user/dto/userId.dto';
 import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
-import { AuthRegisterDto } from './dto/auth-register.dto';
-import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
-import { NotFoundException } from '@nestjs/common';
-import { EmailConsumer } from './consumers/email.consumer';
-import { Model } from 'mongoose';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../user/schema/user.schema';
+import { Queue } from 'bull';
+import dayjs, { unix } from 'dayjs';
+import _ from 'lodash';
+import { Model } from 'mongoose';
+
+import { QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
+import { UserIdDto } from '@/user/dto/userId.dto';
+import { UserDocument, User } from '@/user/schema/user.schema';
+import { UserService } from '@/user/user.service';
+
+import { EmailConsumer } from './consumers/email.consumer';
+import { AuthRegisterDto } from './dto/auth-register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
 
@@ -97,7 +97,7 @@ export class AuthService {
 
     // using dayjs, if refresh_token expired, return expired
     // get expireTime
-    const expirationTime = dayjs.unix(decodedToken.exp);
+    const expirationTime = unix(decodedToken.exp);
     // get currentTime
     const currentTime = dayjs();
 

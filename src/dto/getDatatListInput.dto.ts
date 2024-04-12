@@ -1,7 +1,7 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Field, InputType } from '@nestjs/graphql';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class GetDataListInput {

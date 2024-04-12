@@ -1,13 +1,14 @@
+import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
+import { FileUploadService } from '@/file/file.service';
 import { RestaurantService } from '@/restaurant/restaurant.service';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { FileUploadService } from '@/file/file.service';
-import { ConfigService } from '@nestjs/config';
 import { Review } from '@/review/schema/review.schema';
-import { NotFoundException } from '@nestjs/common';
-import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 
 describe('RestaurantService', () => {
   let service: RestaurantService;

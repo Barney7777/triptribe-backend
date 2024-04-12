@@ -1,9 +1,11 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
-import { Attraction, AttractionFilterResult } from './schema/attraction.schema';
 import { UseFilters } from '@nestjs/common';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+
 import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
+
 import { AttractionService } from './attraction.service';
 import { GetAttractionListInput } from './dto/filter-attraction.dto';
+import { Attraction, AttractionFilterResult } from './schema/attraction.schema';
 
 @Resolver(() => Attraction)
 @UseFilters(HttpExceptionFilter)

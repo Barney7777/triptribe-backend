@@ -1,11 +1,12 @@
-import { AttractionService } from '@/attraction/attraction.service';
-import { Attraction } from '@/attraction/schema/attraction.schema';
-import { FileUploadService } from '@/file/file.service';
-import { Photo, PhotoType } from '@/schema/photo.schema';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
+
+import { AttractionService } from '@/attraction/attraction.service';
+import { Attraction } from '@/attraction/schema/attraction.schema';
+import { FileUploadService } from '@/file/file.service';
+import { Photo, PhotoType } from '@/schema/photo.schema';
 
 interface IPhoto extends Photo {
   _id: string;

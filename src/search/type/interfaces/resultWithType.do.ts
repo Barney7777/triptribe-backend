@@ -1,8 +1,9 @@
+import mongoose from 'mongoose';
+
 import { Address } from '@/schema/address.schema';
 import { BusinessTime } from '@/schema/businessTime.schema';
 import { Photo } from '@/schema/photo.schema';
 import { PlaceType } from '@/search/dto/globalSearch.dto';
-import mongoose from 'mongoose';
 
 export interface IResultWithType {
   name: string;

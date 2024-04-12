@@ -1,3 +1,4 @@
+import { BullBoardInstance, InjectBullBoard } from '@bull-board/nestjs';
 import {
   Controller,
   Post,
@@ -6,15 +7,15 @@ import {
   Req,
   // UseFilters,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { plainToClass } from 'class-transformer';
-import { CurrentUser } from './CurrentUser.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
+
+import { AuthService } from './auth.service';
+import { CurrentUser } from './CurrentUser.decorator';
 import { AuthRegisterDto } from './dto/auth-register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { BullBoardInstance, InjectBullBoard } from '@bull-board/nestjs';
 import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
 
 @Controller({

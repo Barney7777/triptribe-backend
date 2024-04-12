@@ -1,9 +1,11 @@
-import { IsArray, IsNumber, IsOptional, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CuisineEnum, MealEnum } from '../schema/restaurant.schema';
 import { Field, InputType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
+import { IsArray, IsNumber, IsOptional, ValidateNested } from 'class-validator';
+
 import { LocationDto } from '@/dto/create-address.dto';
 import { GetDataListInput } from '@/dto/getDatatListInput.dto';
+
+import { CuisineEnum, MealEnum } from '../schema/restaurant.schema';
 
 @InputType()
 export class GetRestaurantListFiltersDto {

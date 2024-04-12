@@ -1,3 +1,5 @@
+import { Readable } from 'stream';
+
 import {
   Injectable,
   LoggerService,
@@ -5,30 +7,32 @@ import {
   Logger,
   BadRequestException,
 } from '@nestjs/common';
-import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
+import S3 from 'aws-sdk/clients/s3';
 import { Model } from 'mongoose';
-import { Photo, PhotoType } from '../schema/photo.schema';
+import { v4 as uuidv4 } from 'uuid';
+
 import { UserIdDto } from '@/user/dto/userId.dto';
+
 import { FileUploadDto } from './dto/file-upload.dto';
-import { Readable } from 'stream';
 import { IUpload } from './dto/upload.interface';
+import { Photo, PhotoType } from '../schema/photo.schema';
 
 @Injectable()
 export class FileUploadService {
-  private s3: AWS.S3;
+  private s3;
   private readonly loggerService: LoggerService;
 
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(Photo.name) private readonly photoModel: Model<Photo>
   ) {
-    this.s3 = new AWS.S3({
+    this.s3 = new S3({
+      region: configService.get('AWS_DEFAULT_REGION'),
+
       accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
       secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
-      region: configService.get('AWS_DEFAULT_REGION'),
     });
     this.loggerService = new Logger(FileUploadService.name);
   }
@@ -70,7 +74,7 @@ export class FileUploadService {
     return await photo.save();
   }
 
-  async uploadSingleFileToS3(file: FileUploadDto): Promise<AWS.S3.ManagedUpload.SendData> {
+  async uploadSingleFileToS3(file: FileUploadDto): Promise<S3.ManagedUpload.SendData> {
     const uuid = uuidv4();
     const bucketName = this.configService.get('S3_BUCKET_NAME');
 

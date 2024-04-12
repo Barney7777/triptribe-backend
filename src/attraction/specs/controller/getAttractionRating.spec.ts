@@ -1,12 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AttractionController } from '@/attraction/attraction.controller';
-import { AttractionService } from '@/attraction/attraction.service';
-import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { AttractionController } from '@/attraction/attraction.controller';
+import { AttractionService } from '@/attraction/attraction.service';
 import { AttractionFindOneDto } from '@/attraction/dto/get-attraction.dto';
+import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
+import { FileUploadService } from '@/file/file.service';
 
 describe('Attraction Controller', () => {
   let attractionController: AttractionController;

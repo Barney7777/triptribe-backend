@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { RestaurantService } from './restaurant.service';
-import { RestaurantController } from './restaurant.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Restaurant, RestaurantSchema } from './schema/restaurant.schema';
+
 import { FileUploadModule } from '@/file/file.module';
-import { RestaurantResolver } from './restaurant.resolver';
-import { Review, ReviewSchema } from '@/review/schema/review.schema';
 import { ReviewModule } from '@/review/review.module';
+import { Review, ReviewSchema } from '@/review/schema/review.schema';
+
+import { RestaurantController } from './restaurant.controller';
+import { RestaurantResolver } from './restaurant.resolver';
+import { RestaurantService } from './restaurant.service';
+import { Restaurant, RestaurantSchema } from './schema/restaurant.schema';
 
 @Module({
   imports: [

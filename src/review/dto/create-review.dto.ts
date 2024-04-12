@@ -1,6 +1,7 @@
-import { IsEnum, IsMongoId } from 'class-validator';
-import { BaseReviewDto } from './base-review.dto';
 import { Field, InputType } from '@nestjs/graphql';
+import { IsEnum, IsMongoId } from 'class-validator';
+
+import { BaseReviewDto } from './base-review.dto';
 
 export enum PlaceType {
   ATTRACTION = 'Attraction',

@@ -1,13 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { UserService } from '@/user/user.service';
-import { User } from '@/user/schema/user.schema';
-import { Model } from 'mongoose';
 import { ConflictException } from '@nestjs/common';
-import { Restaurant } from '@/restaurant/schema/restaurant.schema';
-import { Attraction } from '@/attraction/schema/attraction.schema';
 import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Model } from 'mongoose';
+
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import { FileUploadService } from '@/file/file.service';
+import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { User } from '@/user/schema/user.schema';
+import { UserService } from '@/user/user.service';
 
 describe('UserService.createUser', () => {
   let service: UserService;

@@ -1,15 +1,17 @@
-import { SearchService } from './search.service';
-import { AttractionService } from '@/attraction/attraction.service';
-import { RestaurantService } from '@/restaurant/restaurant.service';
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
-import { PlaceType } from './dto/globalSearch.dto';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
-import { Photo, PhotoType } from '@/schema/photo.schema';
-import { IResultWithType } from './type/interfaces/resultWithType.do';
+
+import { AttractionService } from '@/attraction/attraction.service';
+import { FileUploadService } from '@/file/file.service';
+import { RestaurantService } from '@/restaurant/restaurant.service';
 import { IRestaurant } from '@/restaurant/restaurant.service.spec';
+import { Photo, PhotoType } from '@/schema/photo.schema';
+
+import { PlaceType } from './dto/globalSearch.dto';
+import { SearchService } from './search.service';
+import { IResultWithType } from './type/interfaces/resultWithType.do';
 
 interface IPhoto extends Photo {
   _id: string;

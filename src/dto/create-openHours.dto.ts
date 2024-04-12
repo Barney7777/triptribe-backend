@@ -1,7 +1,8 @@
+import { Field, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import { IsObject, ValidateNested } from 'class-validator';
+
 import { CreateBusinessTimeDto } from './create-businessTime.dto';
-import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class CreateOpenHoursDto {

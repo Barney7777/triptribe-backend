@@ -5,9 +5,10 @@ import {
   CallHandler,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ConfigService } from '@nestjs/config';
+
 import { FileUploadDto } from './dto/file-upload.dto';
 import { FileUploadService } from './file.service';
 

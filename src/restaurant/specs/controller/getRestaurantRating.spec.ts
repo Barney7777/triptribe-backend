@@ -1,12 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { RestaurantController } from '@/restaurant/restaurant.controller';
-import { RestaurantService } from '@/restaurant/restaurant.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { FileUploadService } from '@/file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
-import { RestaurantFindOneDto } from '@/restaurant/dto/get-restaurant.dto';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
+import { FileUploadService } from '@/file/file.service';
+import { RestaurantFindOneDto } from '@/restaurant/dto/get-restaurant.dto';
+import { RestaurantController } from '@/restaurant/restaurant.controller';
+import { RestaurantService } from '@/restaurant/restaurant.service';
 
 describe('Restaurant Controller', () => {
   let restaurantController: RestaurantController;

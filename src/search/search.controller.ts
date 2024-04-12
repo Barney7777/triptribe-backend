@@ -1,9 +1,10 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { SearchService } from './search.service';
-import { GlobalSearchDto } from './dto/globalSearch.dto';
-import { IGlobalSearch } from './type/interfaces/globalSearch.do';
-import { plainToClass } from 'class-transformer';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
+
+import { GlobalSearchDto } from './dto/globalSearch.dto';
+import { SearchService } from './search.service';
+import { IGlobalSearch } from './type/interfaces/globalSearch.do';
 
 @Controller({
   path: 'search',

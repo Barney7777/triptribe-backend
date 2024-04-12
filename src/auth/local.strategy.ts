@@ -1,12 +1,14 @@
-import { IStrategyOptionsWithRequest, Strategy } from 'passport-local';
-import { PassportStrategy } from '@nestjs/passport';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '@/user/schema/user.schema';
-import { Model } from 'mongoose';
+import { PassportStrategy } from '@nestjs/passport';
 import { compareSync } from 'bcryptjs';
-import { AuthLoginDto } from './dto/auth-login.dto';
 import { validate } from 'class-validator';
+import { Model } from 'mongoose';
+import { IStrategyOptionsWithRequest, Strategy } from 'passport-local';
+
+import { User } from '@/user/schema/user.schema';
+
+import { AuthLoginDto } from './dto/auth-login.dto';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

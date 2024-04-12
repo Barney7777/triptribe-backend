@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { FakerService } from '@/faker/faker.service';
+
 import { AppModule } from '@/app.module';
+import { FakerService } from '@/faker/faker.service';
 
 async function generateFakeData() {
   const app = await NestFactory.createApplicationContext(AppModule);

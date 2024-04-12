@@ -1,13 +1,14 @@
+import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+
 import { AttractionService } from '@/attraction/attraction.service';
 import { Attraction } from '@/attraction/schema/attraction.schema';
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { FileUploadService } from '@/file/file.service';
-import { ConfigService } from '@nestjs/config';
-import { Review } from '@/review/schema/review.schema';
-import { NotFoundException } from '@nestjs/common';
 import { RatingDistribution } from '@/attraction/types/interfaces/ratingDistribution.interface';
+import { FileUploadService } from '@/file/file.service';
+import { Review } from '@/review/schema/review.schema';
 
 describe('AttractionService', () => {
   let service: AttractionService;

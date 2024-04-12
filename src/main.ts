@@ -1,12 +1,13 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import helmet from 'helmet';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
 import { ConfigService } from '@nestjs/config';
-import { AllExceptionsFilter } from './utils/allExceptions.filter';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
+import helmet from 'helmet';
+
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './utils/allExceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

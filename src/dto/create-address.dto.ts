@@ -1,6 +1,5 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-
 import { IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 @InputType()
 export class LocationDto {

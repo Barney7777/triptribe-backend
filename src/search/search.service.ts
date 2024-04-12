@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { GlobalSearchDto, PlaceType } from './dto/globalSearch.dto';
-import { RestaurantService } from '@/restaurant/restaurant.service';
+
 import { AttractionService } from '@/attraction/attraction.service';
+import { RestaurantService } from '@/restaurant/restaurant.service';
+
+import { GlobalSearchDto, PlaceType } from './dto/globalSearch.dto';
 import { IGlobalSearch } from './type/interfaces/globalSearch.do';
 import { IResultWithType } from './type/interfaces/resultWithType.do';
 

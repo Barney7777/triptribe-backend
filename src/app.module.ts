@@ -1,26 +1,28 @@
+import { join } from 'path';
+
+import { ExpressAdapter } from '@bull-board/express';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthModule } from './auth/auth.module';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ReviewModule } from './review/review.module';
-import configuration from '../config/configuration';
-import { FileUploadModule } from './file/file.module';
-import { UserModule } from './user/user.module';
-import { AttractionModule } from './attraction/attraction.module';
-import { RestaurantModule } from './restaurant/restaurant.module';
-import { FakerModule } from './faker/faker.module';
-import { SearchModule } from './search/search.module';
-import { join } from 'path';
-import { BullModule } from '@nestjs/bull';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { ExpressAdapter } from '@bull-board/express';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AttractionModule } from './attraction/attraction.module';
+import { AuthModule } from './auth/auth.module';
+import { FakerModule } from './faker/faker.module';
+import { FileUploadModule } from './file/file.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
+import { ReviewModule } from './review/review.module';
+import { SearchModule } from './search/search.module';
+import { UserModule } from './user/user.module';
+import configuration from '../config/configuration';
 
 @Module({
   imports: [

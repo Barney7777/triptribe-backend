@@ -1,5 +1,6 @@
-import { Photo } from '@/schema/photo.schema';
 import { IsString, IsOptional, IsNotEmptyObject } from 'class-validator';
+
+import { Photo } from '@/schema/photo.schema';
 
 export class UpdateUserDto {
   @IsString()

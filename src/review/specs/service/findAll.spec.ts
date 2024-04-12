@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { FileUploadService } from '@/file/file.service';
+import { getQueueToken } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
-import { Photo, PhotoType } from '@/schema/photo.schema';
+
+import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
+import { FileUploadService } from '@/file/file.service';
 import { ReviewService } from '@/review/review.service';
 import { Review } from '@/review/schema/review.schema';
 import { IReview } from '@/review/types/interfaces/review.do';
-import { getQueueToken } from '@nestjs/bull';
-import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
+import { Photo, PhotoType } from '@/schema/photo.schema';
 
 interface IPhoto extends Photo {
   _id: string;

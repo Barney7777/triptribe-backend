@@ -1,5 +1,6 @@
-import { IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger/dist';
+import { IsString, MinLength } from 'class-validator';
+
 import { ResetPasswordDto } from '../../auth/dto/reset-password.dto';
 
 export class EditPasswordDto extends ResetPasswordDto {

@@ -1,6 +1,7 @@
-import { PhotoType } from '@/schema/photo.schema';
 import { Field, InputType } from '@nestjs/graphql';
 import { IsString, IsEnum, IsNotEmpty } from 'class-validator';
+
+import { PhotoType } from '@/schema/photo.schema';
 
 @InputType()
 export class CreatePhotoDto {

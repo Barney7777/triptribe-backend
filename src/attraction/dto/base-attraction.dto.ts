@@ -1,5 +1,6 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+
 import { CreateAddressDto } from '@/dto/create-address.dto';
 import { CreateOpenHoursDto } from '@/dto/create-openHours.dto';
 

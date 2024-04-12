@@ -1,10 +1,12 @@
-import { Args, ID, Query, Resolver } from '@nestjs/graphql';
-import { GraphQLCurrentUser } from '@/auth/CurrentUser.decorator';
 import { UseFilters, UseGuards } from '@nestjs/common';
+import { Args, ID, Query, Resolver } from '@nestjs/graphql';
+
+import { GraphQLCurrentUser } from '@/auth/CurrentUser.decorator';
 import { GqlAuthGuard } from '@/auth/utils/gqlAuthGuard.strategy';
+import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
+
 import { User } from './schema/user.schema';
 import { UserService } from './user.service';
-import { HttpExceptionFilter } from '@/utils/allExceptions.filter';
 
 @Resolver()
 @UseFilters(HttpExceptionFilter)

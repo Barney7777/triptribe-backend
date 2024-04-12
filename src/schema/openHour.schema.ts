@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Schema } from '@nestjs/mongoose';
+
 import { BusinessTime } from './businessTime.schema';
 
 @ObjectType()

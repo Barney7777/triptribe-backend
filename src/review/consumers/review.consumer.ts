@@ -1,14 +1,16 @@
+import { Process, Processor } from '@nestjs/bull';
+import { InjectModel } from '@nestjs/mongoose';
+import { Job } from 'bull';
+import { Model } from 'mongoose';
+
+import { Attraction } from '@/attraction/schema/attraction.schema';
 import {
   QUEUE_NAME_DATABASE_SYNC,
   QUEUE_PROCESS_CALCULATE_OVERALLRATING,
 } from '@/common/constant/queue.constant';
-import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
-import { InjectModel } from '@nestjs/mongoose';
-import { Review } from '../schema/review.schema';
-import { Model } from 'mongoose';
-import { Attraction } from '@/attraction/schema/attraction.schema';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+
+import { Review } from '../schema/review.schema';
 
 @Processor(QUEUE_NAME_DATABASE_SYNC)
 export class DatabaseSyncConsumer {

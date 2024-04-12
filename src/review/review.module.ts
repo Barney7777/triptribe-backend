@@ -1,16 +1,18 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { ReviewService } from './review.service';
-import { ReviewController } from './review.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Review, ReviewSchema } from './schema/review.schema';
-import { FileUploadModule } from '@/file/file.module';
 import { BullModule } from '@nestjs/bull';
-import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
-import { DatabaseSyncConsumer } from './consumers/review.consumer';
+import { Module, forwardRef } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
+import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
+import { FileUploadModule } from '@/file/file.module';
 import { Restaurant, RestaurantSchema } from '@/restaurant/schema/restaurant.schema';
-import { ReviewResolver } from './review.resolver';
 import { UserModule } from '@/user/user.module';
+
+import { DatabaseSyncConsumer } from './consumers/review.consumer';
+import { ReviewController } from './review.controller';
+import { ReviewResolver } from './review.resolver';
+import { ReviewService } from './review.service';
+import { Review, ReviewSchema } from './schema/review.schema';
 
 @Module({
   imports: [

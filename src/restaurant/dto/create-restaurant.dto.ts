@@ -1,8 +1,9 @@
+import { Field, InputType } from '@nestjs/graphql';
+import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+
 import { CreateAddressDto } from '@/dto/create-address.dto';
 import { CreateOpenHoursDto } from '@/dto/create-openHours.dto';
-import { Transform, Type } from 'class-transformer';
-import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class CreateRestaurantDto {

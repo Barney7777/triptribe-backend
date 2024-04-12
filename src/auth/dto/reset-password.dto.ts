@@ -1,5 +1,5 @@
-import { IsStrongPassword } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger/dist';
+import { IsStrongPassword } from 'class-validator';
 
 export class ResetPasswordDto {
   @ApiProperty({ example: 'Abc456789+', required: true })

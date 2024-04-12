@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { FileUploadService } from '@/file/file.service';
-import { ConfigService } from '@nestjs/config';
-import { PhotoType } from '@/schema/photo.schema';
-import { ReviewService } from '@/review/review.service';
-import { Restaurant } from '@/restaurant/schema/restaurant.schema';
-import { IRestaurant } from '@/restaurant/restaurant.service.spec';
 import { getQueueToken } from '@nestjs/bull';
+import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Model, Types } from 'mongoose';
+
 import { QUEUE_NAME_DATABASE_SYNC } from '@/common/constant/queue.constant';
+import { FileUploadService } from '@/file/file.service';
+import { IRestaurant } from '@/restaurant/restaurant.service.spec';
+import { Restaurant } from '@/restaurant/schema/restaurant.schema';
+import { ReviewService } from '@/review/review.service';
+import { PhotoType } from '@/schema/photo.schema';
 
 describe('ReviewService.checkPlaceExists', () => {
   let service: ReviewService;
