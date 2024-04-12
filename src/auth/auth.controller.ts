@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { BullBoardInstance, InjectBullBoard } from '@bull-board/nestjs';
+import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
 
 @Controller({
   path: 'auth',
@@ -130,7 +131,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User email validate successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @Post('verify')
-  async verifyUserEmail(@Body('token') token: string) {
+  async verifyUserEmail(@Body('token') token: SendVerificationEmailDto['token']) {
     const isEmailVerified = await this.authService.verifyEmail(token);
     return isEmailVerified;
   }
@@ -151,7 +152,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Check user email validate status successfully' })
   @Post('resend-email')
-  async refreshUserEmailToken(@Body('token') token: string, @Req() req) {
+  async refreshUserEmailToken(@Body('token') token: SendVerificationEmailDto['token'], @Req() req) {
     const hostname = req.hostname;
     return await this.authService.refreshEmailToken(token, hostname);
   }
@@ -172,7 +173,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Check user email validate status successfully' })
   @Post('resend')
-  async resendEmail(@Body('email') email: string, @Req() req) {
+  async resendEmail(@Body('email') email: SendVerificationEmailDto['email'], @Req() req) {
     const hostname = req.hostname;
     return await this.authService.resendEmail(email, hostname);
   }

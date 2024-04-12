@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from '@/user/user.service';
 import { UserDocument } from '@/user/schema/user.schema';
@@ -14,6 +15,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../user/schema/user.schema';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -184,21 +186,24 @@ export class AuthService {
     console.log('decodedata', decodedata);
     const email = decodedata.email;
     console.log('ResendEmail', email);
-    const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
-    const EMAIL_TOKEN_TIME = '7d';
-    const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
+
+    // const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
+    // const EMAIL_TOKEN_TIME = configuration().auth.emailTokenExpiration;
+    // const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
+    const newEmailToken = await this.userService.generateEmailAccessToken(email);
+
     const user = await this.userModel
       .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
       .exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const userId = await this.userModel.findOne({ email }).exec();
+    // const userId = await this.userModel.findOne({ email }).exec();
 
     await this.sendEmailQueue.add(
       QUEUE_PROCESS_REGISTER,
       {
-        userId,
+        userId: user,
         hostname,
       },
       { delay: 100 }
@@ -211,17 +216,22 @@ export class AuthService {
    * @param email
    * @param hostname
    */
-  async resendEmail(email: string, hostname: string) {
+  async resendEmail(
+    email: SendVerificationEmailDto['email'],
+    hostname: SendVerificationEmailDto['token']
+  ) {
     const user = await this.userModel.findOne({ email }).exec();
-    if (!user) throw new NotFoundException('User not found');
+    if (_.isNil(user)) return;
+    if (_.isUndefined(user.emailToken)) return;
 
-    const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
-    const EMAIL_TOKEN_TIME = '7d';
-    const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
+    const newEmailToken = await this.userService.generateEmailAccessToken(email);
+    // const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
+    // const EMAIL_TOKEN_TIME = '7d';
+    // const newEmailToken = await this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
     const updateUser = await this.userModel
       .findOneAndUpdate({ email }, { emailToken: newEmailToken }, { new: true })
       .exec();
-    console.log(updateUser);
+
     await this.sendEmailQueue.add(
       QUEUE_PROCESS_REGISTER,
       {

@@ -23,6 +23,7 @@ import { ResetPasswordDto } from '@/auth/dto/reset-password.dto';
 import { UserIdDto } from './dto/userId.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import { compareSync } from 'bcryptjs';
+import configuration from 'config/configuration';
 
 @Injectable()
 export class UserService {
@@ -74,7 +75,7 @@ export class UserService {
   //generate email accessToken
   async generateEmailAccessToken(email: string): Promise<string> {
     const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
-    const EMAIL_TOKEN_TIME = '7d';
+    const EMAIL_TOKEN_TIME = configuration().auth.emailTokenExpiration;
     return this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
   }
 
