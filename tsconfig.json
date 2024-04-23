@@ -23,7 +23,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "jest.config.ts"],
   "parserOptions": {
     "project": "./tsconfig.json"
   }
