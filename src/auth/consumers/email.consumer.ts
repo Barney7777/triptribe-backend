@@ -1,14 +1,14 @@
 import * as fs from 'fs';
-import {
-  TRIPTRIBE_LOGO_FILE_NAME,
-  TRIPTRIBE_TEXT_FILE_NAME,
-} from '@/common/constant/publicAssets.constant';
 
 import { Process, Processor } from '@nestjs/bull';
 import { NotFoundException } from '@nestjs/common';
 import { Job } from 'bull';
 import { createTransport } from 'nodemailer';
 
+import {
+  TRIPTRIBE_LOGO_FILE_NAME,
+  TRIPTRIBE_TEXT_FILE_NAME,
+} from '@/common/constant/publicAssets.constant';
 import { QUEUE_NAME_SEND_EMAIL, QUEUE_PROCESS_REGISTER } from '@/common/constant/queue.constant';
 import { UserService } from '@/user/user.service';
 

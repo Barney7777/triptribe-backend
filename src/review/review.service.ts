@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Queue } from 'bull';
 import { Model, Types } from 'mongoose';
+import xss from 'xss';
 
 import { Attraction, AttractionDocument } from '@/attraction/schema/attraction.schema';
 import { DEFAULT_REVIEW_LIMIT, DEFAULT_SKIP } from '@/common/constant/pagination.constant';
@@ -59,6 +60,9 @@ export class ReviewService {
 
       photoDocuments = uploadResults.map((photo) => photo.data);
     }
+
+    // sanitize review description
+    reviewDto.description = xss(reviewDto.description);
 
     // spread reviewDto and put "photos" and "userId" together in reviewData
     const reviewData: IReview = { ...reviewDto, userId, photos: photoDocuments };
