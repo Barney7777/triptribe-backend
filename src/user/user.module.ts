@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Attraction, AttractionSchema } from '@/attraction/schema/attraction.schema';
@@ -13,6 +14,7 @@ import { UserService } from './user.service';
 
 @Module({
   imports: [
+    ConfigModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Restaurant.name, schema: RestaurantSchema },

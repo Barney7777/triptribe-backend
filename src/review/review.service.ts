@@ -172,7 +172,7 @@ export class ReviewService {
     }
     const { limit = DEFAULT_REVIEW_LIMIT, skip = DEFAULT_SKIP } = query;
     const total = await this.reviewModel.countDocuments({ placeType, placeId }).exec();
-    const pageCount = Math.floor((total - 1) / limit) + 1;
+    const pageCount = Math.ceil(total / limit);
 
     const reviews = await this.reviewModel
       .find({ placeId, placeType })

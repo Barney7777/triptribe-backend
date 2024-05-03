@@ -4,6 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { compareSync } from 'bcryptjs';
@@ -16,7 +17,6 @@ import { ResetPasswordDto } from '@/auth/dto/reset-password.dto';
 import { FileUploadService } from '@/file/file.service';
 import { Restaurant } from '@/restaurant/schema/restaurant.schema';
 import { PhotoType } from '@/schema/photo.schema';
-import configuration from 'config/configuration';
 
 import { deleteSavedPlaceDto } from './dto/delete-save-place.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
@@ -33,7 +33,8 @@ export class UserService {
     @InjectModel(Restaurant.name) private restaurantModel: Model<Restaurant>,
     @InjectModel(Attraction.name) private attractionModel: Model<Attraction>,
     private fileUploadService: FileUploadService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private configService: ConfigService
   ) {}
 
   getMe(currentUser): User {
@@ -76,7 +77,7 @@ export class UserService {
   //generate email accessToken
   async generateEmailAccessToken(email: string): Promise<string> {
     const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
-    const EMAIL_TOKEN_TIME = configuration().auth.emailTokenExpiration;
+    const EMAIL_TOKEN_TIME = this.configService.get('auth.emailTokenExpiration');
     return this.jwtService.signAsync(payload, { expiresIn: EMAIL_TOKEN_TIME });
   }
 

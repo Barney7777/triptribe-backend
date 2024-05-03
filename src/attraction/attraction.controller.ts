@@ -7,7 +7,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -37,7 +36,6 @@ import { FileValidationInterceptor } from '@/file/file-validation.interceptor';
 import { ReviewService } from '@/review/review.service';
 import { ReviewCreator } from '@/review/types/interfaces/review-creator';
 import { PhotoType } from '@/schema/photo.schema';
-import { AllExceptionsFilter } from '@/utils/allExceptions.filter';
 
 import { AttractionService } from './attraction.service';
 import { CreateAttractionDto } from './dto/create-attraction.dto';
@@ -51,7 +49,6 @@ import { RatingDistribution } from './types/interfaces/ratingDistribution.interf
   version: '1',
 })
 @ApiTags('attractions')
-@UseFilters(AllExceptionsFilter)
 export class AttractionController {
   constructor(
     private readonly attractionService: AttractionService,

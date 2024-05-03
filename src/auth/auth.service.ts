@@ -1,5 +1,11 @@
 import { InjectQueue } from '@nestjs/bull';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Queue } from 'bull';
@@ -12,7 +18,6 @@ import { UserIdDto } from '@/user/dto/userId.dto';
 import { UserDocument, User } from '@/user/schema/user.schema';
 import { UserService } from '@/user/user.service';
 
-import { EmailConsumer } from './consumers/email.consumer';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
@@ -20,9 +25,9 @@ import { SendVerificationEmailDto } from './dto/send-verification-email.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    private configService: ConfigService,
     private readonly userService: UserService,
     private jwtService: JwtService,
-    private readonly emailConsumer: EmailConsumer,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectQueue('send-email') private sendEmailQueue: Queue
   ) {}
@@ -60,22 +65,24 @@ export class AuthService {
   //generate accessToken
   async generateAccessToken(userId: string): Promise<string> {
     const payload = { sub: userId };
-    const ACCESS_TOKEN_TIME = '12h';
-    return this.jwtService.signAsync(payload, { expiresIn: ACCESS_TOKEN_TIME });
+    return this.jwtService.signAsync(payload, {
+      expiresIn: this.configService.get('auth.accessTokenExpiresIn'),
+    });
   }
 
   //generate refreshToken
   async generateRefreshToken(userId: string): Promise<string> {
     const payload = { sub: userId };
-    const REFRESH_TOKEN_TIME = '1d';
-    return this.jwtService.signAsync(payload, { expiresIn: REFRESH_TOKEN_TIME });
+    return this.jwtService.signAsync(payload, {
+      expiresIn: this.configService.get('auth.refreshTokenExpiresIn'),
+    });
   }
 
   //use refreshToken to get a new accessToken
   async refreshToken(refreshToken: string) {
     //verify refreshToken
     if (!refreshToken) {
-      return { message: 'Refresh token miss' };
+      throw new UnauthorizedException('Refresh token miss');
     }
 
     // must Assertion sub and exp exist in decodedToken object
@@ -87,39 +94,30 @@ export class AuthService {
     } | null;
 
     if (!decodedToken) {
-      return { message: 'Invalid Refresh Token' };
+      throw new UnauthorizedException('Invalid Refresh Token');
     }
 
-    // //if refresh_token expired, return expired
-    // if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
-    //   return { message: 'Refresh Token is expired' };
-    // }
-
-    // using dayjs, if refresh_token expired, return expired
+    // using dayjs, if refresh_token expired, return 'Refresh Token is expired'
     // get expireTime
     const expirationTime = unix(decodedToken.exp);
     // get currentTime
     const currentTime = dayjs();
-
     // dayjs isBefore API to compare
     if (expirationTime.isBefore(currentTime)) {
-      return { message: 'Refresh Token is expired' };
+      throw new UnauthorizedException('Refresh Token is expired');
     }
 
-    // if not expired, find userId from 'sub', then find user
+    // find userId from 'sub', then find user
     const userId = decodedToken.sub;
-
     const foundUser = await this.userService.findOne(userId);
-
-    //if user not exist ,return fake Token
+    //if user not exist ,throw an  unauthorizedException with message 'fake Token'
     if (!foundUser) {
-      return { message: 'Fake Token' };
+      throw new UnauthorizedException('User not found');
     }
 
-    //if user exist, generate a new accessToken and return
+    //if user exist and refresh token not expired, generate a new accessToken and return
     const accessToken = await this.generateAccessToken(String(userId));
-
-    return { accessToken };
+    return { accessToken: accessToken };
   }
 
   async resetPassword(userId: UserIdDto['_id'], newPassword: ResetPasswordDto) {
