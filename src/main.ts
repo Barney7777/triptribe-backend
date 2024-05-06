@@ -1,4 +1,4 @@
-import { VersioningType, ValidationPipe } from '@nestjs/common';
+import { VersioningType, ValidationPipe, RequestMethod } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -45,7 +45,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // set global REST api prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: 'health-check', method: RequestMethod.GET }],
+  });
 
   // enable REST api version
   app.enableVersioning({

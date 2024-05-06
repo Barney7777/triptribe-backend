@@ -220,7 +220,7 @@ export class AuthService {
   ) {
     const user = await this.userModel.findOne({ email }).exec();
     if (_.isNil(user)) return;
-    if (_.isUndefined(user.emailToken)) return;
+    if (_.isUndefined(user?.emailToken)) return;
 
     const newEmailToken = await this.userService.generateEmailAccessToken(email);
     // const payload = { sub: email, iat: Math.floor(Date.now() / 1000) };
