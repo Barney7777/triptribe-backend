@@ -39,10 +39,8 @@ export class FakerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async connectToDatabase(): Promise<void> {
-    const DATABASE_URL = `mongodb://${this.configService.get(
-      'database.host'
-    )}:${this.configService.get('database.port')}/${this.configService.get('database.name')}`;
-    await mongoose.connect(DATABASE_URL);
+    const DATABASE_URI = this.configService.get('database.uri');
+    await mongoose.connect(DATABASE_URI);
     console.log('Connected to MongoDB');
   }
 

@@ -34,9 +34,7 @@ import configuration from '../config/configuration';
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get('database.host')}:${configService.get(
-          'database.port'
-        )}/${configService.get('database.name')}`,
+        uri: configService.get('database.uri'),
       }),
     }),
     ThrottlerModule.forRoot([
