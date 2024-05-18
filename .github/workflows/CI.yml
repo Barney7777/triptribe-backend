@@ -108,7 +108,16 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.BACKEND_REPO }}
       IMAGE_TAG: ${{ github.sha }}
       AWS_DEFAULT_REGION: ap-southeast-2
-    
+      DATABASE_URI: ${{ secrets.DATABASE_URI }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
+      MAX_FILES: ${{ secrets.MAX_FILES }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      PUBLIC_ASSETS_URL: ${{ secrets.PUBLIC_ASSETS_URL }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
