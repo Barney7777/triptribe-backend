@@ -177,10 +177,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env: 
-      ECS_SERVICE: quiz-app-dev-ecs-service 
-      ECS_CLUSTER: quiz-app-dev-ecs-cluster
-      ECS_TASK_DEFINITION: quiz-app-dev-td
-      ECS_CONTAINER_NAME: quiz-app-dev-container
+      ECS_SERVICE: triptribe-dev-ecs-service 
+      ECS_CLUSTER: triptribe-dev-ecs-cluster
+      ECS_TASK_DEFINITION: triptribe-dev-td
+      ECS_CONTAINER_NAME: triptribe-dev-container
       AWS_DEFAULT_REGION: ap-southeast-2
       ECR_REPOSITORY: ${{ secrets.Backend_REPO }}
       IMAGE_TAG: ${{ github.sha }}
