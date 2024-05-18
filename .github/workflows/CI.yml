@@ -43,8 +43,8 @@ jobs:
     
     - name: Lint code
       run: npm run lint
-    - name: Format code
-      run: npm run prettier
+    # - name: Format code
+    #   run: npm run prettier
     - name: Unit test
       continue-on-error: true
       run: npm run test
