@@ -1,14 +1,45 @@
 # Base image
 FROM node:18-alpine
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 # Install app dependencies
 RUN npm install
 # Bundle app source
 COPY . .
-# Creates a "dist" folder with the production build
+
+ARG NODE_ENV
+ARG PORT
+ARG DATABASE_URI
+ARG S3_BUCKET_NAME
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_DEFAULT_REGION
+ARG JWT_SECRET
+ARG PUBLIC_ASSETS_URL
+ARG SENTRY_DSN
+ARG MAX_FILE_SIZE
+ARG MAX_FILES
+
+
+ENV NODE_ENV=${NODE_ENV}
+ENV PORT=${PORT}
+ENV DATABASE_URI=${DATABASE_URI}
+ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+ENV AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+ENV JWT_SECRET=${JWT_SECRET}
+ENV PUBLIC_ASSETS_URL=${PUBLIC_ASSETS_URL}
+ENV SENTRY_DSN=${SENTRY_DSN}
+ENV MAX_FILE_SIZE=${MAX_FILE_SIZE}
+ENV MAX_FILES=${MAX_FILES}
+
+
+
+
 RUN npm run build
+
 # Start the server using the production build
 CMD [ "npm", "run", "start:prod" ]

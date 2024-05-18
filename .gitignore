@@ -40,3 +40,4 @@ lerna-debug.log*
 # S3 Confirg file
 .env
 .env.development
+build.sh
