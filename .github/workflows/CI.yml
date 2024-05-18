@@ -138,9 +138,9 @@ jobs:
       id: build-image
       run: |
         echo "Building Docker Image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        # chmod +x build.sh
-        # ./build.sh
+        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        chmod +x build.sh
+        ./build.sh
     
     - name: Image Scan
       id: scan-image
